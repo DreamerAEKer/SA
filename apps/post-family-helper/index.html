@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>สมัครสมาชิก POST Family - ยินดีต้อนรับ</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anuphan:wght@300;400;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <span class="post">POST</span><span class="family">Family</span>
+            </div>
+        </header>
+
+        <main>
+            <section class="hero">
+                <h1>ร่วมเป็นครอบครัวเดียวกันกับเรา</h1>
+                <p>สิทธิพิเศษมากมายรอคุณอยู่ที่ POST Family</p>
+                <div id="referrer-info" style="display: none; margin-top: 15px; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; font-size: 0.9em; border: 1px dashed rgba(255,255,255,0.3);">
+                    คุณได้รับคำแนะนำจากคุณ: <strong id="referrer-name"></strong>
+                </div>
+            </section>
+
+            <section class="referral-card">
+                <div class="card-header">ข้อมูลผู้แนะนำ</div>
+                <div class="card-body">
+                    <div class="referral-item">
+                        <label>หมายเลขสมาชิกที่แนะนำ</label>
+                        <div class="copy-box">
+                            <span class="prefix">THP-</span>
+                            <input type="text" id="ref-code" value="50000503" maxlength="8" readonly>
+                            <button onclick="copyToClipboard('ref-code', 'btn-ref')" id="btn-ref">คัดลอก</button>
+                        </div>
+                    </div>
+
+                    <div class="referral-item zip-highlight">
+                        <label>รหัสไปรษณีย์ที่แนะนำ</label>
+                        <div class="zip-badge">10501</div>
+                        <p class="zip-note">จำง่ายๆ: <strong>"10501"</strong> (กรอกในช่อง <strong>"รหัสไปรษณีย์ที่แนะนำ"</strong>)</p>
+                    </div>
+                </div>
+            </section>
+
+            <div class="action-area">
+                <a href="https://praisanee.my.site.com/postfamily/Signup" target="_blank" class="main-btn">
+                    ไปยังหน้าสมัครสมาชิก
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14m-7-7 7 7-7 7"/></svg>
+                </a>
+            </div>
+
+            <section class="instructions">
+                <h2>ขั้นตอนการกรอกข้อมูล:</h2>
+                <ol>
+                    <li>กดปุ่ม <strong>"ไปยังหน้าสมัครสมาชิก"</strong> ด้านบน</li>
+                    <li>กด <strong>"ยอมรับเงื่อนไข"</strong></li>
+                    <li>ในหน้า <strong>"ข้อมูลส่วนตัว"</strong> ให้มองหาช่อง <strong>"หมายเลขสมาชิกที่แนะนำ"</strong> และ <strong>"รหัสไปรษณีย์ที่แนะนำ"</strong></li>
+                    <li><strong>กดวาง (Paste)</strong> หมายเลขสมาชิกที่<strong>คัดลอกมาลงในช่องแรก</strong></li>
+                    <li><strong>โปรดกรอกตัวเลข 10501</strong> ลงในช่อง<strong>รหัสไปรษณีย์ที่แนะนำ</strong></li>
+                </ol>
+            </section>
+        </main>
+
+        <footer>
+            <p>&copy; 2026 POST Family Helper</p>
+        </footer>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>

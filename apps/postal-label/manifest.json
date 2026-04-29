@@ -1,0 +1,11 @@
+{
+  "id": "postal-label",
+  "name": "ใบนำส่งไปรษณีย์",
+  "description": "พิมพ์ใบนำส่งไปรษณียภัณฑ์ไม่มีจ่าหน้า",
+  "icon": "📮",
+  "color": "#2563eb",
+  "version": "1.0",
+  "entry": "index.html",
+  "roles": ["admin", "customer"],
+  "active": true
+}

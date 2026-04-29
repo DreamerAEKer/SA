@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ใบสรุปอัตราค่าบริการ EMS และ eCo Post (ฉบับเร่งด่วน)</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary-color: #003366;
+            --ems-color: #e31e24;
+            --eco-color: #00a1e4;
+            --bg-color: #f8f9fa;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .a4-page {
+            width: 210mm;
+            min-height: 297mm;
+            padding: 10mm;
+            margin: 10px auto;
+            background: white;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .no-print {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        @media print {
+            @page { margin: 15mm; }
+            body { background: white; padding: 0; margin: 0; }
+            .a4-page { 
+                box-shadow: none; 
+                margin: 0; 
+                width: 100%; 
+                min-height: auto; 
+                padding: 0;
+                border: none;
+            }
+            .no-print, .no-print * { 
+                display: none !important; 
+                height: 0 !important; 
+                margin: 0 !important; 
+                padding: 0 !important;
+                visibility: hidden !important;
+            }
+            table { font-size: 10px; margin-bottom: 20px; }
+            th, td { padding: 4px 2px; }
+            .section-title { margin: 15px 0 10px; padding: 5px 10px; }
+            .info-container { gap: 15px; margin-top: 10px; }
+            thead { display: table-header-group; }
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 3px solid var(--primary-color);
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            color: var(--primary-color);
+        }
+
+        .header p {
+            margin: 5px 0 0;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0 5px;
+            padding: 5px 10px;
+            background: #eee;
+            border-left: 5px solid var(--primary-color);
+            font-size: 14px;
+        }
+
+        .section-title.ems { border-left-color: var(--ems-color); background: #fff5f5; }
+        .section-title.eco { border-left-color: var(--eco-color); background: #f0faff; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10.5px;
+            margin-bottom: 15px;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 4px 2px;
+            text-align: center;
+        }
+
+        th {
+            background-color: #f2f2f2;
+            font-weight: 700;
+        }
+
+        .col-weight { width: 12%; background: #fafafa; }
+        .col-base { width: 12%; font-weight: 400; color: #888; }
+        
+        /* Column Highlights */
+        .col-advice { width: 20%; background-color: #fffde7; color: #888; font-weight: 400; } /* Light Yellow */
+        .col-sur { width: 25%; background-color: #fff0f0; color: #d32f2f; font-weight: 600; }    /* Light Red */
+        .col-total { width: 25%; background-color: #ffebee; font-weight: bold; color: #d32f2f; } /* Stronger Red */
+        th.col-advice, th.col-sur, th.col-total { color: #333; } /* Keep header text default */
+
+        .surcharge-note {
+            font-size: 9px;
+            color: #333;
+            text-align: right;
+            margin-top: -5px;
+            margin-bottom: 5px;
+        }
+
+        .footer {
+            margin-top: auto;
+            font-size: 9px;
+            color: #999;
+            text-align: center;
+            border-top: 1px dashed #ddd;
+            padding-top: 5px;
+        }
+
+        .ems-text { color: var(--ems-color); font-weight: bold; }
+        .eco-text { color: var(--eco-color); font-weight: bold; }
+        .red-text { color: #d32f2f; }
+
+        /* New Info Section Layout */
+        .info-container {
+            display: flex;
+            gap: 15px;
+            margin-top: 5px;
+            border-top: 2px solid #eee;
+            padding-top: 10px;
+        }
+
+        .info-box {
+            flex: 1;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fafafa;
+        }
+
+        .info-box h3 {
+            margin: 0 0 5px;
+            font-size: 13px;
+            color: var(--primary-color);
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 3px;
+        }
+
+        .info-box ul {
+            margin: 0;
+            padding: 0 0 0 15px;
+            font-size: 10px;
+            line-height: 1.4;
+        }
+
+        .remote-area-section {
+            flex: 1.5;
+            padding: 8px;
+            border: 1px solid #ffe082;
+            border-radius: 5px;
+            background: #fffdf7;
+        }
+
+        .remote-area-section h3 {
+            margin: 0 0 5px;
+            font-size: 13px;
+            color: #856404;
+            border-bottom: 1px solid #ffe082;
+            padding-bottom: 3px;
+        }
+
+        .remote-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2px;
+            font-size: 9px;
+            color: #555;
+        }
+
+        .remote-item {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .remote-item span { font-weight: bold; color: #856404; }
+
+        .vol-calc {
+            background: #f0f4f8;
+            padding: 5px;
+            border-radius: 4px;
+            margin-top: 5px;
+            font-size: 9px;
+            border-left: 3px solid #3498db;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="no-print">
+        <button onclick="window.location.href='thailand-post-rates.html'" style="padding: 10px 20px; cursor: pointer; background: #6c757d; color: white; border: none; border-radius: 5px; font-family: 'Sarabun', sans-serif;">⬅️ กลับหน้าเครื่องคำนวณ</button>
+        <button onclick="window.print()" style="padding: 10px 20px; cursor: pointer; background: #003366; color: white; border: none; border-radius: 5px; font-family: 'Sarabun', sans-serif;">พิมพ์ใบราคา (Print to PDF)</button>
+    </div>
+
+    <div class="a4-page">
+        <div class="header">
+            <h1>ใบแจ้งอัตราค่าบริการพื้นฐาน (EMS & eCo Post)</h1>
+            <p>อัพเดทข้อมูล ณ วันที่ 16 เมษายน 2569 (รวมค่าธรรมเนียมพิเศษ)</p>
+        </div>
+
+        <!-- EMS Section -->
+        <div class="section-title ems">
+            <span class="ems-text">1. บริการ EMS ในประเทศ</span> (พิกัดสูงสุด 30 กก.)
+        </div>
+        <div class="surcharge-note"><span class="red-text">* เซอร์ชาร์จค่าเชื้อเพลิง (+3 บาท)</span> | ค่าตอบรับ (EMS +12 บาท / eCo Post +3 บาท)</div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th rowspan="2" class="col-weight">พิกัดน้ำหนัก<br>(กรัม)</th>
+                    <th rowspan="2" class="col-base">ราคาปกติ</th>
+                    <th colspan="3">ราคารวมบริการเสริม (บาท)</th>
+                </tr>
+                <tr>
+                    <th class="col-advice">ปกติ + ตอบรับ<br>(+12)</th>
+                    <th class="col-sur">ปกติ + <span class="red-text">Fuel Surcharge</span><br>(+<span class="red-text">3</span>)</th>
+                    <th class="col-total">ปกติ + ตอบรับ + <span class="red-text">Fuel Surcharge</span><br>(12+<span class="red-text">3</span>=15)</th>
+                </tr>
+            </thead>
+            <tbody id="ems-body"></tbody>
+        </table>
+
+        <!-- eCo Post Section -->
+        <div class="section-title eco" style="margin-top: 5px;">
+            <span class="eco-text">2. บริการ eCo Post ในประเทศ</span> (พิกัดสูงสุด 10 กก.)
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th rowspan="2" class="col-weight">พิกัดน้ำหนัก<br>(กรัม)</th>
+                    <th rowspan="2" class="col-base">ราคาปกติ</th>
+                    <th colspan="3">ราคารวมบริการเสริม (บาท)</th>
+                </tr>
+                <tr>
+                    <th class="col-advice">ปกติ + ตอบรับ<br>(+3)</th>
+                    <th class="col-sur">ปกติ + <span class="red-text">Fuel Surcharge</span><br>(+<span class="red-text">3</span>)</th>
+                    <th class="col-total">ปกติ + ตอบรับ + <span class="red-text">Fuel Surcharge</span><br>(3+<span class="red-text">3</span>=6)</th>
+                </tr>
+            </thead>
+            <tbody id="eco-body"></tbody>
+        </table>
+
+        <!-- New Supplemental Info Container -->
+        <div class="info-container">
+            <!-- Service Details -->
+            <div class="info-box">
+                <h3>📢 ข้อกำหนดและรายละเอียด</h3>
+                <div style="margin-bottom: 8px;">
+                    <strong class="ems-text">⚡ EMS ในประเทศ:</strong>
+                    <ul>
+                        <li>ประกันกรณีสูญหาย: <strong>สูงสุด 2,000 บาท</strong></li>
+                        <li>ขนาดปกติ: กว้าง+ยาว+สูง &le; 120 ซม. (ด้านยาวสุด &le; 60 ซม.)</li>
+                        <li>ขนาดเกิน: หากเกินเกณฑ์ปกติ รับฝากได้แต่ต้องรวมกัน &le; <strong>240 ซม.</strong></li>
+                    </ul>
+                    <div class="vol-calc">
+                        <strong>การคำนวณน้ำหนักปริมาตร (EMS):</strong><br>
+                        หากมีด้านใดยาวเกิน 60 ซม. จะคิดราคาตามนน. ปริมาตร:<br>
+                        (กว้าง x ยาว x สูง) / 6000 (หากสูงกว่านน. จริง)
+                    </div>
+                </div>
+                <div>
+                    <strong class="eco-text">📬 eCo Post (ราคาประหยัด):</strong>
+                    <ul>
+                        <li>ประกันกรณีสูญหาย: <strong>สูงสุด 1,500 บาท</strong></li>
+                        <li>ขนาดสูงสุด: กว้าง+ยาว+สูง &le; 120 ซม. (ด้านยาวสุด &le; 60 ซม.)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Remote Areas -->
+            <div class="remote-area-section">
+                <h3>⚠️ พื้นที่ห่างไกล / เกาะ (บวกเพิ่ม 20 บาท)</h3>
+                <p style="font-size: 9px; color: #666; margin: 0 0 5px;">โปรดตรวจสอบรหัสไปรษณีย์ปลายทางดังต่อไปนี้:</p>
+                <div class="remote-grid">
+                    <div class="remote-item"><span>20120</span> เกาะสีชัง</div><div class="remote-item"><span>20150</span> เกาะล้าน</div>
+                    <div class="remote-item"><span>21160</span> เกาะเสม็ด</div><div class="remote-item"><span>23000</span> เกาะกูด</div>
+                    <div class="remote-item"><span>23120</span> เกาะหมาก</div><div class="remote-item"><span>23170</span> เกาะช้าง</div>
+                    <div class="remote-item"><span>50250</span> สะเมิง</div><div class="remote-item"><span>50310</span> อมก๋อย</div>
+                    <div class="remote-item"><span>50350</span> เวียงแหง</div><div class="remote-item"><span>55130</span> ทุ่งช้าง</div>
+                    <div class="remote-item"><span>55220</span> บ่อเกลือ</div><div class="remote-item"><span>57170</span> เวียงป่าเป้า</div>
+                    <div class="remote-item"><span>57180</span> แม่สรวย</div><div class="remote-item"><span>57260</span> แม่เจดีย์</div>
+                    <div class="remote-item"><span>57310</span> เวียงแก่น</div><div class="remote-item"><span>57340</span> ขุนตาล</div>
+                    <div class="remote-item"><span>58000</span> แม่ฮ่องสอน</div><div class="remote-item"><span>58110</span> แม่สะเรียง</div>
+                    <div class="remote-item"><span>58120</span> แม่ลาน้อย</div><div class="remote-item"><span>58130</span> ปาย</div>
+                    <div class="remote-item"><span>58140</span> ขุนยวม</div><div class="remote-item"><span>58150</span> ปางมะผ้า</div>
+                    <div class="remote-item"><span>63150</span> ท่าสองยาง</div><div class="remote-item"><span>63170</span> อุ้มผาง</div>
+                    <div class="remote-item"><span>71180</span> ทองผาภูมิ</div><div class="remote-item"><span>71240</span> สังขละบุรี</div>
+                    <div class="remote-item"><span>81130</span> เกาะศรีบอยา</div><div class="remote-item"><span>81150</span> เกาะลันตา</div>
+                    <div class="remote-item"><span>81210</span> เกาะพีพี</div><div class="remote-item"><span>82000</span> เกาะปันหยี</div>
+                    <div class="remote-item"><span>82160</span> เกาะยาว</div><div class="remote-item"><span>83000</span> ภูเก็ต</div>
+                    <div class="remote-item"><span>83100</span> กะรน</div><div class="remote-item"><span>83110</span> ถลาง</div>
+                    <div class="remote-item"><span>83120</span> กระทู้</div><div class="remote-item"><span>83130</span> ราไวย์</div>
+                    <div class="remote-item"><span>83150</span> ป่าตอง</div><div class="remote-item"><span>84140</span> เกาะสมุย</div>
+                    <div class="remote-item"><span>84220</span> เกาะพลวย</div><div class="remote-item"><span>84280</span> เกาะพะงัน</div>
+                    <div class="remote-item"><span>84310</span> ละไม</div><div class="remote-item"><span>84320</span> เฉวง</div>
+                    <div class="remote-item"><span>84330</span> แม่น้ำ</div><div class="remote-item"><span>84360</span> เกาะเต่า</div>
+                    <div class="remote-item"><span>85000</span> เกาะพยาม</div><div class="remote-item"><span>91000</span> เกาะสาหร่าย</div>
+                    <div class="remote-item"><span>91110</span> เกาะหลีเป๊ะ</div><div class="remote-item"><span>92110</span> เกาะมุก</div>
+                    <div class="remote-item"><span>94000</span> ปัตตานี</div><div class="remote-item"><span>95000</span> ยะลา</div>
+                    <div class="remote-item"><span>95110</span> เบตง</div><div class="remote-item"><span>96000</span> นราธิวาส</div>
+                    <div class="remote-item"><span>96120</span> สุไหงโกลก</div><div class="remote-item"><span>96150</span> รือเสาะ</div>
+                </div>
+                <p style="font-size: 8px; color: #999; margin-top: 5px;">* รวมถึงพื้นที่เกาะอื่นๆ และพื้นที่ที่ประกาศโดย ปณท. เพิ่มเติม</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const emsData = [
+            {w: 20, p: 32}, {w: 100, p: 37}, {w: 250, p: 42}, {w: 500, p: 52}, {w: 1000, p: 67},
+            {w: 1500, p: 82}, {w: 2000, p: 97}, {w: 2500, p: 100}, {w: 3000, p: 105}, {w: 3500, p: 110},
+            {w: 4000, p: 120}, {w: 5000, p: 120}, {w: 5500, p: 130}, {w: 6000, p: 140}, {w: 6500, p: 150},
+            {w: 7000, p: 160}, {w: 7500, p: 170}, {w: 8000, p: 180}, {w: 8500, p: 190}, {w: 9000, p: 200},
+            {w: 9500, p: 210}, {w: 10000, p: 220}, {w: 11000, p: 230}, {w: 12000, p: 240}, {w: 13000, p: 250},
+            {w: 14000, p: 260}, {w: 15000, p: 270}, {w: 16000, p: 280}, {w: 17000, p: 290}, {w: 18000, p: 300},
+            {w: 19000, p: 310}, {w: 20000, p: 320}, {w: 21000, p: 330}, {w: 22000, p: 340}, {w: 23000, p: 350},
+            {w: 24000, p: 360}, {w: 25000, p: 380}, {w: 26000, p: 400}, {w: 27000, p: 420}, {w: 28000, p: 440},
+            {w: 29000, p: 460}, {w: 30000, p: 480}
+        ];
+
+        const ecoData = [
+            {w: 20, p: 20}, {w: 100, p: 22}, {w: 250, p: 26}, {w: 500, p: 30}, {w: 1000, p: 40},
+            {w: 2000, p: 60}, {w: 4000, p: 80}, {w: 6000, p: 120}, {w: 10000, p: 160}
+        ];
+
+        function renderRows(data, targetId, responseFee, fuelFee = 3) {
+            const body = document.getElementById(targetId);
+            body.innerHTML = data.map(item => `
+                <tr>
+                    <td class="col-weight">${item.w.toLocaleString()}</td>
+                    <td class="col-base">${item.p}</td>
+                    <td class="col-advice">${item.p + responseFee}</td>
+                    <td class="col-sur">${item.p + fuelFee}</td>
+                    <td class="col-total">${item.p + responseFee + fuelFee}</td>
+                </tr>
+            `).join('');
+        }
+
+        renderRows(emsData, 'ems-body', 12);
+        renderRows(ecoData, 'eco-body', 3);
+    </script>
+</body>
+</html>

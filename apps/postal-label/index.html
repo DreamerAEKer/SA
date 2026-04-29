@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ใบนำส่งไปรษณีย์</title>
+  <link rel="stylesheet" href="../../core/style.css">
+  <style>
+    body { display:flex; flex-direction:column; min-height:100vh; }
+    .topbar {
+      background:white; border-bottom:1px solid var(--border);
+      padding:.875rem 1.5rem; display:flex; align-items:center; gap:1rem;
+    }
+    .topbar a { color:var(--muted); font-size:.875rem; text-decoration:none; }
+    .topbar a:hover { color:var(--text); }
+    .topbar-title { font-weight:600; font-size:1rem; }
+    .placeholder {
+      flex:1; display:flex; flex-direction:column;
+      align-items:center; justify-content:center;
+      text-align:center; padding:3rem;
+    }
+    .placeholder-icon { font-size:4rem; margin-bottom:1rem; }
+    .placeholder h2 { font-size:1.25rem; font-weight:700; margin-bottom:.5rem; }
+    .placeholder p  { color:var(--muted); font-size:.9rem; }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <a href="../../dashboard.html">← กลับหน้าหลัก</a>
+    <span style="color:var(--border)">|</span>
+    <span class="topbar-title">📮 ใบนำส่งไปรษณีย์</span>
+  </div>
+  <div class="placeholder">
+    <div class="placeholder-icon">📮</div>
+    <h2>ใบนำส่งไปรษณีย์</h2>
+    <p>วางโค้ดแอปจริงที่นี่<br>แทนไฟล์ index.html นี้ด้วยแอปที่พัฒนาไว้แล้ว</p>
+  </div>
+  <script src="../../core/config.js"></script>
+  <script src="../../core/auth.js"></script>
+  <script>requireAuth('../../index.html');</script>
+</body>
+</html>

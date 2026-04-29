@@ -1,0 +1,17 @@
+# System
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+
+# Node / Vite — ไม่ commit node_modules แต่ commit dist/
+**/node_modules/
+
+# Claude Code settings (local only)
+.claude/
+
+# ไม่ต้อง deploy เครื่องมือ dev ขึ้น GitHub Pages
+tools/

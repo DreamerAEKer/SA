@@ -1,0 +1,2824 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee & Equipment Manager</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Icons -->
+    <link href="https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary: #ED1C24;
+            /* Thailand Post Red */
+            --primary-glow: rgba(237, 28, 36, 0.3);
+            --secondary: #1E293B;
+            /* Dark Slate */
+            --bg-dark: #F8FAFC;
+            /* Light Background */
+            --bg-card: #FFFFFF;
+            /* White Card */
+            --text-main: #334155;
+            /* Slate 700 */
+            --text-muted: #64748B;
+            /* Slate 500 */
+            --border: #E2E8F0;
+            /* Light Border */
+            --glass: blur(12px);
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            color-scheme: light;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            background-image:
+                radial-gradient(circle at 10% 20%, rgba(237, 28, 36, 0.03) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(100, 116, 139, 0.05) 0%, transparent 40%);
+        }
+
+        /* Layout */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 260px;
+            background: var(--bg-card);
+            backdrop-filter: var(--glass);
+            border-right: 1px solid var(--border);
+            padding: 2rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            position: fixed;
+            height: 100vh;
+            z-index: 100;
+        }
+
+        .brand {
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-menu {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item {
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            cursor: pointer;
+            color: var(--text-muted);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 0.95rem;
+            font-weight: 500;
+        }
+
+        .nav-item:hover,
+        .nav-item.active {
+            background: rgba(237, 28, 36, 0.08);
+            color: var(--primary);
+            box-shadow: 0 0 20px rgba(237, 28, 36, 0.05);
+        }
+
+        .nav-item i {
+            font-size: 1.25rem;
+        }
+
+        /* Main Content */
+        .main-content {
+            margin-left: 260px;
+            flex: 1;
+            padding: 2rem 3rem;
+        }
+
+        header {
+            margin-bottom: 2.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .page-title h1 {
+            font-size: 1.8rem;
+            font-weight: 600;
+        }
+
+        .page-title p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: var(--glass);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0.5rem 0;
+            color: var(--text-main);
+        }
+
+        .stat-label {
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            background: var(--bg-card);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px var(--primary-glow);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        .btn-secondary:hover {
+            background: #F8FAFC;
+            box-shadow: none;
+            color: var(--primary);
+            border-color: var(--primary);
+        }
+
+        /* Tables & Lists */
+        .data-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        th {
+            background: #F1F5F9;
+            padding: 1.25rem 1.5rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 1.25rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            color: var(--text-main);
+        }
+
+        tr:last-child td {
+            border-bottom: none;
+        }
+
+        tr:hover td {
+            background: #F8FAFC;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .status-available {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
+
+        .status-assigned {
+            background: rgba(30, 41, 59, 0.1);
+            color: #334155;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transition: var(--transition);
+        }
+
+        .modal-overlay.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .modal {
+            background: #ffffff;
+            width: 500px;
+            max-height: 85vh;
+            overflow-y: auto;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 2rem;
+            transform: translateY(20px);
+            transition: var(--transition);
+        }
+
+        .modal-overlay.open .modal {
+            transform: translateY(0);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-input,
+        .form-select {
+            width: 100%;
+            background: #ffffff;
+            border: 1px solid var(--border);
+            padding: 0.75rem;
+            border-radius: 8px;
+            color: var(--text-main);
+            font-size: 1rem;
+            outline: none;
+            transition: var(--transition);
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+        }
+
+        /* Empty State */
+        .empty-state {
+            padding: 3rem;
+            text-align: center;
+            color: var(--text-muted);
+            color: var(--text-muted);
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 1rem;
+        }
+
+        .tab-btn {
+            padding: 0.5rem 1rem;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            font-size: 1rem;
+            transition: var(--transition);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        /* Drag and Drop */
+        .draggable-tag {
+            cursor: grab;
+            touch-action: none;
+            /* Prevent scroll on touch drag */
+            transition: transform 0.2s, box-shadow 0.2s;
+            user-select: none;
+        }
+
+        .draggable-tag:active {
+            cursor: grabbing;
+        }
+
+        .draggable-tag.dragging {
+            opacity: 0.5;
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            z-index: 100;
+        }
+
+        .draggable-tag.drag-over {
+            border-left: 2px solid var(--primary);
+        }
+
+        /* Mobile Responsive */
+        .menu-toggle {
+            display: none;
+            font-size: 1.8rem;
+            cursor: pointer;
+            color: var(--text-main);
+            background: transparent;
+            padding: 0.5rem;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            transition: var(--transition);
+        }
+
+        .menu-toggle:active {
+            transform: scale(0.95);
+        }
+
+        .sidebar-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(2px);
+            z-index: 90;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .sidebar-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* Calendar Styles */
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .calendar-cell {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            min-height: 120px;
+            height: auto;
+            padding: 0.5rem;
+            position: relative;
+            cursor: pointer;
+            transition: var(--transition);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .empty-slot {
+            background: #F8FAFC !important;
+            border: 1px dashed var(--border) !important;
+        }
+
+        .calendar-stat-text {
+            display: block;
+        }
+
+        .calendar-stat-dot {
+            display: none;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 2px;
+        }
+
+        /* Responsive Design (Mobile & Tablet) */
+        @media (max-width: 1024px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+
+            .sidebar.active {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1.5rem;
+                width: 100%;
+            }
+
+            .menu-toggle {
+                display: block;
+                /* Show toggle */
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin-right: 1rem;
+            }
+
+            /* Header Adjustments */
+            header {
+                flex-direction: column-reverse;
+                align-items: flex-start;
+                gap: 1rem;
+                margin-bottom: 2rem;
+            }
+
+            .header-top {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                width: 100%;
+            }
+
+            .page-title h1 {
+                font-size: 1.5rem;
+            }
+
+            /* Calendar Overrides (Compact View) */
+            .calendar-grid {
+                gap: 4px !important;
+            }
+
+            .calendar-cell {
+                height: 55px !important;
+                min-height: 55px !important;
+                aspect-ratio: auto;
+                padding: 4px !important;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+            }
+
+
+
+            .calendar-stat-text {
+                display: none !important;
+            }
+
+            .calendar-stat-dot {
+                display: inline-block !important;
+            }
+
+            /* Other UI Adjustments */
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .action-bar {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: stretch;
+            }
+
+            .action-bar input {
+                width: 100% !important;
+            }
+
+            .btn {
+                justify-content: center;
+            }
+
+            .modal {
+                width: 95%;
+                padding: 1.5rem;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+
+            form div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="brand" title="Employee & Equipment Manager">
+                <i class='bx bxs-cube-alt'></i> EEM
+            </div>
+            <ul class="nav-menu">
+                <li class="nav-item active" onclick="app.navigate('dashboard')">
+                    <i class='bx bxs-dashboard'></i> Dashboard
+                </li>
+                <li class="nav-item" onclick="app.navigate('employees')">
+                    <i class='bx bxs-user-detail'></i> พนักงาน
+                </li>
+                <li class="nav-item" onclick="app.navigate('equipment')">
+                    <i class='bx bxs-devices'></i> อุปกรณ์
+                </li>
+                <li class="nav-item" onclick="app.navigate('calendar')">
+                    <i class='bx bxs-calendar'></i> ปฏิทินงาน
+                </li>
+                <li style="margin-top: auto; border-top: 1px solid var(--border); margin-bottom: 0.5rem"></li>
+                <li class="nav-item" onclick="app.openSettings()">
+                    <i class='bx bx-cog'></i>
+                    <span>ตั้งค่าระบบ</span>
+                </li>
+            </ul>
+        </nav>
+        <div class="sidebar-overlay" onclick="app.toggleSidebar()"></div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header>
+                <div class="header-top">
+                    <div style="display: flex; align-items: center;">
+                        <div class="menu-toggle" onclick="app.toggleSidebar()">
+                            <i class='bx bx-menu'></i>
+                        </div>
+                        <div class="page-title" id="pageHeader">
+                            <h1>ภาพรวมแผนกลูกค้าธุรกิจ (10501)</h1>
+                            <p>ระบบบริหารจัดการพนักงานและอุปกรณ์</p>
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <div id="app-view">
+                <!-- Content injected here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Modals -->
+    <!-- Password Modal -->
+    <div class="modal-overlay" id="passwordModal" style="z-index: 2000;">
+        <div class="modal" style="max-width: 400px; text-align: center; position: relative;">
+            <i class='bx bx-x'
+                style="position: absolute; top: 1rem; right: 1rem; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);"
+                onclick="app.closePasswordModal()"></i>
+            <div style="margin-bottom: 1.5rem;">
+                <i class='bx bxs-lock-alt' style="font-size: 3rem; color: var(--primary);"></i>
+                <h3 style="margin-top: 1rem;">ยืนยันรหัสผ่าน</h3>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">กรุณาระบุรหัสผ่านเพื่อเข้าถึงการตั้งค่า</p>
+            </div>
+            <form onsubmit="app.handleLogin(event)">
+                <div class="form-group" style="position: relative;">
+                    <input type="password" id="loginPasswordInput" class="form-input" placeholder="Password" required
+                        style="text-align: center; padding-right: 40px;">
+                    <i id="togglePasswordBtn" class='bx bx-show'
+                        style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer; color: var(--text-muted); font-size: 1.2rem;"
+                        onclick="app.togglePasswordVisibility()"></i>
+                </div>
+                <button type="submit" class="btn" style="width: 100%; justify-content: center;">ยืนยัน</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="employeeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2 id="empModalTitle">เพิ่มพนักงานใหม่</h2>
+                <i class='bx bx-x' style="font-size: 1.5rem; cursor: pointer;" onclick="app.closeModals()"></i>
+            </div>
+            <form onsubmit="app.handleEmployeeSubmit(event)">
+                <input type="hidden" name="id" id="empIdInput">
+                <div class="form-group">
+                    <label class="form-label">รหัสพนักงาน (Employee ID)</label>
+                    <input type="text" name="employeeId" class="form-input" placeholder="ระบุรหัสพนักงาน..." required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">คำนำหน้าชื่อ</label>
+                    <select name="prefix" class="form-select" required>
+                        <option value="">-- เลือกคำนำหน้า --</option>
+                        <option value="นาย">นาย (Mr.)</option>
+                        <option value="น.ส.">น.ส. (Ms.)</option>
+                        <option value="นาง">นาง (Mrs.)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ชื่อ - นามสกุล</label>
+                    <input type="text" name="name" class="form-input" required placeholder="สมชาย ใจดี">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">อายุ (ปี)</label>
+                        <input type="number" name="age" class="form-input" required placeholder="25" min="18" max="100">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ระดับ (Level)</label>
+                        <select name="level" class="form-select" required>
+                            <option value="">-- เลือกระดับ --</option>
+                            <option value="Junior">Junior</option>
+                            <option value="Middle">Middle</option>
+                            <option value="Senior">Senior</option>
+                            <option value="Lead">Lead</option>
+                            <option value="Manager">Manager</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Entitlement Data -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">วันที่เริ่มงาน (Start Date)</label>
+                        <input type="date" name="startDate" class="form-input" required>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">ประเภทการจ้าง</label>
+                        <select name="employmentType" class="form-select" required>
+                            <option value="Monthly">พนักงานรายเดือน</option>
+                            <option value="Daily">ลูกจ้างรายวัน</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">วันพักร้อนยกยอด (Carry Over) (วัน)</label>
+                    <input type="number" name="carryOver" class="form-input" min="0" step="0.5" value="0">
+                </div>
+                <!-- Shift and Time -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">กะการทำงาน (Shift)</label>
+                        <select name="shift" class="form-select" required onchange="app.toggleShiftDetail(event)">
+                            <option value="">-- เลือกกะ --</option>
+                            <option value="เวร ก.">เวร ก.</option>
+                            <option value="เวร ข.">เวร ข.</option>
+                            <option value="เวรกลาง">เวรกลาง</option>
+                        </select>
+                    </div>
+                    <div class="form-group" id="shiftDetailGroup" style="display: none;">
+                        <label class="form-label">ช่วงเวลา</label>
+                        <select name="shiftDetail" id="shiftDetailSelect" class="form-select">
+                            <option value="">-- เลือกช่วงเวลา --</option>
+                            <option value="จันทร์ - ศุกร์">จันทร์ - ศุกร์</option>
+                            <option value="เสาร์ - อาทิตย์">เสาร์ - อาทิตย์</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">เวลาทำงาน (ระบุเวลาพักในวงเล็บได้)</label>
+                    <input type="text" name="workTime" class="form-input" placeholder="08:00 - 17:00 (พัก 12:00)">
+                </div>
+
+                <!-- Phones -->
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label class="form-label">เบอร์มือถือ ปณ.</label>
+                        <input type="tel" name="officePhone" class="form-input" placeholder="02-xxx-xxxx">
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">เบอร์ส่วนตัว</label>
+                        <input type="tel" name="personalPhone" class="form-input" placeholder="08x-xxx-xxxx">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">หมายเหตุ</label>
+                    <input type="text" name="note" class="form-input" placeholder="ข้อมูลเพิ่มเติม...">
+                </div>
+                <button type="submit" class="btn" style="width: 100%">บันทึกข้อมูล</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="equipmentModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h2>เพิ่มอุปกรณ์ใหม่</h2>
+                <i class='bx bx-x' style="font-size: 1.5rem; cursor: pointer;" onclick="app.closeModals()"></i>
+            </div>
+            <form onsubmit="app.handleEquipmentSubmit(event)">
+                <div class="form-group">
+                    <label class="form-label">ชื่ออุปกรณ์</label>
+                    <input type="text" name="name" class="form-input" required placeholder="MacBook Pro M1">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Serial Number</label>
+                    <input type="text" name="serial" class="form-input" required placeholder="SN-123456">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">ประเภท</label>
+                    <select name="type" class="form-select">
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">สถานะ</label>
+                    <select name="status" class="form-select" id="statusSelect">
+                        <option value="ปกติ">ปกติ</option>
+                        <option value="ชำรุด">ชำรุด</option>
+                        <option value="ส่งซ่อม">ส่งซ่อม</option>
+                        <option value="สูญหาย">สูญหาย</option>
+                        <option value="เลิกใช้งาน">เลิกใช้งาน</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">กำหนดให้พนักงาน (Optional)</label>
+                    <select name="assignedTo" class="form-select" id="employeeSelect">
+                        <option value="">-- ยังไม่ระบุ --</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn" style="width: 100%">บันทึกข้อมูล</button>
+            </form>
+            </form>
+        </div>
+    </div>
+
+    <!-- History Modal (Moved out) -->
+    <div class="modal-overlay" id="historyModal">
+        <div class="modal" style="max-width: 600px;">
+            <div class="modal-header">
+                <h2>ประวัติพนักงาน: <span id="historyEmpName"></span></h2>
+                <i class='bx bx-x' style="font-size: 1.5rem; cursor: pointer;" onclick="app.closeModals()"></i>
+            </div>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="app.switchHistoryTab('leaves')">การลา
+                    (Leaves)</button>
+                <button class="tab-btn" onclick="app.switchHistoryTab('training')">ฝึกอบรม
+                    (Training)</button>
+            </div>
+
+            <!-- Leaves Section -->
+            <div id="historyLeaves" class="history-content">
+                <form onsubmit="app.handleAddLeave(event)"
+                    style="display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 0.5rem; margin-bottom: 1rem; align-items: end;">
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">ประเภท</label>
+                        <select name="type" class="form-select" required>
+                            <option value="ลาป่วย">ลาป่วย</option>
+                            <option value="ลากิจ">ลากิจ</option>
+                            <option value="ลาพักร้อน">ลาพักร้อน</option>
+                            <option value="อื่นๆ">อื่นๆ</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">ตั้งแต่วันที่</label>
+                        <input type="date" name="startDate" id="leaveStartDate" class="form-input" required
+                            onchange="app.calculateLeaveDays()">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">ถึงวันที่</label>
+                        <input type="date" name="endDate" id="leaveEndDate" class="form-input" required
+                            onchange="app.calculateLeaveDays()">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">รวม (วัน)</label>
+                        <input type="number" name="days" id="leaveDaysCount" class="form-input" min="0.5" step="0.5"
+                            value="1" readonly style="background: rgba(0,0,0,0.2); cursor: not-allowed;">
+                    </div>
+
+                    <!-- Entitlement Stats Display -->
+                    <div id="leaveEntitlementStats"
+                        style="grid-column: 1 / -1; display: flex; gap: 1rem; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 0.9em; align-items: center;">
+                        <span style="color: var(--text-muted)">กำลังคำนวณสิทธิ์...</span>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0; grid-column: span 3;">
+                        <input type="text" name="note" class="form-input" placeholder="รายละเอียด (ระบุเหตุผล)...">
+                    </div>
+                    <button type="submit" class="btn"><i class='bx bx-plus'></i></button>
+                </form>
+                <div class="table-container" style="max-height: 300px; overflow-y: auto;">
+                    <table style="font-size: 0.9em;">
+                        <thead>
+                            <tr>
+                                <th>ช่วงวันที่</th>
+                                <th>ประเภท</th>
+                                <th>รายละเอียด</th>
+                                <th>จำนวน</th>
+                                <th>ลบ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="leavesTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Training Section -->
+            <div id="historyTraining" class="history-content" style="display: none;">
+                <form onsubmit="app.handleAddTraining(event)"
+                    style="display: grid; grid-template-columns: 3fr 1fr auto; gap: 0.5rem; margin-bottom: 1rem; align-items: end;">
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">หัวข้ออบรม</label>
+                        <input type="text" name="topic" class="form-input" placeholder="ระบุหัวข้อ..." required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                        <label class="form-label">วันที่</label>
+                        <input type="date" name="date" class="form-input" required>
+                    </div>
+                    <button type="submit" class="btn"><i class='bx bx-plus'></i></button>
+                </form>
+                <div class="table-container" style="max-height: 300px; overflow-y: auto;">
+                    <table style="font-size: 0.9em;">
+                        <thead>
+                            <tr>
+                                <th>วันที่</th>
+                                <th>หัวข้อ</th>
+                                <th>ลบ</th>
+                            </tr>
+                        </thead>
+                        <tbody id="trainingTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <script>
+        // Store Class handles LocalStorage
+        class Store {
+            constructor() {
+                this.employees = JSON.parse(localStorage.getItem('ems_employees')) || [];
+                this.equipment = JSON.parse(localStorage.getItem('ems_equipment')) || [];
+                this.trash = JSON.parse(localStorage.getItem('ems_trash')) || { employees: [], equipment: [] };
+                this.settings = JSON.parse(localStorage.getItem('ems_settings')) || {
+                    types: ['Laptop', 'Monitor', 'Mobile', 'Accessory', 'Printer', 'Other'],
+                    statuses: ['ปกติ', 'ชำรุด', 'ส่งซ่อม', 'สูญหาย', 'เลิกใช้งาน'],
+                    levels: ['Junior', 'Middle', 'Senior', 'Lead', 'Manager'],
+                    shifts: ['เวร ก.', 'เวร ข.', 'เวรกลาง'],
+                    // Definiton for Shifts (Mapping Name -> Rules)
+                    // days: 0=Sun, 1=Mon, ..., 6=Sat
+                    shiftDefinitions: {
+                        'เวร ก.': { start: '08:00', end: '16:00', days: [1, 2, 3, 4, 5] },
+                        'เวร ข.': { start: '09:00', end: '17:00', days: [1, 2, 3, 4, 5] },
+                        'เวรกลาง': { start: '12:00', end: '20:00', days: [1, 2, 3, 4, 5] }
+                    },
+                    password: '37977310501' // Default Password
+                };
+
+                // Ensure shift definitions exist if upgrading from old version
+                if (!this.settings.shiftDefinitions) {
+                    this.settings.shiftDefinitions = {
+                        'เวร ก.': { start: '08:00', end: '16:00', days: [1, 2, 3, 4, 5] },
+                        'เวร ข.': { start: '09:00', end: '17:00', days: [1, 2, 3, 4, 5] },
+                        'เวรกลาง': { start: '12:00', end: '20:00', days: [1, 2, 3, 4, 5] }
+                    };
+                    this.saveSettings();
+                }
+                // Migration limit
+                if (!this.settings.levels) this.settings.levels = ['Junior', 'Middle', 'Senior', 'Lead', 'Manager'];
+                if (!this.settings.shifts) this.settings.shifts = ['เวร ก.', 'เวร ข.', 'เวรกลาง'];
+                if (!this.settings.password) this.settings.password = '37977310501';
+
+                if (!this.settings.password) this.settings.password = '37977310501';
+
+                // MIGRATION (v1): Force reset password for everyone to new default
+                if (!this.settings.migrationVersion || this.settings.migrationVersion < 1) {
+                    this.settings.password = '37977310501';
+                    this.settings.migrationVersion = 1;
+                }
+
+                // MIGRATION (v2): Fix 'Middle Shift' definition to Mon-Fri
+                if (this.settings.migrationVersion < 2) {
+                    if (this.settings.shiftDefinitions && this.settings.shiftDefinitions['เวรกลาง']) {
+                        this.settings.shiftDefinitions['เวรกลาง'].days = [1, 2, 3, 4, 5];
+                    }
+                    this.settings.migrationVersion = 2;
+                }
+
+                this.saveSettings(); // Ensure structure is updated
+            }
+
+            // ... (Existing Store methods) ...
+
+            saveSettings() {
+                localStorage.setItem('ems_settings', JSON.stringify(this.settings));
+            }
+
+            checkPassword(input) {
+                return input === this.settings.password;
+            }
+
+            setPassword(newPass) {
+                this.settings.password = newPass;
+                this.saveSettings();
+            }
+
+            // ... Other store methods ...
+            addEmployee(emp) {
+                emp.id = Date.now().toString();
+                if (!emp.history) emp.history = { leaves: [], training: [] }; // Init History
+                this.employees.push(emp);
+                this.saveEmployees();
+            }
+            updateEmployee(updatedEmp) {
+                const idx = this.employees.findIndex(e => e.id === updatedEmp.id);
+                if (idx !== -1) {
+                    // Preserve history on update
+                    updatedEmp.history = this.employees[idx].history || { leaves: [], training: [] };
+                    this.employees[idx] = updatedEmp;
+                    this.saveEmployees();
+                }
+            }
+            deleteEmployee(id) {
+                this.employees = this.employees.filter(e => e.id !== id);
+                this.saveEmployees();
+            }
+
+            saveEmployees() {
+                localStorage.setItem('ems_employees', JSON.stringify(this.employees));
+            }
+
+            addEquipment(eq) {
+                eq.id = Date.now().toString();
+                this.equipment.push(eq);
+                this.saveEquipment();
+            }
+            updateEquipment(updatedEq) {
+                const idx = this.equipment.findIndex(e => e.id === updatedEq.id);
+                if (idx !== -1) {
+                    this.equipment[idx] = updatedEq;
+                    this.saveEquipment();
+                }
+            }
+            deleteEquipment(id) {
+                this.equipment = this.equipment.filter(e => e.id !== id);
+                this.saveEquipment();
+            }
+            saveEquipment() {
+                localStorage.setItem('ems_equipment', JSON.stringify(this.equipment));
+            }
+
+            getEmployeeName(id) {
+                const emp = this.employees.find(e => e.id === id);
+                return emp ? emp.name : 'Unknown';
+            }
+
+            // Soft Delete & Restore
+            softDeleteEmployee(id) {
+                const emp = this.employees.find(e => e.id === id);
+                if (emp) {
+                    this.deleteEmployee(id);
+                    this.trash.employees.push({ ...emp, deletedAt: new Date().toISOString() });
+                    this.saveTrash();
+                }
+            }
+            softDeleteEquipment(id) {
+                const eq = this.equipment.find(e => e.id === id);
+                if (eq) {
+                    this.deleteEquipment(id);
+                    this.trash.equipment.push({ ...eq, deletedAt: new Date().toISOString() });
+                    this.saveTrash();
+                }
+            }
+            restoreEmployee(id) {
+                const idx = this.trash.employees.findIndex(e => e.id === id);
+                if (idx !== -1) {
+                    const emp = this.trash.employees[idx];
+                    delete emp.deletedAt;
+                    this.trash.employees.splice(idx, 1);
+                    this.saveTrash();
+                    this.addEmployee(emp);
+                }
+            }
+            restoreEquipment(id) {
+                const idx = this.trash.equipment.findIndex(e => e.id === id);
+                if (idx !== -1) {
+                    const eq = this.trash.equipment[idx];
+                    delete eq.deletedAt;
+                    this.trash.equipment.splice(idx, 1);
+                    this.saveTrash();
+                    this.addEquipment(eq); // ID might change here but okay for now
+                }
+            }
+            hardDeleteEmployee(id) {
+                this.trash.employees = this.trash.employees.filter(e => e.id !== id);
+                this.saveTrash();
+            }
+            hardDeleteEquipment(id) {
+                this.trash.equipment = this.trash.equipment.filter(e => e.id !== id);
+                this.saveTrash();
+            }
+            saveTrash() {
+                localStorage.setItem('ems_trash', JSON.stringify(this.trash));
+            }
+
+            // Settings
+            addType(t) { this.settings.types.push(t); this.saveSettings(); }
+            removeType(t) { this.settings.types = this.settings.types.filter(x => x !== t); this.saveSettings(); }
+            addStatus(s) { this.settings.statuses.push(s); this.saveSettings(); }
+            removeStatus(s) { this.settings.statuses = this.settings.statuses.filter(x => x !== s); this.saveSettings(); }
+            addLevel(l) { this.settings.levels.push(l); this.saveSettings(); }
+            removeLevel(l) { this.settings.levels = this.settings.levels.filter(x => x !== l); this.saveSettings(); }
+            addShift(s) { this.settings.shifts.push(s); this.saveSettings(); }
+
+            removeShift(s) { this.settings.shifts = this.settings.shifts.filter(x => x !== s); this.saveSettings(); }
+
+            reorderSetting(category, fromIndex, toIndex) {
+                if (this.settings[category]) {
+                    const item = this.settings[category].splice(fromIndex, 1)[0];
+                    this.settings[category].splice(toIndex, 0, item);
+                    this.saveSettings();
+                }
+            }
+
+            // History
+            addHistoryItem(empId, category, item) {
+                const emp = this.employees.find(e => e.id === empId);
+                if (emp) {
+                    item.id = Date.now().toString();
+                    if (!emp.history) emp.history = { leaves: [], training: [] };
+                    emp.history[category].push(item);
+                    this.saveEmployees();
+                }
+            }
+
+            removeHistoryItem(empId, category, itemId) {
+                const emp = this.employees.find(e => e.id === empId);
+                if (emp && emp.history && emp.history[category]) {
+                    emp.history[category] = emp.history[category].filter(i => i.id !== itemId);
+                    this.saveEmployees();
+                }
+            }
+
+            // Calendar Logic
+            calculateLeaveEntitlement(emp) {
+                if (!emp.startDate) return { total: 0, remaining: 0, used: 0 };
+
+                const start = new Date(emp.startDate);
+                const now = new Date();
+                const yearsOfService = (now - start) / (1000 * 60 * 60 * 24 * 365);
+
+                let baseRights = 0;
+
+                if (emp.employmentType === 'Daily') {
+                    baseRights = 0;
+                } else if (yearsOfService >= 10) {
+                    baseRights = 15;
+                } else {
+                    baseRights = 10;
+                }
+
+                if (emp.employmentType === 'Daily') return { total: 0, max: 0, used: 0, remaining: 0 };
+
+                // Carry Over Logic (Only for < 10 years or General? Prompt nested it under < 10)
+                // Interpretation: "If < 10 years... Max 60". 
+                // For > 10, typically same rules apply or better. I will apply 60 cap to all for consistency unless specific otherwise, 
+                // but prompts specific text says "1. ... max 60". "2. ... 15 days".
+                // I will apply the 60 cap logic to the Total (Base + CarryOver) for < 10 only as strict request.
+                // Actually, let's apply it if years < 10.
+
+                let total = baseRights + (emp.carryOver || 0);
+
+                if (yearsOfService < 10) {
+                    if (total > 60) total = 60;
+                }
+
+                // Calculate Used
+                const currentYear = now.getFullYear();
+                let used = 0;
+                if (emp.history && emp.history.leaves) {
+                    used = emp.history.leaves
+                        .filter(l => l.type === 'ลาพักร้อน' && new Date(l.startDate).getFullYear() === currentYear)
+                        .reduce((acc, l) => acc + l.days, 0);
+                }
+
+                return {
+                    total: total,
+                    used: used,
+                    remaining: Math.max(0, total - used)
+                };
+            }
+
+            // Calendar Logic
+            getEmpStatus(emp, dateObj) {
+                // Formatting
+                const year = dateObj.getFullYear();
+                const month = dateObj.getMonth() + 1;
+                const date = dateObj.getDate();
+                const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
+
+                // Check Leaves (Range Support)
+                if (emp.history && emp.history.leaves) {
+                    const onLeave = emp.history.leaves.find(l => {
+                        // New format (Start/End)
+                        if (l.startDate && l.endDate) {
+                            return dateStr >= l.startDate && dateStr <= l.endDate;
+                        }
+                        // Legacy format (Date + Days)
+                        if (l.date) {
+                            if (l.days && l.days > 1) {
+                                // Calculate End Date dynamically for display
+                                const start = new Date(l.date);
+                                const end = new Date(start);
+                                end.setDate(start.getDate() + Math.ceil(l.days) - 1);
+                                const endStr = `${end.getFullYear()}-${String(end.getMonth() + 1).padStart(2, '0')}-${String(end.getDate()).padStart(2, '0')}`;
+                                return dateStr >= l.date && dateStr <= endStr;
+                            }
+                            return l.date === dateStr;
+                        }
+                        return false;
+                    });
+                    if (onLeave) return { type: 'leave', detail: onLeave };
+                }
+
+                // Check Shift
+                const shiftName = emp.shift;
+                const def = this.settings.shiftDefinitions[shiftName];
+                // Handle different day definitions (Mon=1...Sun=0)
+                if (def && def.days.includes(dateObj.getDay())) {
+                    return { type: 'work', time: `${def.start} - ${def.end}` };
+                }
+
+                return { type: 'off' };
+            }
+
+            // ... (Rest of Store) ...
+
+            // App Methods
+            calculateLeaveDays() {
+                const startStr = document.getElementById('leaveStartDate').value;
+                const endStr = document.getElementById('leaveEndDate').value;
+                const daysInput = document.getElementById('leaveDaysCount');
+
+                if (startStr && endStr) {
+                    const start = new Date(startStr);
+                    const end = new Date(endStr);
+
+                    if (end < start) {
+                        alert('วันที่สิ้นสุดต้องไม่ก่อนวันที่เริ่มต้น');
+                        document.getElementById('leaveEndDate').value = '';
+                        daysInput.value = 0;
+                        return;
+                    }
+
+                    // Simple difference (inclusive)
+                    const diffTime = Math.abs(end - start);
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1;
+                    daysInput.value = diffDays;
+                }
+            }
+
+            renderHistoryContent() {
+                const emp = this.store.employees.find(e => e.id === this.currentHistoryEmpId);
+                if (!emp) return;
+
+                // Stats
+                const statsEl = document.getElementById('leaveEntitlementStats');
+                if (statsEl) {
+                    const stats = this.store.calculateLeaveEntitlement(emp);
+                    statsEl.innerHTML = `
+                        <div><i class='bx bxs-pie-chart-alt-2' style="color:var(--primary)"></i> สิทธิ์ปีนี้: <b>${stats.total}</b> วัน</div>
+                        <div><i class='bx bxs-time-five' style="color:#f59e0b"></i> ใช้ไป: <b>${stats.used}</b></div>
+                        <div><i class='bx bxs-check-circle' style="color:#34d399"></i> คงเหลือ: <b>${stats.remaining}</b></div>
+                    `;
+                }
+
+                const history = emp.history || { leaves: [], training: [] };
+
+                // Render Leaves
+                const leaveRows = (history.leaves || []).map(l => {
+                    let dateDisplay = l.date ? new Date(l.date).toLocaleDateString('th-TH') : '-';
+                    if (l.startDate && l.endDate) {
+                        const d1 = new Date(l.startDate).toLocaleDateString('th-TH');
+                        const d2 = new Date(l.endDate).toLocaleDateString('th-TH');
+                        dateDisplay = d1 === d2 ? d1 : `${d1} - ${d2}`;
+                    }
+
+                    return `
+                    <tr>
+                        <td>${dateDisplay}</td>
+                        <td>${l.type}</td>
+                        <td style="color: var(--text-muted);">${l.note || '-'}</td>
+                        <td>${l.days}</td>
+                        <td><i class='bx bx-trash' style="cursor: pointer; color: #ef4444;" onclick="app.removeHistoryItem('leaves', '${l.id}')"></i></td>
+                    </tr>
+                `}).join('');
+                document.getElementById('leavesTableBody').innerHTML = leaveRows || '<tr><td colspan="5" class="empty-state" style="padding: 1rem;">ไม่มีประวัติการลา</td></tr>';
+
+                // Render Training
+                const trainRows = (history.training || []).map(t => `
+                    <tr>
+                        <td>${new Date(t.date).toLocaleDateString('th-TH')}</td>
+                        <td>${t.topic}</td>
+                        <td><i class='bx bx-trash' style="cursor: pointer; color: #ef4444;" onclick="app.removeHistoryItem('training', '${t.id}')"></i></td>
+                    </tr>
+                `).join('');
+                document.getElementById('trainingTableBody').innerHTML = trainRows || '<tr><td colspan="3" class="empty-state" style="padding: 1rem;">ไม่มีประวัติการอบรม</td></tr>';
+            }
+
+            handleAddLeave(e) {
+                e.preventDefault();
+
+                try {
+                    const formData = new FormData(e.target);
+                    // Support both old 'date' and new 'startDate/endDate' if needed, but we moved to Start/End
+                    const startDate = formData.get('startDate');
+                    const endDate = formData.get('endDate');
+                    const days = parseFloat(document.getElementById('leaveDaysCount').value);
+                    const type = formData.get('type');
+
+                    if (!startDate || !endDate) {
+                        alert('กรุณาระบุช่วงวันที่');
+                        return;
+                    }
+
+                    // Validate Entitlement if Vacation
+                    if (type === 'ลาพักร้อน') {
+                        const emp = this.store.employees.find(x => x.id === this.currentHistoryEmpId);
+                        const stats = this.store.calculateLeaveEntitlement(emp);
+                        if (days > stats.remaining) {
+                            alert(`สิทธิ์ลาพักร้อนไม่เพียงพอ! (คงเหลือ ${stats.remaining} วัน, ขอลา ${days} วัน)`);
+                            return;
+                        }
+                    }
+
+                    const item = {
+                        type: type,
+                        startDate: startDate,
+                        endDate: endDate,
+                        days: days,
+                        note: formData.get('note')
+                    };
+
+                    this.store.addHistoryItem(this.currentHistoryEmpId, 'leaves', item);
+                    e.target.reset();
+                    // Reset days count display
+                    document.getElementById('leaveDaysCount').value = 1;
+
+                    this.renderHistoryContent();
+                    alert('บันทึกข้อมูลเรียบร้อย');
+                } catch (err) {
+                    console.error('Error adding leave:', err);
+                    alert('เกิดข้อผิดพลาด: ' + err.message);
+                }
+            }
+
+            // Backup & Restore
+            getFullDatabase() {
+                return JSON.stringify({
+                    employees: this.employees,
+                    equipment: this.equipment,
+                    trash: this.trash,
+                    settings: this.settings,
+                    timestamp: new Date().toISOString(),
+                    version: "1.0"
+                }, null, 2);
+            }
+
+            restoreDatabase(jsonString) {
+                try {
+                    const data = JSON.parse(jsonString);
+                    if (!data.employees || !data.equipment || !data.settings) {
+                        throw new Error("Invalid Backup Format");
+                    }
+                    this.employees = data.employees;
+                    this.equipment = data.equipment;
+                    this.trash = data.trash || { employees: [], equipment: [] };
+                    this.settings = data.settings;
+
+                    this.saveEmployees();
+                    this.saveEquipment();
+                    this.saveTrash();
+                    this.saveSettings();
+                    return true;
+                } catch (e) {
+                    console.error(e);
+                    return false;
+                }
+            }
+        }
+
+        class App {
+            constructor() {
+                this.store = new Store();
+                this.currentView = 'dashboard';
+                this.dashboardState = {
+                    tab: 'employees',
+                    sortCol: 'name',
+                    sortDir: 'asc',
+                    hiddenCols: []
+                };
+                this.isAuthenticated = false; // Security State
+                this.settingsTab = 'general';
+                this.calendarDate = new Date(); // Current viewing month
+                this.init();
+                this.setupDragAndDrop();
+            }
+
+            setupDragAndDrop() {
+                // Global Delegation for robustness
+                document.addEventListener('dragstart', (e) => this.handleDragStart(e));
+                document.addEventListener('dragover', (e) => this.handleDragOver(e));
+                document.addEventListener('dragleave', (e) => this.handleDragLeave(e));
+                document.addEventListener('drop', (e) => this.handleDrop(e));
+                document.addEventListener('dragend', (e) => this.handleDragEnd(e));
+
+                // Passive: false is crucial for touchmove to prevent scrolling
+                document.addEventListener('touchstart', (e) => this.handleTouchStart(e), { passive: false });
+                document.addEventListener('touchmove', (e) => this.handleTouchMove(e), { passive: false });
+                document.addEventListener('touchend', (e) => this.handleTouchEnd(e));
+            }
+
+            init() {
+                this.render();
+                this.navigate('dashboard');
+
+                // Add ESC key listener to close modals
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape') {
+                        const openModals = document.querySelectorAll('.modal-overlay.open');
+                        openModals.forEach(modal => {
+                            modal.classList.remove('open');
+                        });
+                    }
+                });
+            }
+
+            toggleSidebar() {
+                document.querySelector('.sidebar').classList.toggle('active');
+                document.querySelector('.sidebar-overlay').classList.toggle('active');
+            }
+
+            navigate(view) {
+                // Close sidebar on mobile nav
+                document.querySelector('.sidebar').classList.remove('active');
+                document.querySelector('.sidebar-overlay').classList.remove('active');
+
+                // Strict Policy: If leaving settings, revoke auth
+                if (this.currentView === 'settings' && view !== 'settings') {
+                    this.isAuthenticated = false;
+                }
+
+                // Security Check
+                if (view === 'settings' && !this.isAuthenticated) {
+                    this.openPasswordModal();
+                    return;
+                }
+
+                this.currentView = view;
+
+                // Update Sidebar
+                document.querySelectorAll('.nav-item').forEach(el => {
+                    el.classList.remove('active');
+                    if (el.getAttribute('onclick').includes(view)) {
+                        el.classList.add('active');
+                    }
+                });
+
+                this.render();
+            }
+
+            openPasswordModal() {
+                document.getElementById('passwordModal').classList.add('open');
+                setTimeout(() => document.getElementById('loginPasswordInput').focus(), 100);
+            }
+
+            closePasswordModal() {
+                document.getElementById('passwordModal').classList.remove('open');
+                document.getElementById('loginPasswordInput').value = '';
+                // Reset to password type
+                const input = document.getElementById('loginPasswordInput');
+                const icon = document.getElementById('togglePasswordBtn');
+                input.type = 'password';
+                if (icon) {
+                    icon.className = 'bx bx-show';
+                }
+            }
+
+            togglePasswordVisibility() {
+                const input = document.getElementById('loginPasswordInput');
+                const icon = document.getElementById('togglePasswordBtn');
+
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    icon.className = 'bx bx-hide';
+                } else {
+                    input.type = 'password';
+                    icon.className = 'bx bx-show';
+                }
+            }
+
+            handleLogin(e) {
+                e.preventDefault();
+                const input = document.getElementById('loginPasswordInput').value;
+                if (this.store.checkPassword(input)) {
+                    this.isAuthenticated = true;
+                    this.closePasswordModal();
+                    this.navigate('settings');
+                } else {
+                    alert('รหัสผ่านไม่ถูกต้อง');
+                    document.getElementById('loginPasswordInput').value = '';
+                }
+            }
+
+            handleChangePassword(e) {
+                e.preventDefault();
+                const currentPass = document.getElementById('currentInfoPass').value;
+                const newPass = document.getElementById('newPass').value;
+                const confirmPass = document.getElementById('confirmPass').value;
+
+                if (!this.store.checkPassword(currentPass)) {
+                    alert('รหัสผ่านเดิมไม่ถูกต้อง');
+                    return;
+                }
+
+                if (newPass !== confirmPass) {
+                    alert('รหัสผ่านใหม่ไม่ตรงกัน');
+                    return;
+                }
+
+                if (newPass.length < 4) {
+                    alert('รหัสผ่านต้องมีความยาวอย่างน้อย 4 ตัวอักษร');
+                    return;
+                }
+
+                this.store.setPassword(newPass);
+                alert('เปลี่ยนรหัสผ่านสำเร็จ');
+                e.target.reset();
+            }
+
+            exportToCSV() {
+                // Header
+                let csvContent = "Employee ID,Name,Position,Shift,Office Phone,Equipment Count\n";
+
+                // Rows
+                this.store.employees.forEach(e => {
+                    const eqCount = this.store.equipment.filter(eq => eq.assignedTo === e.id).length;
+                    // Escape quotes
+                    const name = (e.prefix || '') + ' ' + e.name;
+                    const shift = (e.shift || '') + ' ' + (e.shiftDetail || '');
+
+                    const row = [
+                        e.employeeId || '-',
+                        `"${name.replace(/"/g, '""')}"`,
+                        e.level || '-',
+                        `"${shift.replace(/"/g, '""')}"`,
+                        e.officePhone || '-',
+                        eqCount
+                    ].join(",");
+                    csvContent += row + "\n";
+                });
+
+                // Use Blob with BOM for Thai support in Excel
+                const blob = new Blob(["\uFEFF" + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.setAttribute("href", url);
+                link.setAttribute("download", `emp_report_${new Date().toISOString().slice(0, 10)}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+            }
+
+            backupData() {
+                const data = this.store.getFullDatabase();
+                const blob = new Blob([data], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `ems_backup_${new Date().toISOString().slice(0, 10)}.json`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                alert('ดาวน์โหลดไฟล์ Backup เรียบร้อยแล้ว');
+            }
+
+            restoreData(e) {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                if (!confirm("การนำเข้าข้อมูลจะ 'ทับ' ข้อมูลปัจจุบันทั้งหมด\nคุณแน่ใจหรือไม่ที่จะดำเนินการต่อ?")) {
+                    e.target.value = '';
+                    return;
+                }
+
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const success = this.store.restoreDatabase(event.target.result);
+                    if (success) {
+                        alert('นำเข้าข้อมูลสำเร็จ! ระบบจะรีเฟรชหน้าจอ');
+                        location.reload();
+                    } else {
+                        alert('เกิดข้อผิดพลาดในการอ่านไฟล์ Backup');
+                    }
+                };
+                reader.readAsText(file);
+            }
+
+            render() {
+                const viewEl = document.getElementById('app-view');
+                const headerEl = document.getElementById('pageHeader');
+
+                if (this.currentView === 'dashboard') {
+                    headerEl.innerHTML = `<h1>ภาพรวมแผนกลูกค้าธุรกิจ (10501)</h1><p>ภาพรวมข้อมูลทั้งหมด</p>`;
+                    viewEl.innerHTML = this.renderDashboard();
+                } else if (this.currentView === 'employees') {
+                    headerEl.innerHTML = `<h1>จัดการพนักงาน</h1><p>ข้อมูลพนักงานและประวัติการทำงาน</p>`;
+                    viewEl.innerHTML = this.renderEmployees();
+                } else if (this.currentView === 'equipment') {
+                    headerEl.innerHTML = `<h1>จัดการอุปกรณ์</h1><p>ทะเบียนและการเบิกจ่ายอุปกรณ์</p>`;
+                    viewEl.innerHTML = this.renderEquipment();
+                } else if (this.currentView === 'settings') {
+                    headerEl.innerHTML = `<h1>ตั้งค่าระบบ</h1><p>จัดการตัวเลือกต่างๆ ของระบบ</p>`;
+                    viewEl.innerHTML = this.renderSettings();
+                } else if (this.currentView === 'calendar') {
+                    headerEl.innerHTML = `<h1>ปฏิทินงาน</h1><p>ตารางงานและการลาของพนักงาน</p>`;
+                    viewEl.innerHTML = this.renderCalendar();
+                }
+            }
+
+            renderCalendar() {
+                const year = this.calendarDate.getFullYear();
+                const month = this.calendarDate.getMonth();
+                const monthNames = ["มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+                    "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"];
+
+                const firstDay = new Date(year, month, 1);
+                const lastDay = new Date(year, month + 1, 0);
+                const daysInMonth = lastDay.getDate();
+                const startDay = firstDay.getDay(); // 0 = Sun
+
+                // Stats for this month (approx)
+                const currentMonthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+                const totalLeaves = this.store.employees.reduce((acc, emp) => {
+                    if (!emp.history || !emp.history.leaves) return acc;
+                    const count = emp.history.leaves.filter(l => {
+                        if (l.date) return l.date.startsWith(currentMonthStr);
+                        if (l.startDate) return l.startDate.startsWith(currentMonthStr); // Count based on start date
+                        return false;
+                    }).length;
+                    return acc + count;
+                }, 0);
+
+                let calendarGrid = '';
+
+                // Empty slots before 1st
+                for (let i = 0; i < startDay; i++) {
+                    calendarGrid += `<div class="calendar-cell empty-slot" style="cursor: default;"></div>`;
+                }
+
+                // Days
+                for (let d = 1; d <= daysInMonth; d++) {
+                    const current = new Date(year, month, d);
+                    // FIX: Use manual formatting to avoid Timezone shift from toISOString()
+                    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const isToday = new Date().toDateString() === current.toDateString();
+
+                    // Count
+                    let workingCount = 0;
+                    let leaveCount = 0;
+
+                    this.store.employees.forEach(emp => {
+                        const status = this.store.getEmpStatus(emp, current);
+                        if (status.type === 'work') workingCount++;
+                        if (status.type === 'leave') leaveCount++;
+                    });
+
+                    calendarGrid += `
+                        <div class="calendar-cell" onclick="app.showDayDetail('${dateStr}')">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span style="${isToday ? 'background: var(--primary); color: white; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; border-radius: 50%;' : 'color: var(--text-muted);'}">${d}</span>
+                                
+                                <!-- Mobile Dots -->
+                                <div style="display: flex; gap: 2px; align-items: center;">
+                                    ${workingCount > 0 ? `<span class="calendar-stat-dot" style="background: #34d399;"></span>` : ''}
+                                    ${leaveCount > 0 ? `<span class="calendar-stat-dot" style="background: var(--secondary);"></span>` : ''}
+                                </div>
+                            </div>
+                            
+                            <!-- Desktop Text -->
+                            <div class="calendar-stat-text" style="font-size: 0.8rem;">
+                                ${workingCount > 0 ? `<div style="color: #34d399; margin-bottom: 2px;">• ทำงาน: ${workingCount}</div>` : ''}
+                                ${leaveCount > 0 ? `<div style="color: var(--secondary); margin-bottom: 2px;">• ลา: ${leaveCount}</div>` : ''}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 1rem; flex: 1;">
+                            <button class="btn btn-secondary" onclick="app.changeMonth(-1)"><i class='bx bx-chevron-left'></i></button>
+                            <h2 style="min-width: 150px; text-align: center; margin: 0;">${monthNames[month]} ${year + 543}</h2>
+                            <button class="btn btn-secondary" onclick="app.changeMonth(1)"><i class='bx bx-chevron-right'></i></button>
+                        </div>
+                        
+                        <div style="display: flex; gap: 1rem; width: 100%; justify-content: center; margin-top: 0.5rem;">
+                            <div class="stat-badge" style="background: rgba(237, 28, 36, 0.1); color: var(--primary); padding: 5px 15px; border-radius: 20px; font-size: 0.9em;">
+                                <i class='bx bxs-calendar-x'></i> มีการลาเดือนนี้ ${totalLeaves} ครั้ง
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="calendar-grid" style="text-align: center; color: var(--text-muted); margin-bottom: 0.5rem;">
+                        <div>อา.</div><div>จ.</div><div>อ.</div><div>พ.</div><div>พฤ.</div><div>ศ.</div><div>ส.</div>
+                    </div>
+                    <div class="calendar-grid">
+                        ${calendarGrid}
+                    </div>
+
+                    <!-- Day Detail Modal (Dynamic) -->
+                    <div class="modal-overlay" id="dayDetailModal">
+                        <div class="modal" id="dayDetailContent"></div>
+                    </div>
+                `;
+            }
+
+            changeMonth(delta) {
+                this.calendarDate.setMonth(this.calendarDate.getMonth() + delta);
+                this.render();
+            }
+
+            showDayDetail(dateStr) {
+                const date = new Date(dateStr);
+                const thaiDate = date.toLocaleDateString('th-TH', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+                let workingHtml = '';
+                let leaveHtml = '';
+
+                this.store.employees.forEach(emp => {
+                    const status = this.store.getEmpStatus(emp, date);
+                    if (status.type === 'work') {
+                        workingHtml += `
+                            <div style="display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <span>${emp.name}</span>
+                                <span style="color: #34d399; font-size: 0.8em; background: rgba(52, 211, 153, 0.1); padding: 2px 8px; border-radius: 10px;">${status.time}</span>
+                            </div>`;
+                    } else if (status.type === 'leave') {
+                        leaveHtml += `
+                            <div style="display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                                <span>${emp.name}</span>
+                                <span style="color: var(--secondary); font-size: 0.8em;">${status.detail.type}</span>
+                            </div>`;
+                    }
+                });
+
+                const modalContent = `
+                    <div class="modal-header">
+                        <h3>${thaiDate}</h3>
+                        <i class='bx bx-x' style="font-size: 1.5rem; cursor: pointer;" onclick="document.getElementById('dayDetailModal').classList.remove('open')"></i>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                        <div>
+                            <h4 style="color: #34d399; margin-bottom: 1rem;">เข้างาน (${workingHtml.split('div').length / 2 - 1})</h4>
+                            <div style="max-height: 400px; overflow-y: auto;">
+                                ${workingHtml || '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">ไม่มีพนักงานเข้างาน</div>'}
+                            </div>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--secondary); margin-bottom: 1rem;">ลางาน (${leaveHtml.split('div').length / 2 - 1})</h4>
+                            <div style="max-height: 400px; overflow-y: auto;">
+                                ${leaveHtml || '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">ไม่มีรายการลา</div>'}
+                            </div>
+                        </div>
+                    </div>
+                `;
+
+                const modal = document.getElementById('dayDetailModal');
+                const content = document.getElementById('dayDetailContent');
+                content.innerHTML = modalContent;
+                content.parentElement.classList.add('open');
+            }
+
+            renderSettingsGeneral() {
+                const genTags = (items, category, colorVar) => items.map((item, index) => `
+                    <span 
+                        class="draggable-tag" 
+                        draggable="true" 
+                        data-category="${category}" 
+                        data-index="${index}"
+                        style="display: inline-flex; align-items: center; gap: 5px; background: rgba(${colorVar}, 0.1); color: rgb(${colorVar}); padding: 5px 12px; border-radius: 20px; border: 1px solid rgba(${colorVar}, 0.2);">
+                        ${item} <i class='bx bx-x' style="cursor: pointer;" onclick="event.stopPropagation(); app.removeSetting${category.charAt(0).toUpperCase() + category.slice(1, -1)}('${item}')"></i>
+                    </span>
+                `).join('');
+
+                // Color mapping: Types (Primary), Statuses (Secondary), Levels (Green), Shifts (Yellow)
+                // Red: 237, 28, 36
+                // Dark: 30, 41, 59
+                // Green: 52, 211, 153
+                // Yellow: 250, 204, 21
+
+                const typeTags = genTags(this.store.settings.types, 'types', '237, 28, 36');
+                const statusTags = genTags(this.store.settings.statuses, 'statuses', '30, 41, 59');
+                const levelTags = genTags(this.store.settings.levels, 'levels', '52, 211, 153');
+                const shiftTags = genTags(this.store.settings.shifts, 'shifts', '250, 204, 21');
+
+                return `
+                    <div class="data-card" style="padding: 2rem;">
+                         <!-- Backup Section -->
+                         <div style="margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border);">
+                            <h3 style="margin-bottom: 1rem; color: #34d399;"><i class='bx bxs-data'></i> สำรองและกู้คืนข้อมูล (Backup & Restore)</h3>
+                            <p style="font-size: 0.9em; color: var(--text-muted); margin-bottom: 1rem;">ดาวน์โหลดข้อมูลเก็บไว้เป็นไฟล์ .json หรือนำเข้าข้อมูลเดิมหลังจากอัปเดตโปรแกรม</p>
+                            <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                                <button class="btn" onclick="app.backupData()">
+                                    <i class='bx bxs-download'></i> ดาวน์โหลดข้อมูล (Backup)
+                                </button>
+                                <button class="btn btn-secondary" onclick="document.getElementById('restoreInput').click()">
+                                    <i class='bx bxs-file-import'></i> นำเข้าข้อมูล (Restore)
+                                </button>
+                                <input type="file" id="restoreInput" accept="application/json" style="display: none" onchange="app.restoreData(event)">
+                            </div>
+                         </div>
+
+                         <!-- Change Password Section -->
+                         <div style="margin-bottom: 3rem; padding-bottom: 2rem; border-bottom: 1px solid var(--border);">
+                            <h3 style="margin-bottom: 1rem; color: var(--primary);"><i class='bx bxs-lock-alt'></i> เปลี่ยนรหัสผ่าน (Change Password)</h3>
+                            <form onsubmit="app.handleChangePassword(event)" style="max-width: 400px; display: grid; gap: 1rem;">
+                                <div>
+                                    <label class="form-label">รหัสผ่านปัจจุบัน</label>
+                                    <input type="password" id="currentInfoPass" class="form-input" required>
+                                </div>
+                                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                                    <div>
+                                        <label class="form-label">รหัสผ่านใหม่</label>
+                                        <input type="password" id="newPass" class="form-input" required>
+                                    </div>
+                                    <div>
+                                        <label class="form-label">ยืนยันรหัสผ่านใหม่</label>
+                                        <input type="password" id="confirmPass" class="form-input" required>
+                                    </div>
+                                </div>
+                                <button type="submit" class="btn">เปลี่ยนรหัสผ่าน</button>
+                            </form>
+                         </div>
+
+
+                        <h3 style="margin-bottom: 1rem;">ประเภทอุปกรณ์ (Asset Types)</h3>
+                        <p style="font-size: 0.8em; color: var(--text-muted); margin-bottom: 1rem;">* ลากเพื่อเปลี่ยนลำดับ (Drag to reorder)</p>
+                        <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                            <input type="text" id="newTypeInput" class="form-input" placeholder="เพิ่มประเภทใหม่..." style="max-width: 300px;">
+                            <button class="btn" onclick="app.addSettingType()">เพิ่ม</button>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 3rem;">
+                            ${typeTags}
+                        </div>
+
+                        <h3 style="margin-bottom: 1rem;">สถานะอุปกรณ์ (Asset Statuses)</h3>
+                        <div style="display: flex; gap: 1rem; margin-bottom: 2rem;">
+                            <input type="text" id="newStatusInput" class="form-input" placeholder="เพิ่มสถานะใหม่..." style="max-width: 300px;">
+                            <button class="btn" onclick="app.addSettingStatus()">เพิ่ม</button>
+                        </div>
+                        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 3rem;">
+                            ${statusTags}
+                        </div>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                            <div>
+                                <h3 style="margin-bottom: 1rem;">ระดับพนักงาน (Levels)</h3>
+                                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                                    <input type="text" id="newLevelInput" class="form-input" placeholder="เพิ่มระดับ..." style="max-width: 200px;">
+                                    <button class="btn" onclick="app.addSettingLevel()">เพิ่ม</button>
+                                </div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                    ${levelTags}
+                                </div>
+                            </div>
+                            <div>
+                                <h3 style="margin-bottom: 1rem;">กะการทำงาน (Shifts)</h3>
+                                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                                    <input type="text" id="newShiftInput" class="form-input" placeholder="เพิ่มกะ..." style="max-width: 200px;">
+                                    <button class="btn" onclick="app.addSettingShift()">เพิ่ม</button>
+                                </div>
+                                <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
+                                    ${shiftTags}
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                `;
+            }
+
+            // Drag & Drop Handlers
+            handleDragStart(e) {
+                const target = e.target.closest('.draggable-tag');
+                if (!target) return;
+
+                this.dragItem = {
+                    category: target.dataset.category,
+                    index: parseInt(target.dataset.index)
+                };
+
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', ''); // Required for Firefox
+
+                setTimeout(() => target.classList.add('dragging'), 0);
+            }
+
+            handleDragOver(e) {
+                e.preventDefault(); // Necessary for Drop
+                e.dataTransfer.dropEffect = 'move';
+
+                const target = e.target.closest('.draggable-tag');
+                if (target) {
+                    target.classList.add('drag-over');
+                }
+            }
+
+            handleDragLeave(e) {
+                const target = e.target.closest('.draggable-tag');
+                if (target) {
+                    target.classList.remove('drag-over');
+                }
+            }
+
+            handleDrop(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                const target = e.target.closest('.draggable-tag');
+
+                // Cleanup visual
+                document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
+                document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+
+                if (!target) { return; }
+
+                // Fallback: Use this.dragItem (State) OR dataTransfer (Legacy/Cross-Window)
+                let fromCategory, fromIndex;
+
+                if (this.dragItem) {
+                    fromCategory = this.dragItem.category;
+                    fromIndex = this.dragItem.index;
+                } else {
+                    try {
+                        const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+                        fromCategory = data.category;
+                        fromIndex = parseInt(data.index);
+                    } catch (err) {
+                        return;
+                    }
+                }
+
+                const toCategory = target.dataset.category;
+                const toIndex = parseInt(target.dataset.index);
+
+                if (fromCategory === toCategory && fromIndex !== toIndex) {
+                    this.store.reorderSetting(fromCategory, fromIndex, toIndex);
+                    this.render();
+                } else {
+                }
+                this.dragItem = null;
+            }
+
+            handleDragEnd(e) {
+                document.querySelectorAll('.dragging').forEach(el => el.classList.remove('dragging'));
+            }
+
+            // Touch Handlers
+            handleTouchStart(e) {
+                const target = e.target.closest('.draggable-tag');
+                if (!target) return;
+                target.classList.add('dragging');
+                this.touchSrc = {
+                    category: target.dataset.category,
+                    index: parseInt(target.dataset.index),
+                    element: target
+                };
+            }
+
+            handleTouchMove(e) {
+                if (!this.touchSrc) return; // Allow normal scrolling if not dragging tag
+                e.preventDefault(); // Stop scrolling ONLY when dragging
+                const touch = e.touches[0];
+                const target = document.elementFromPoint(touch.clientX, touch.clientY);
+
+                if (target && target.closest('.draggable-tag')) {
+                    const dropTarget = target.closest('.draggable-tag');
+                    // Optional: Visual feedback for drop target
+                }
+            }
+
+            handleTouchEnd(e) {
+                const touch = e.changedTouches[0];
+                const target = document.elementFromPoint(touch.clientX, touch.clientY);
+                const dropTarget = target ? target.closest('.draggable-tag') : null;
+
+                if (this.touchSrc && dropTarget) {
+                    const fromCategory = this.touchSrc.category;
+                    const fromIndex = this.touchSrc.index;
+                    const toCategory = dropTarget.dataset.category;
+                    const toIndex = parseInt(dropTarget.dataset.index);
+
+                    if (fromCategory === toCategory && fromIndex !== toIndex) {
+                        this.store.reorderSetting(fromCategory, fromIndex, toIndex);
+                        this.render();
+                    }
+                }
+
+                if (this.touchSrc && this.touchSrc.element) {
+                    this.touchSrc.element.classList.remove('dragging');
+                }
+                this.touchSrc = null;
+            }
+
+            openSettings() {
+                this.navigate('settings');
+            }
+
+            renderDashboard() {
+                const totalEmp = this.store.employees.length;
+                const totalEq = this.store.equipment.length;
+                const assignedEq = this.store.equipment.filter(e => e.assignedTo).length;
+                const availEq = totalEq - assignedEq;
+
+                // Determine Columns based on Tab
+                const empCols = [
+                    { id: 'name', label: 'ชื่อ-นามสกุล' },
+                    { id: 'level', label: 'ระดับ' },
+                    { id: 'shift', label: 'กะการทำงาน' },
+                    { id: 'phones', label: 'เบอร์โทร' },
+                    { id: 'count', label: 'อุปกรณ์' }
+                ];
+                const eqCols = [
+                    { id: 'name', label: 'ชื่ออุปกรณ์' },
+                    { id: 'serial', label: 'Serial' },
+                    { id: 'type', label: 'ประเภท' },
+                    { id: 'status', label: 'สถานะ' },
+                    { id: 'holder', label: 'ผู้ถือครอง' }
+                ];
+
+                const currentCols = this.dashboardState.tab === 'employees' ? empCols : eqCols;
+
+                // Column Toggles UI
+                const colToggles = currentCols.map(col => `
+                    <label style="margin-right: 15px; cursor: pointer; font-size: 0.9em; user-select: none;">
+                        <input type="checkbox" 
+                            ${!this.dashboardState.hiddenCols.includes(col.id) ? 'checked' : ''} 
+                            onchange="app.toggleDashboardCol('${col.id}')"> 
+                        ${col.label}
+                    </label>
+                `).join('');
+
+                return `
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">พนักงานทั้งหมด</div>
+                            <div class="stat-value">${totalEmp}</div>
+                            <i class='bx bxs-user-rectangle' style="position: absolute; right: 20px; bottom: 20px; font-size: 3rem; opacity: 0.1"></i>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">อุปกรณ์ทั้งหมด</div>
+                            <div class="stat-value">${totalEq}</div>
+                            <i class='bx bxs-devices' style="position: absolute; right: 20px; bottom: 20px; font-size: 3rem; opacity: 0.1"></i>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">กำลังใช้งาน</div>
+                            <div class="stat-value" style="color: var(--secondary)">${assignedEq}</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">พร้อมใช้</div>
+                            <div class="stat-value" style="color: #34d399">${availEq}</div>
+                        </div>
+                    </div>
+
+                    <div class="data-card" style="margin-top: 2rem;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 1rem;">
+                            <div style="display: flex; gap: 0.5rem;">
+                                <button class="btn ${this.dashboardState.tab === 'employees' ? '' : 'btn-secondary'}" 
+                                    onclick="app.setDashboardTab('employees')">
+                                    <i class='bx bxs-user-detail'></i> พนักงาน
+                                </button>
+                                <button class="btn ${this.dashboardState.tab === 'equipment' ? '' : 'btn-secondary'}" 
+                                    onclick="app.setDashboardTab('equipment')">
+                                    <i class='bx bxs-devices'></i> อุปกรณ์
+                                </button>
+                            </div>
+                            <!-- Export Button -->
+                            <button class="btn btn-secondary" onclick="app.exportToCSV()">
+                                <i class='bx bxs-file-export'></i> Export Report
+                            </button>
+                            <div style="background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 6px;">
+                                <span style="margin-right: 10px; color: var(--text-muted); font-size: 0.9em;">แสดงผล:</span>
+                                ${colToggles}
+                            </div>
+                        </div>
+
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        ${this.renderDashboardHeaders(currentCols)}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${this.renderDashboardRows()}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderDashboardHeaders(cols) {
+                return cols.map(col => {
+                    if (this.dashboardState.hiddenCols.includes(col.id)) return '';
+
+                    const isSorted = this.dashboardState.sortCol === col.id;
+                    const icon = isSorted
+                        ? (this.dashboardState.sortDir === 'asc' ? "<i class='bx bx-chevron-up'></i>" : "<i class='bx bx-chevron-down'></i>")
+                        : "";
+
+                    return `
+                        <th style="cursor: pointer; user-select: none;" onclick="app.sortDashboard('${col.id}')">
+                            ${col.label} ${icon}
+                        </th>
+                    `;
+                }).join('');
+            }
+
+            renderDashboardRows() {
+                const tab = this.dashboardState.tab;
+                const hidden = this.dashboardState.hiddenCols;
+
+                let data = [];
+                if (tab === 'employees') {
+                    data = this.store.employees.map(e => ({
+                        ...e,
+                        phones: (e.officePhone || '') + (e.personalPhone || ''), // simplified for sort
+                        count: this.store.equipment.filter(eq => eq.assignedTo === e.id).length
+                    }));
+                } else {
+                    data = this.store.equipment.map(e => ({
+                        ...e,
+                        holder: e.assignedTo ? this.store.getEmployeeName(e.assignedTo) : ''
+                    }));
+                }
+
+                // Sort
+                const { sortCol, sortDir } = this.dashboardState;
+                data.sort((a, b) => {
+                    const valA = (a[sortCol] || '').toString().toLowerCase();
+                    const valB = (b[sortCol] || '').toString().toLowerCase();
+                    // Numeric sort for count
+                    if (sortCol === 'count' || sortCol === 'age') {
+                        return sortDir === 'asc' ? a[sortCol] - b[sortCol] : b[sortCol] - a[sortCol];
+                    }
+                    if (valA < valB) return sortDir === 'asc' ? -1 : 1;
+                    if (valA > valB) return sortDir === 'asc' ? 1 : -1;
+                    return 0;
+                });
+
+                if (data.length === 0) return '<tr><td colspan="10" class="empty-state">ไม่มีข้อมูล</td></tr>';
+
+                return data.map(item => {
+                    if (tab === 'employees') {
+                        // Phone display logic
+                        let phoneHtml = '';
+                        if (item.officePhone) phoneHtml += `<div><small>ปณ:</small> ${item.officePhone}</div>`;
+                        if (item.personalPhone) phoneHtml += `<div><small>ส่วนตัว:</small> ${item.personalPhone}</div>`;
+
+                        return `
+                            <tr>
+                                ${!hidden.includes('name') ? `<td><div style="font-weight:500">${item.prefix || ''} ${item.name}</div><div style="font-size:0.8em;color:var(--primary);font-weight:600">ID: ${item.employeeId || '-'}</div></td>` : ''}
+                                ${!hidden.includes('level') ? `<td><span class="status-badge" style="background: rgba(237, 28, 36, 0.1); color: var(--primary)">${item.level}</span></td>` : ''}
+                                ${!hidden.includes('shift') ? `<td>${item.shift || '-'} <span style="color: var(--text-muted); font-size: 0.8em">${item.shiftDetail || ''}</span></td>` : ''}
+                                ${!hidden.includes('phones') ? `<td>${phoneHtml || '-'}</td>` : ''}
+                                ${!hidden.includes('count') ? `<td>${item.count}</td>` : ''}
+                            </tr>
+                        `;
+                    } else {
+                        // Status Logic
+                        let statusColor = '#94a3b8';
+                        if (item.status === 'ปกติ') statusColor = '#34d399';
+                        else if (item.status === 'ชำรุด') statusColor = '#f472b6';
+                        else if (item.assignedTo) statusColor = '#1E293B'; // Dark Slate for Assigned
+
+                        return `
+                            <tr>
+                                ${!hidden.includes('name') ? `<td>${item.name}</td>` : ''}
+                                ${!hidden.includes('serial') ? `<td>${item.serial}</td>` : ''}
+                                ${!hidden.includes('type') ? `<td>${item.type}</td>` : ''}
+                                ${!hidden.includes('status') ? `<td><span class="status-badge" style="background: ${statusColor}20; color: ${statusColor}">${item.status}</span></td>` : ''}
+                                ${!hidden.includes('holder') ? `<td>${item.holder || '-'}</td>` : ''}
+                            </tr>
+                        `;
+                    }
+                }).join('');
+            }
+
+            // Dashboard Actions
+            setDashboardTab(tab) {
+                this.dashboardState.tab = tab;
+                this.dashboardState.hiddenCols = []; // Reset hidden on tab switch
+                this.render(); // Re-render whole app or just dashboard
+            }
+
+            toggleDashboardCol(colId) {
+                const idx = this.dashboardState.hiddenCols.indexOf(colId);
+                if (idx > -1) {
+                    this.dashboardState.hiddenCols.splice(idx, 1);
+                } else {
+                    this.dashboardState.hiddenCols.push(colId);
+                }
+                this.render();
+            }
+
+            sortDashboard(colId) {
+                if (this.dashboardState.sortCol === colId) {
+                    this.dashboardState.sortDir = this.dashboardState.sortDir === 'asc' ? 'desc' : 'asc';
+                } else {
+                    this.dashboardState.sortCol = colId;
+                    this.dashboardState.sortDir = 'asc';
+                }
+                this.render();
+            }
+
+            toggleShiftDetail(e) {
+                const shift = e.target.value;
+                const detailGroup = document.getElementById('shiftDetailGroup');
+                const detailSelect = document.getElementById('shiftDetailSelect');
+
+                if (shift) {
+                    detailGroup.style.display = 'block';
+                    detailSelect.innerHTML = ''; // Clear existing
+
+                    if (shift === 'เวรกลาง') {
+                        // Middle Shift: Mon-Fri Only
+                        detailSelect.innerHTML = '<option value="จันทร์ - ศุกร์">จันทร์ - ศุกร์ (หยุดเสาร์-อาทิตย์)</option>';
+                    } else {
+                        // Shift A/B: Mon-Fri + Alternating Weekend
+                        detailSelect.innerHTML = `
+                                <option value="จันทร์ - ศุกร์ + เสาร์ - อาทิตย์ (เข้าเวร)">จันทร์ - ศุกร์ + เสาร์ - อาทิตย์ (เข้าเวร)</option>
+                                <option value="จันทร์ - ศุกร์ (หยุดเสาร์ - อาทิตย์)">จันทร์ - ศุกร์ (หยุดเสาร์ - อาทิตย์)</option>
+                            `;
+                        // Auto-select the standard one
+                        detailSelect.value = "จันทร์ - ศุกร์ + เสาร์ - อาทิตย์ (เข้าเวร)";
+                    }
+                    detailSelect.required = true; // Set required when visible
+                } else {
+                    detailGroup.style.display = 'none';
+                    detailSelect.value = ''; // Clear value when hidden
+                    detailSelect.required = false; // Not required when hidden
+                }
+            }
+
+            renderEmployees() {
+                const rows = this.store.employees.map(emp => {
+                    const count = this.store.equipment.filter(e => e.assignedTo === emp.id).length;
+
+                    // Format Shift Display
+                    let shiftDisplay = emp.shift || '-';
+                    if (emp.shiftDetail) {
+                        shiftDisplay += ` <span style="font-size:0.85em; color:var(--text-muted)">(${emp.shiftDetail})</span>`;
+                    }
+
+                    // Format Phones
+                    let phones = '';
+                    if (emp.officePhone) phones += `<div><i class='bx bx-phone'></i> ปณ: ${emp.officePhone}</div>`;
+                    if (emp.personalPhone) phones += `<div><i class='bx bx-mobile'></i> ส่วนตัว: ${emp.personalPhone}</div>`;
+                    if (!phones) phones = '-';
+
+                    return `
+                        <tr>
+                            <td>
+                                <div style="font-weight: 500">${emp.prefix || ''} ${emp.name}</div>
+                                <div style="font-size: 0.85rem; color: var(--primary); font-weight: 600;">ID: ${emp.employeeId || '-'}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted)">อายุ ${emp.age || '-'} ปี</div>
+                            </td>
+                            <td>
+                                <span class="status-badge" style="background: rgba(237, 28, 36, 0.1); color: var(--primary)">${emp.level || '-'}</span>
+                            </td>
+                            <td>
+                                <div style="font-weight:500">${shiftDisplay}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted)">${emp.workTime || '-'}</div>
+                            </td>
+                            <td style="font-size: 0.9em">${phones}</td>
+                            <td>${emp.note || '-'}</td>
+                            <td><span class="status-badge status-assigned">${count} ชิ้น</span></td>
+                            <td>
+                                <button onclick="app.openHistoryModal('${emp.id}')" class="btn-secondary" style="padding: 5px 10px; border-radius: 4px; margin-right: 5px; color: #f59e0b; border-color: rgba(245, 158, 11, 0.3)" title="ประวัติ">
+                                    <i class='bx bx-history'></i>
+                                </button>
+                                <button onclick="app.openEditEmployeeModal('${emp.id}')" class="btn-secondary" style="padding: 5px 10px; border-radius: 4px; margin-right: 5px; color: var(--primary); border-color: rgba(237, 28, 36, 0.3)">
+                                    <i class='bx bx-edit'></i>
+                                </button>
+                                <button onclick="app.softDeleteEmployee('${emp.id}')" class="btn-secondary" style="padding: 5px 10px; border-radius: 4px; color: #ef4444; border-color: rgba(239,68,68,0.3)">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="action-bar">
+                        <input type="text" placeholder="ค้นหาพนักงาน..." class="form-input" style="width: 300px;">
+                        <button class="btn" onclick="app.openEmployeeModal()">
+                            <i class='bx bx-plus'></i> เพิ่มพนักงาน
+                        </button>
+                    </div>
+                    <div class="data-card">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ชื่อ-นามสกุล / อายุ</th>
+                                        <th>ระดับ</th>
+                                        <th>กะ / เวลาทำงาน</th>
+                                        <th>เบอร์โทรศัพท์</th>
+                                        <th>หมายเหตุ</th>
+                                        <th>อุปกรณ์</th>
+                                        <th>จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rows || '<tr><td colspan="7" class="empty-state">ยังไม่มีข้อมูลพนักงาน</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderEquipment() {
+                const rows = this.store.equipment.map(eq => {
+                    const assignedName = eq.assignedTo ? this.store.getEmployeeName(eq.assignedTo) : '-';
+                    const statusClass = eq.assignedTo ? 'status-assigned' : 'status-available';
+
+                    // Simple status color logic
+                    let statusColor = '#94a3b8'; // default gray
+                    if (eq.status === 'ปกติ') statusColor = '#34d399';
+                    if (eq.status === 'ชำรุด') statusColor = '#f472b6';
+                    if (eq.status === 'ส่งซ่อม') statusColor = '#facc15';
+                    if (eq.status === 'สูญหาย') statusColor = '#ef4444';
+                    if (eq.assignedTo) statusColor = '#1E293B';
+
+                    const statusBadge = `
+                        <span class="status-badge" style="background: ${statusColor}20; color: ${statusColor}">
+                            ${eq.status || 'ปกติ'}
+                        </span>
+                    `;
+
+                    return `
+                        <tr>
+                            <td>${eq.name}</td>
+                            <td>${eq.serial}</td>
+                            <td>${eq.type}</td>
+                            <td>
+                                ${statusBadge}
+                                <div style="font-size: 0.8rem; margin-top: 4px; color: var(--text-muted)">
+                                    ${eq.assignedTo ? 'ผู้ใช้: ' + assignedName : 'ว่าง'}
+                                </div>
+                            </td>
+                            <td>
+                                <button onclick="app.softDeleteEquipment('${eq.id}')" class="btn-secondary" style="padding: 5px 10px; border-radius: 4px; color: #ef4444; border-color: rgba(239,68,68,0.3)">
+                                    <i class='bx bx-trash'></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="action-bar">
+                        <input type="text" placeholder="ค้นหาอุปกรณ์..." class="form-input" style="width: 300px;">
+                        <button class="btn" onclick="app.openEquipmentModal()">
+                            <i class='bx bx-plus'></i> เพิ่มอุปกรณ์
+                        </button>
+                    </div>
+                    <div class="data-card">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>ชื่ออุปกรณ์</th>
+                                        <th>Serial Number</th>
+                                        <th>ประเภท</th>
+                                        <th>สถานะ / ผู้ถือครอง</th>
+                                        <th>จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${rows || '<tr><td colspan="5" class="empty-state">ยังไม่มีข้อมูลอุปกรณ์</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderRecycleBin() {
+                const empRows = this.store.trash.employees.map(emp => `
+                    <tr>
+                        <td>${emp.name}</td>
+                        <td>พนักงาน</td>
+                        <td>${new Date(emp.deletedAt).toLocaleString()}</td>
+                        <td>
+                            <button onclick="app.restoreEmployee('${emp.id}')" class="btn-secondary" style="margin-right: 0.5rem; color: #34d399; border-color: rgba(52, 211, 153, 0.3)">
+                                <i class='bx bx-undo'></i>
+                            </button>
+                            <button onclick="app.hardDeleteEmployee('${emp.id}')" class="btn-secondary" style="color: #ef4444; border-color: rgba(239,68,68,0.3)">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                const eqRows = this.store.trash.equipment.map(eq => `
+                    <tr>
+                        <td>${eq.name}</td>
+                        <td>อุปกรณ์</td>
+                        <td>${new Date(eq.deletedAt).toLocaleString()}</td>
+                        <td>
+                            <button onclick="app.restoreEquipment('${eq.id}')" class="btn-secondary" style="margin-right: 0.5rem; color: #34d399; border-color: rgba(52, 211, 153, 0.3)">
+                                <i class='bx bx-undo'></i>
+                            </button>
+                            <button onclick="app.hardDeleteEquipment('${eq.id}')" class="btn-secondary" style="color: #ef4444; border-color: rgba(239,68,68,0.3)">
+                                <i class='bx bx-trash'></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+
+                const allRows = empRows + eqRows;
+
+                return `
+                    <div class="data-card">
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>รายการ</th>
+                                        <th>ประเภท</th>
+                                        <th>ลบเมื่อ</th>
+                                        <th>จัดการ</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    ${allRows || '<tr><td colspan="4" class="empty-state">ถังขยะว่างเปล่า</td></tr>'}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+            }
+
+            renderSettings() {
+                const activeTab = this.settingsTab || 'general';
+
+                return `
+                    <div class="tabs">
+                        <button class="tab-btn ${activeTab === 'general' ? 'active' : ''}" onclick="app.switchSettingsTab('general')">
+                            <i class='bx bx-slider-alt'></i> ทั่วไป
+                        </button>
+                        <button class="tab-btn ${activeTab === 'recycle' ? 'active' : ''}" onclick="app.switchSettingsTab('recycle')">
+                            <i class='bx bx-trash'></i> ถังขยะ
+                        </button>
+                    </div>
+
+                    <div class="settings-content">
+                        ${activeTab === 'general' ? this.renderSettingsGeneral() : this.renderRecycleBin()}
+                    </div>
+                `;
+            }
+
+            switchSettingsTab(tab) {
+                this.settingsTab = tab;
+                this.render();
+            }
+
+
+            openEmployeeModal() {
+                document.getElementById('empModalTitle').innerText = 'เพิ่มพนักงานใหม่';
+                document.getElementById('empIdInput').value = '';
+                document.querySelector('#employeeModal form').reset();
+
+                // Populate dynamic options
+                this.populateEmployeeOptions();
+
+                // Reset dynamic shift
+                document.getElementById('shiftDetailGroup').style.display = 'none';
+                document.getElementById('shiftDetailSelect').required = false;
+
+                document.getElementById('employeeModal').classList.add('open');
+            }
+
+            openEditEmployeeModal(id) {
+                const emp = this.store.employees.find(e => e.id === id);
+                if (!emp) return;
+
+                document.getElementById('empModalTitle').innerText = 'แก้ไขข้อมูลพนักงาน';
+                document.getElementById('empIdInput').value = emp.id;
+
+                // Populate dynamic options first
+                this.populateEmployeeOptions();
+
+                const form = document.querySelector('#employeeModal form');
+                form.employeeId.value = emp.employeeId || '';
+                form.prefix.value = emp.prefix;
+                form.name.value = emp.name;
+                form.age.value = emp.age;
+                form.level.value = emp.level;
+                form.shift.value = emp.shift;
+
+                // Trigger Shift Logic
+                form.shift.dispatchEvent(new Event('change')); // Trigger visibility
+
+                form.shiftDetail.value = emp.shiftDetail || '';
+                form.workTime.value = emp.workTime || '';
+                form.officePhone.value = emp.officePhone || '';
+                form.personalPhone.value = emp.personalPhone || '';
+                form.personalPhone.value = emp.personalPhone || '';
+                form.note.value = emp.note || '';
+                form.startDate.value = emp.startDate || '';
+                form.employmentType.value = emp.employmentType || 'Monthly';
+                form.carryOver.value = emp.carryOver || 0;
+
+                document.getElementById('employeeModal').classList.add('open');
+            }
+
+            populateEmployeeOptions() {
+                const levelSelect = document.querySelector('select[name="level"]');
+                const currentLevel = levelSelect.value;
+                levelSelect.innerHTML = '<option value="">-- เลือกระดับ --</option>';
+                this.store.settings.levels.forEach(l => {
+                    levelSelect.innerHTML += `<option value="${l}">${l}</option>`;
+                });
+                if (currentLevel) levelSelect.value = currentLevel;
+
+                const shiftSelect = document.querySelector('select[name="shift"]');
+                const currentShift = shiftSelect.value;
+                shiftSelect.innerHTML = '<option value="">-- เลือกกะ --</option>';
+                this.store.settings.shifts.forEach(s => {
+                    shiftSelect.innerHTML += `<option value="${s}">${s}</option>`;
+                });
+                if (currentShift) shiftSelect.value = currentShift;
+            }
+
+            openEquipmentModal() {
+                const selectType = document.querySelector('select[name="type"]');
+                selectType.innerHTML = '';
+                this.store.settings.types.forEach(t => {
+                    selectType.innerHTML += `<option value="${t}">${t}</option>`;
+                });
+
+                const selectStatus = document.querySelector('select[name="status"]');
+                if (selectStatus) {
+                    selectStatus.innerHTML = '';
+                    this.store.settings.statuses.forEach(s => {
+                        selectStatus.innerHTML += `<option value="${s}">${s}</option>`;
+                    });
+                }
+
+                // Populate employee select
+                const selectEmp = document.getElementById('employeeSelect');
+                selectEmp.innerHTML = '<option value="">-- ยังไม่ระบุ --</option>';
+                this.store.employees.forEach(emp => {
+                    selectEmp.innerHTML += `<option value="${emp.id}">${emp.prefix || ''}${emp.name}</option>`;
+                });
+                document.getElementById('equipmentModal').classList.add('open');
+            }
+
+            closeModals() {
+                document.querySelectorAll('.modal-overlay').forEach(el => el.classList.remove('open'));
+            }
+
+            handleEmployeeSubmit(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const id = formData.get('id');
+                const emp = {
+                    id: id || Date.now().toString(), // Use existing ID or create new
+                    employeeId: formData.get('employeeId'),
+                    prefix: formData.get('prefix'),
+                    name: formData.get('name'),
+                    age: formData.get('age'),
+                    level: formData.get('level'),
+                    shift: formData.get('shift'),
+                    shiftDetail: formData.get('shiftDetail'),
+                    workTime: formData.get('workTime'),
+                    officePhone: formData.get('officePhone'),
+                    personalPhone: formData.get('personalPhone'),
+                    note: formData.get('note'),
+                    startDate: formData.get('startDate'),
+                    employmentType: formData.get('employmentType'),
+                    carryOver: parseFloat(formData.get('carryOver') || 0)
+                };
+
+                if (id) {
+                    this.store.updateEmployee(emp); // Update
+                } else {
+                    // Remove ID so addEmployee generates it
+                    delete emp.id;
+                    this.store.addEmployee(emp);
+                }
+
+                e.target.reset();
+                this.closeModals();
+                this.render(); // Re-render to show new data
+            }
+
+            // History Logic
+            openHistoryModal(empId) {
+                this.currentHistoryEmpId = empId;
+                const emp = this.store.employees.find(e => e.id === empId);
+                if (!emp) return;
+
+                document.getElementById('historyEmpName').innerText = emp.name;
+
+                // Set default tab
+                this.switchHistoryTab('leaves');
+
+                document.getElementById('historyModal').classList.add('open');
+            }
+
+            switchHistoryTab(tab) {
+                // Update UI tabs
+                document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+                const index = tab === 'leaves' ? 0 : 1;
+                document.querySelectorAll('.tab-btn')[index].classList.add('active');
+
+                // Toggle Content
+                document.getElementById('historyLeaves').style.display = tab === 'leaves' ? 'block' : 'none';
+                document.getElementById('historyTraining').style.display = tab === 'training' ? 'block' : 'none';
+
+                this.renderHistoryContent();
+            }
+
+            renderHistoryContent() {
+                const emp = this.store.employees.find(e => e.id === this.currentHistoryEmpId);
+                if (!emp) return;
+
+                // Default to empty if no history
+                const history = emp.history || { leaves: [], training: [] };
+
+                // Render Leaves
+                const leaveRows = (history.leaves || []).map(l => `
+                    <tr>
+                        <td>${new Date(l.date).toLocaleDateString('th-TH')}</td>
+                        <td>${l.type}</td>
+                        <td style="color: var(--text-muted);">${l.note || '-'}</td>
+                        <td>${l.days}</td>
+                        <td><i class='bx bx-trash' style="cursor: pointer; color: #ef4444;" onclick="app.removeHistoryItem('leaves', '${l.id}')"></i></td>
+                    </tr>
+                `).join('');
+                document.getElementById('leavesTableBody').innerHTML = leaveRows || '<tr><td colspan="5" class="empty-state" style="padding: 1rem;">ไม่มีประวัติการลา</td></tr>';
+
+                // Render Training
+                const trainRows = (history.training || []).map(t => `
+                    <tr>
+                        <td>${new Date(t.date).toLocaleDateString('th-TH')}</td>
+                        <td>${t.topic}</td>
+                        <td><i class='bx bx-trash' style="cursor: pointer; color: #ef4444;" onclick="app.removeHistoryItem('training', '${t.id}')"></i></td>
+                    </tr>
+                `).join('');
+                document.getElementById('trainingTableBody').innerHTML = trainRows || '<tr><td colspan="3" class="empty-state" style="padding: 1rem;">ไม่มีประวัติการอบรม</td></tr>';
+            }
+
+            handleAddLeave(e) {
+                e.preventDefault();
+
+                try {
+                    const formData = new FormData(e.target);
+                    const item = {
+                        type: formData.get('type'),
+                        date: formData.get('date'),
+                        days: parseFloat(formData.get('days')),
+                        note: formData.get('note')
+                    };
+
+                    if (!item.date) {
+                        alert('กรุณาระบุวันที่');
+                        return;
+                    }
+
+                    this.store.addHistoryItem(this.currentHistoryEmpId, 'leaves', item);
+                    e.target.reset();
+                    this.renderHistoryContent();
+                    alert('บันทึกข้อมูลเรียบร้อย');
+                } catch (err) {
+                    console.error('Error adding leave:', err);
+                    alert('เกิดข้อผิดพลาดในการบันทึก: ' + err.message);
+                }
+            }
+
+            handleAddTraining(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const item = {
+                    topic: formData.get('topic'),
+                    date: formData.get('date')
+                };
+                this.store.addHistoryItem(this.currentHistoryEmpId, 'training', item);
+                e.target.reset();
+                this.renderHistoryContent();
+            }
+
+            removeHistoryItem(category, itemId) {
+                if (confirm('ลบรายการนี้?')) {
+                    this.store.removeHistoryItem(this.currentHistoryEmpId, category, itemId);
+                    this.renderHistoryContent();
+                }
+            }
+
+            handleEquipmentSubmit(e) {
+                e.preventDefault();
+                const formData = new FormData(e.target);
+                const eq = {
+                    name: formData.get('name'),
+                    serial: formData.get('serial'),
+                    type: formData.get('type'),
+                    status: formData.get('status') || 'ปกติ', // Default to ปกติ
+                    assignedTo: formData.get('assignedTo')
+                };
+                this.store.addEquipment(eq);
+                e.target.reset();
+                this.closeModals();
+                this.render();
+            }
+
+            softDeleteEmployee(id) {
+                if (confirm('ยืนยันลบพนักงาน? (ข้อมูลจะถูกย้ายไปถังขยะ)')) {
+                    this.store.softDeleteEmployee(id);
+                    this.render();
+                }
+            }
+
+            softDeleteEquipment(id) {
+                if (confirm('ยืนยันลบอุปกรณ์? (ข้อมูลจะถูกย้ายไปถังขยะ)')) {
+                    this.store.softDeleteEquipment(id);
+                    this.render();
+                }
+            }
+
+            restoreEmployee(id) {
+                this.store.restoreEmployee(id);
+                this.render();
+            }
+            hardDeleteEmployee(id) {
+                if (confirm('ลบถาวร? ไม่สามารถกู้คืนได้')) {
+                    this.store.hardDeleteEmployee(id);
+                    this.render();
+                }
+            }
+            restoreEquipment(id) {
+                this.store.restoreEquipment(id);
+                this.render();
+            }
+            hardDeleteEquipment(id) {
+                if (confirm('ลบถาวร? ไม่สามารถกู้คืนได้')) {
+                    this.store.hardDeleteEquipment(id);
+                    this.render();
+                }
+            }
+
+            // Settings
+            addSettingType() {
+                const val = document.getElementById('newTypeInput').value.trim();
+                if (val) {
+                    this.store.addType(val);
+                    this.render();
+                }
+            }
+            removeSettingType(val) {
+                if (confirm('ลบประเภทนี้?')) {
+                    this.store.removeType(val);
+                    this.render();
+                }
+            }
+            addSettingStatus() {
+                const val = document.getElementById('newStatusInput').value.trim();
+                if (val) {
+                    this.store.addStatus(val);
+                    this.render();
+                }
+            }
+            removeSettingStatus(val) {
+                if (confirm('ลบสถานะนี้?')) {
+                    this.store.removeStatus(val);
+                    this.render();
+                }
+            }
+
+            addSettingLevel() {
+                const val = document.getElementById('newLevelInput').value.trim();
+                if (val) {
+                    this.store.addLevel(val);
+                    this.render();
+                }
+            }
+            removeSettingLevel(val) {
+                if (confirm('ลบระดับนี้?')) {
+                    this.store.removeLevel(val);
+                    this.render();
+                }
+            }
+
+            addSettingShift() {
+                const val = document.getElementById('newShiftInput').value.trim();
+                if (val) {
+                    this.store.addShift(val);
+                    this.render();
+                }
+            }
+            removeSettingShift(val) {
+                if (confirm('ลบกะนี้?')) {
+                    this.store.removeShift(val);
+                    this.render();
+                }
+            }
+        }
+
+        // Initialize App
+        const app = new App();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,259 @@
+:root {
+    --primary-red: #ED1C24;
+    --secondary-blue: #003666;
+    --bg-light: #F9FAFB;
+    --card-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Anuphan', sans-serif;
+    background-color: var(--bg-light);
+    color: #1F2937;
+    line-height: 1.6;
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+}
+
+.container {
+    width: 100%;
+    max-width: 500px;
+    background: white;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: var(--card-shadow);
+}
+
+header {
+    background: white;
+    padding: 24px;
+    text-align: center;
+    border-bottom: 1px solid #F3F4F6;
+}
+
+.logo {
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.logo .post {
+    color: var(--primary-red);
+}
+
+.logo .family {
+    color: var(--secondary-blue);
+    font-style: italic;
+}
+
+main {
+    padding: 32px 24px;
+}
+
+.hero {
+    text-align: center;
+    margin-bottom: 32px;
+}
+
+.hero h1 {
+    font-size: 22px;
+    color: var(--secondary-blue);
+    margin-bottom: 8px;
+}
+
+.hero p {
+    font-size: 14px;
+    color: #6B7280;
+}
+
+.referral-card {
+    background: #FFF;
+    border: 2px solid #F3F4F6;
+    border-radius: 16px;
+    margin-bottom: 32px;
+    overflow: hidden;
+    transition: transform 0.3s ease;
+}
+
+.referral-card:hover {
+    transform: translateY(-2px);
+    border-color: #E5E7EB;
+}
+
+.card-header {
+    background: var(--secondary-blue);
+    color: white;
+    padding: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    text-align: center;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.referral-item {
+    margin-bottom: 20px;
+}
+
+.referral-item:last-child {
+    margin-bottom: 0;
+}
+
+.referral-item label {
+    display: block;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #9CA3AF;
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.copy-box {
+    display: flex;
+    background: #F3F4F6;
+    border-radius: 12px;
+    padding: 4px;
+    border: 1px solid #E5E7EB;
+}
+
+.copy-box .prefix {
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #9CA3AF;
+    user-select: none;
+}
+
+.copy-box input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 10px 12px;
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--secondary-blue);
+    width: 0; /* Ensures flex works properly */
+}
+
+.copy-box button {
+    background: white;
+    border: 1px solid #E5E7EB;
+    color: var(--secondary-blue);
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.copy-box button:hover {
+    background: var(--secondary-blue);
+    color: white;
+    border-color: var(--secondary-blue);
+}
+
+.copy-box button.copied {
+    background: #10B981;
+    color: white;
+    border-color: #10B981;
+}
+
+.referral-item small {
+    display: block;
+    margin-top: 8px;
+    font-size: 11px;
+    color: #9CA3AF;
+}
+
+.action-area {
+    margin-bottom: 32px;
+}
+
+.main-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: var(--primary-red);
+    color: white;
+    text-decoration: none;
+    padding: 18px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 18px;
+    box-shadow: 0 4px 6px -1px rgba(237, 28, 36, 0.3), 0 2px 4px -1px rgba(237, 28, 36, 0.1);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.main-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 15px -3px rgba(237, 28, 36, 0.4);
+}
+
+.instructions {
+    background: #F9FAFB;
+    padding: 20px;
+    border-radius: 16px;
+}
+
+.instructions h2 {
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: var(--secondary-blue);
+}
+
+.zip-highlight {
+    text-align: center;
+    background: #FFF;
+    padding: 10px;
+    border: 1px dashed var(--primary-red);
+    border-radius: 12px;
+}
+
+.zip-badge {
+    font-size: 32px;
+    font-weight: 800;
+    color: var(--primary-red);
+    letter-spacing: 4px;
+    margin: 5px 0;
+    text-shadow: 1px 1px 0px rgba(0,0,0,0.05);
+}
+
+.zip-note {
+    font-size: 13px;
+    color: #6B7280;
+}
+
+.instructions ol {
+    margin-left: 18px;
+    font-size: 14px;
+    color: #4B5563;
+}
+
+.instructions li {
+    margin-bottom: 8px;
+}
+
+footer {
+    padding: 24px;
+    text-align: center;
+    font-size: 11px;
+    color: #9CA3AF;
+    border-top: 1px solid #F3F4F6;
+}
+
+@keyframes toast-in {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

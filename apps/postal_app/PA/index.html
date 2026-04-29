@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ระบบรับฝากพัสดุ ไปรษณีย์</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+:root{--primary:#c0392b;--primary-dark:#96281b;--secondary:#2980b9;--success:#27ae60;--warning:#f39c12;--bg:#f5f5f5;--text:#2c3e50;--border:#ddd;--shadow:0 2px 8px rgba(0,0,0,.12)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text);font-size:15px;padding-bottom:70px;min-height:100vh}
+.header{background:var(--primary);color:#fff;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;box-shadow:var(--shadow)}
+.header-title{font-size:17px;font-weight:700}
+.header-sub{font-size:11px;opacity:.9;margin-top:1px}
+.bottom-nav{position:fixed;bottom:0;left:0;right:0;background:#fff;display:flex;border-top:1px solid var(--border);z-index:100;box-shadow:0 -2px 8px rgba(0,0,0,.1)}
+.nav-btn{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:8px 4px;border:none;background:none;color:#888;font-size:10px;cursor:pointer;gap:3px;transition:color .2s}
+.nav-btn.active{color:var(--primary)}
+.nav-btn svg{width:22px;height:22px}
+.page{display:none;padding:12px}
+.page.active{display:block}
+.card{background:#fff;border-radius:10px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+.card-title{font-size:14px;font-weight:700;color:var(--primary);margin-bottom:10px;padding-bottom:8px;border-bottom:2px solid #f0f0f0;display:flex;align-items:center;justify-content:space-between}
+label{display:block;font-size:13px;color:#666;margin-bottom:4px;margin-top:10px}
+label:first-child{margin-top:0}
+input,select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:15px;color:var(--text);font-family:inherit;background:#fff;transition:border-color .2s}
+input:focus,select:focus{outline:none;border-color:var(--primary)}
+input.mono{font-family:'Courier New',monospace;letter-spacing:1px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:11px 18px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;font-family:inherit}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-secondary{background:var(--secondary);color:#fff}
+.btn-success{background:var(--success);color:#fff}
+.btn-warning{background:var(--warning);color:#fff}
+.btn-outline{background:#fff;color:var(--primary);border:1.5px solid var(--primary)}
+.btn-sm{padding:6px 12px;font-size:12px}
+.btn-block{width:100%}
+.btn-danger{background:#e74c3c;color:#fff}
+.btn-gray{background:#95a5a6;color:#fff}
+.price-display{text-align:center;padding:18px;background:linear-gradient(135deg,#c0392b,#e74c3c);border-radius:12px;color:#fff;margin:12px 0}
+.price-display .amount{font-size:48px;font-weight:800;line-height:1}
+.price-display .unit{font-size:16px;opacity:.9}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px}
+.stat-card{background:#fff;border-radius:10px;padding:12px 8px;text-align:center;box-shadow:var(--shadow)}
+.stat-card .val{font-size:22px;font-weight:800;color:var(--primary)}
+.stat-card .lbl{font-size:11px;color:#888;margin-top:2px}
+.parcel-item{display:flex;align-items:flex-start;gap:10px;padding:10px 0;border-bottom:1px solid #f0f0f0;position:relative}
+.parcel-item:last-child{border-bottom:none}
+.parcel-no{width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0;margin-top:2px}
+.parcel-info{flex:1;min-width:0}
+.parcel-barcode{font-family:'Courier New',monospace;font-size:13px;color:var(--secondary);font-weight:600;word-break:break-all}
+.parcel-meta{font-size:12px;color:#888;margin-top:2px}
+.parcel-price{font-size:18px;font-weight:800;color:var(--primary);white-space:nowrap}
+.parcel-del-btn{background:none;border:none;color:#ccc;cursor:pointer;padding:4px;font-size:18px;line-height:1;flex-shrink:0}
+.parcel-del-btn:hover{color:#e74c3c}
+.search-box{display:flex;gap:8px;margin-bottom:10px}
+.search-box input{flex:1}
+.sum-table{width:100%;border-collapse:collapse;font-size:13px}
+.sum-table th{background:var(--primary);color:#fff;padding:8px 6px;text-align:left;font-weight:600}
+.sum-table td{padding:7px 6px;border-bottom:1px solid #f0f0f0}
+.sum-table tr:last-child td{border-bottom:none}
+.sum-table .total-row{background:#fff8f8;font-weight:700}
+.sum-table td.right{text-align:right}
+.sum-table th.right{text-align:right}
+.tab-row{display:flex;border-bottom:2px solid #eee;margin-bottom:12px;overflow-x:auto}
+.tab-item{padding:8px 14px;font-size:13px;font-weight:600;color:#888;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;margin-bottom:-2px}
+.tab-item.active{color:var(--primary);border-bottom-color:var(--primary)}
+.weight-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin:8px 0}
+.weight-btn{padding:10px 4px;border:2px solid var(--border);border-radius:8px;background:#fff;text-align:center;cursor:pointer;font-size:14px;font-weight:600;transition:all .15s}
+.weight-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.pkg-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:8px 0}
+.pkg-btn{padding:8px 4px;border:1.5px solid var(--border);border-radius:6px;background:#fff;text-align:center;cursor:pointer;font-size:12px;font-weight:600;transition:all .15s;line-height:1.3}
+.pkg-btn.active{background:var(--secondary);color:#fff;border-color:var(--secondary)}
+.uni-chip{display:inline-block;padding:1px 7px;border-radius:10px;font-size:11px;font-weight:700;background:#eee;color:#333}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#333;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;opacity:0;transition:all .3s;z-index:999;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.import-zone{border:2px dashed var(--border);border-radius:12px;padding:30px 20px;text-align:center;cursor:pointer;transition:all .2s;color:#888}
+.import-zone:hover,.import-zone.drag{border-color:var(--primary);color:var(--primary);background:#fff0ef}
+.import-zone svg{width:40px;height:40px;margin-bottom:10px}
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;margin:8px 0}
+.alert-info{background:#def;color:var(--secondary)}
+.alert-success{background:#dfd;color:var(--success)}
+.alert-warn{background:#fff3d0;color:#856404}
+.price-table-mini{width:100%;font-size:12px;border-collapse:collapse}
+.price-table-mini th{background:#f8f8f8;padding:6px;border:1px solid var(--border);font-weight:600}
+.price-table-mini td{padding:6px;border:1px solid var(--border);text-align:center}
+.price-table-mini .hl{background:#fff0ef;font-weight:700;color:var(--primary)}
+
+/* Mode toggle */
+.mode-toggle{display:flex;background:#f0f0f0;border-radius:8px;padding:3px;gap:3px;margin-bottom:12px}
+.mode-btn{flex:1;padding:8px;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;background:none;color:#888;transition:all .2s}
+.mode-btn.active{background:#fff;color:var(--primary);box-shadow:var(--shadow)}
+
+/* Batch result preview */
+.batch-preview{background:#f8f8f8;border-radius:8px;padding:10px;margin:10px 0;max-height:200px;overflow-y:auto}
+.batch-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid #eee;font-size:13px}
+.batch-row:last-child{border-bottom:none}
+.batch-seq{color:#888;font-size:11px;min-width:20px}
+.batch-code{font-family:'Courier New',monospace;font-size:12px;color:var(--secondary);flex:1}
+.batch-wt{min-width:50px;text-align:right;font-weight:600;color:var(--text)}
+.batch-pr{min-width:40px;text-align:right;font-weight:700;color:var(--primary)}
+
+/* EMS display format */
+.ems-display{font-family:'Courier New',monospace;font-size:12px;letter-spacing:1px;background:#f0f7ff;padding:4px 8px;border-radius:4px;color:var(--secondary)}
+
+/* Receipt - thermal printer style */
+.receipt-wrap{background:#fff;border-radius:8px;padding:0;overflow:hidden;box-shadow:var(--shadow)}
+.receipt-paper{background:#fff;padding:12px 14px;font-family:'Courier New',Courier,monospace;font-size:12px;line-height:1.5;color:#111}
+.r-center{text-align:center}
+.r-bold{font-weight:700}
+.r-big{font-size:14px;font-weight:700}
+.r-line{border:none;border-top:1px solid #ccc;margin:6px 0}
+.r-dash{border:none;border-top:1px dashed #bbb;margin:5px 0}
+.r-row{display:flex;justify-content:space-between;align-items:baseline;gap:4px}
+.r-row .left{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.r-row .right{white-space:nowrap;font-weight:700}
+.r-item{margin:6px 0;padding:6px 0;border-bottom:1px dashed #ddd}
+.r-item:last-of-type{border-bottom:none}
+.r-barcode{font-size:11px;letter-spacing:0.5px;color:#333}
+.r-price-line{display:flex;justify-content:space-between;font-weight:700;margin-top:2px}
+.r-total-box{background:#f5f5f5;padding:8px;border-radius:4px;margin:8px 0}
+.r-grand{font-size:15px;font-weight:800;display:flex;justify-content:space-between}
+.r-uni-sum{font-size:11px;display:flex;justify-content:space-between;color:#555;margin:2px 0}
+
+/* Weight input row */
+.wt-row{display:flex;gap:6px;align-items:center}
+.wt-row input{flex:1}
+
+/* Variable weight list */
+.var-wt-list{margin-top:8px}
+.var-wt-item{display:flex;align-items:center;gap:6px;padding:4px 0;border-bottom:1px solid #f0f0f0;font-size:13px}
+.var-wt-item:last-child{border-bottom:none}
+.var-wt-seq{color:#888;font-size:11px;min-width:24px;text-align:center}
+.var-wt-code{font-family:monospace;font-size:11px;color:var(--secondary);flex:1;overflow:hidden;text-overflow:ellipsis}
+.var-wt-input{width:70px;padding:4px 6px;font-size:13px;border:1.5px solid var(--border);border-radius:6px}
+.var-wt-price{min-width:40px;text-align:right;font-weight:700;color:var(--primary);font-size:13px}
+
+@media print{
+  .header,.bottom-nav,.no-print{display:none!important}
+  .page{display:block!important}
+  body{padding:0;background:#fff}
+  .receipt-wrap{box-shadow:none;border-radius:0}
+  .receipt-paper{font-size:11px}
+}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header-title">📮 ระบบรับฝากพัสดุ EMS</div>
+    <div class="header-sub" id="headerDate"></div>
+  </div>
+  <div style="text-align:right;font-size:12px;opacity:.85;line-height:1.4" id="headerStats"></div>
+</div>
+
+<!-- ==================== PAGE: คำนวณ ==================== -->
+<div class="page" id="page-calc">
+  <div class="card">
+    <div class="card-title">คำนวณราคาค่าส่ง EMS</div>
+    <label>ประเภทแพ็กเกจ</label>
+    <div class="pkg-grid" id="pkgGrid"></div>
+    <label>น้ำหนัก (กิโลกรัม)</label>
+    <div class="weight-grid" id="weightGrid"></div>
+    <div style="display:flex;gap:8px;margin-top:6px">
+      <input type="number" id="customWeight" placeholder="กรอกน้ำหนัก (กก.)" min="0.1" max="20" step="0.1" style="flex:1">
+      <button class="btn btn-outline btn-sm" onclick="calcCustomWeight()">คำนวณ</button>
+    </div>
+    <div class="price-display">
+      <div style="font-size:12px;opacity:.9">ราคาค่าส่ง EMS</div>
+      <div class="amount" id="calcPrice">-</div>
+      <div class="unit">บาท</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">ตารางราคา (เทียบแพ็กเกจ)</div>
+    <table class="price-table-mini" id="priceTableMini"></table>
+  </div>
+</div>
+
+<!-- ==================== PAGE: เพิ่มพัสดุ ==================== -->
+<div class="page" id="page-add">
+  <div class="mode-toggle no-print">
+    <button class="mode-btn active" id="modeBtn1" onclick="switchMode('single')">รายเดี่ยว</button>
+    <button class="mode-btn" id="modeBtn2" onclick="switchMode('batch')">ชุดพัสดุ (EMS ต่อต่อเนื่อง)</button>
+  </div>
+
+  <!-- Single mode -->
+  <div id="singleMode">
+    <div class="card">
+      <div class="card-title">บันทึกพัสดุรายเดี่ยว</div>
+      <label>รหัสมหาวิทยาลัย / ลูกค้า</label>
+      <input type="text" id="sUni" placeholder="เช่น KL, UK, AB" style="text-transform:uppercase">
+      <label>หมายเลขรูป</label>
+      <input type="text" id="sPicNo" placeholder="เช่น 001197">
+      <label>รหัสบาร์โค้ด EMS</label>
+      <div style="display:flex;gap:8px">
+        <input type="text" id="sBarcode" class="mono" placeholder="EQ183062405TH" style="flex:1" oninput="this.value=this.value.toUpperCase();validateBarcode('sBarcode','sBarcodeStatus')">
+        <button class="btn btn-outline btn-sm" onclick="autoNextBarcode()">ถัดไป</button>
+      </div>
+      <div id="sBarcodeStatus" style="font-size:11px;margin-top:3px"></div>
+      <label>ประเภทแพ็กเกจ</label>
+      <select id="sPkg" onchange="updateSinglePrice()">
+        <option value="A1">A1 (เริ่ม 17 บ.)</option><option value="A2">A2 (เริ่ม 18 บ.)</option>
+        <option value="A3" selected>A3 (เริ่ม 19 บ.)</option><option value="A4">A4 (เริ่ม 20 บ.)</option>
+        <option value="A5">A5 (เริ่ม 21 บ.)</option><option value="A6">A6 (เริ่ม 22 บ.)</option>
+        <option value="A7">A7 (เริ่ม 23 บ.)</option><option value="A8">A8 (เริ่ม 24 บ.)</option>
+        <option value="A9">A9 (เริ่ม 25 บ.)</option><option value="A10">A10 (เริ่ม 26 บ.)</option>
+        <option value="A11">A11 (เริ่ม 28 บ.)</option><option value="A12">A12 (เริ่ม 30 บ.)</option>
+      </select>
+      <label>น้ำหนัก (กิโลกรัม)</label>
+      <input type="number" id="sWeight" placeholder="เช่น 3" min="0.1" max="20" step="0.1" oninput="updateSinglePrice()">
+      <div style="background:#f8f8f8;border-radius:8px;padding:12px;text-align:center;margin:12px 0">
+        <div style="font-size:12px;color:#888">ราคาที่คำนวณได้</div>
+        <div style="font-size:36px;font-weight:800;color:var(--primary)" id="sPriceShow">-</div>
+        <div style="font-size:12px;color:#888">บาท</div>
+      </div>
+      <button class="btn btn-primary btn-block" onclick="addSingle()">+ บันทึกพัสดุ</button>
+    </div>
+  </div>
+
+  <!-- Batch mode -->
+  <div id="batchMode" style="display:none">
+    <div class="card">
+      <div class="card-title">บันทึกชุดพัสดุ EMS ต่อเนื่อง</div>
+      <div class="alert alert-info" style="margin-bottom:10px;font-size:12px">
+        ป้อนบาร์โค้ดแรก + จำนวน → ระบบสร้างเลข EMS ถัดไปอัตโนมัติพร้อม check digit ที่ถูกต้อง
+      </div>
+      <label>รหัสมหาวิทยาลัย / ลูกค้า</label>
+      <input type="text" id="bUni" placeholder="เช่น KL, UK, AB" style="text-transform:uppercase">
+      <label>หมายเลขรูปเริ่มต้น</label>
+      <input type="text" id="bPicStart" placeholder="เช่น 001197">
+      <label>รหัส EMS แรก (บาร์โค้ดแรกในชุด)</label>
+      <input type="text" id="bBarcodeStart" class="mono" placeholder="EQ183062405TH"
+        oninput="this.value=this.value.toUpperCase();validateBarcode('bBarcodeStart','bBarcodeStatus');previewBatch()"
+        onchange="previewBatch()">
+      <div id="bBarcodeStatus" style="font-size:11px;margin-top:3px"></div>
+      <label>จำนวนพัสดุในชุด</label>
+      <input type="number" id="bCount" placeholder="เช่น 7" min="1" max="200" oninput="previewBatch()">
+      <label>ประเภทแพ็กเกจ</label>
+      <select id="bPkg" onchange="previewBatch()">
+        <option value="A1">A1</option><option value="A2">A2</option>
+        <option value="A3" selected>A3</option><option value="A4">A4</option>
+        <option value="A5">A5</option><option value="A6">A6</option>
+        <option value="A7">A7</option><option value="A8">A8</option>
+        <option value="A9">A9</option><option value="A10">A10</option>
+        <option value="A11">A11</option><option value="A12">A12</option>
+      </select>
+      <label>น้ำหนักทุกชิ้น (กก.) — หรือกำหนดทีละชิ้นด้านล่าง</label>
+      <div class="wt-row">
+        <input type="number" id="bWeightAll" placeholder="เช่น 3 (ใส่ 0 เพื่อกำหนดเอง)" min="0" max="20" step="0.1" oninput="previewBatch()">
+        <span style="font-size:13px;color:#888;white-space:nowrap">กก. ทุกชิ้น</span>
+      </div>
+    </div>
+
+    <!-- Preview -->
+    <div class="card" id="batchPreviewCard" style="display:none">
+      <div class="card-title">
+        ตรวจสอบรายการก่อนบันทึก
+        <span id="batchTotalBadge" style="font-size:12px;color:#888;font-weight:400"></span>
+      </div>
+      <div id="varWeightList" class="var-wt-list"></div>
+      <div style="margin-top:10px;padding-top:10px;border-top:2px solid #f0f0f0;display:flex;justify-content:space-between;font-weight:700">
+        <span>รวม <span id="batchSumCount">0</span> ชิ้น</span>
+        <span id="batchSumPrice" style="color:var(--primary)">0 บาท</span>
+      </div>
+      <button class="btn btn-success btn-block" style="margin-top:10px" onclick="addBatch()">✓ บันทึกทั้งหมด</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== PAGE: รายการ ==================== -->
+<div class="page" id="page-list">
+  <div class="stats-row">
+    <div class="stat-card"><div class="val" id="statCount">0</div><div class="lbl">ชิ้น</div></div>
+    <div class="stat-card"><div class="val" id="statTotal">0</div><div class="lbl">บาทรวม</div></div>
+    <div class="stat-card"><div class="val" id="statWeight">0</div><div class="lbl">กก.รวม</div></div>
+  </div>
+  <div class="card">
+    <div class="search-box"><input type="text" id="searchInput" placeholder="ค้นหา บาร์โค้ด / รหัส ม." oninput="renderList()"></div>
+    <div class="tab-row" id="uniTabRow"></div>
+    <div id="parcelList"></div>
+    <div id="emptyState" style="text-align:center;padding:30px;color:#888;display:none">
+      <p>ยังไม่มีพัสดุในรายการ</p>
+      <p style="font-size:12px;margin-top:6px">กดแท็บ "เพิ่ม" เพื่อบันทึกพัสดุ</p>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px">
+    <button class="btn btn-outline btn-block" onclick="clearAll()">ล้างทั้งหมด</button>
+    <button class="btn btn-success btn-block" onclick="exportExcel()">ส่งออก Excel</button>
+  </div>
+</div>
+
+<!-- ==================== PAGE: ใบเสร็จ ==================== -->
+<div class="page active" id="page-receipt">
+  <div class="card no-print" style="margin-bottom:10px">
+    <div class="card-title" style="cursor:pointer" onclick="toggleSettings()">
+      ตั้งค่าใบเสร็จ
+      <span id="settingsToggleIcon" style="font-size:12px;color:#888">▼ ขยาย</span>
+    </div>
+    <div id="settingsBody" style="display:none">
+      <label>ชื่อที่ทำการไปรษณีย์</label>
+      <input type="text" id="officeName" value="ที่ทำการไปรษณีย์ขนส่ง">
+      <label>รหัส POS</label>
+      <input type="text" id="posCode" value="020020020">
+      <label>ชื่อผู้ส่ง / หน่วยงาน</label>
+      <input type="text" id="senderName" placeholder="เช่น มหาวิทยาลัยราชภัฏ...">
+    </div>
+
+    <!-- Toggle Mode -->
+    <div class="mode-toggle" style="margin-top:12px">
+      <button class="mode-btn active" id="modeReceiptSmart" onclick="setReceiptMode('smart')">📄 จัดกลุ่มราคา</button>
+      <button class="mode-btn" id="modeReceiptOriginal" onclick="setReceiptMode('original')">📊 ข้อมูลจริง</button>
+    </div>
+
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-gray btn-block" onclick="clearAllAndReset()">🗑️ ล้าง</button>
+    </div>
+  </div>
+  <div id="receiptContent"></div>
+</div>
+
+<!-- ==================== PAGE: นำเข้า / ใบเสร็จ (Landing Page) ==================== -->
+<div class="page" id="page-import">
+  <div class="card">
+    <div class="card-title">นำเข้าข้อมูลจาก Excel (Import)</div>
+    <div class="import-zone" id="importZone" onclick="document.getElementById('fileInput').click()">
+      <svg viewBox="0 0 24 24" fill="#ccc"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8l-6-6zm4 18H6V4h7v5h5v11zM8 15h2v-2h4v2h2l-4 5-4-5zm4-9H8l4-4v4z"/></svg>
+      <p>แตะเพื่อเลือกไฟล์ Excel</p>
+      <p style="font-size:12px;margin-top:4px">.xls / .xlsx</p>
+    </div>
+    <input type="file" id="fileInput" accept=".xls,.xlsx" style="display:none" onchange="importExcel(this)">
+    <div id="importStatus" style="display:none"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">รายงานสรุปประจำวัน (Report)</div>
+    <div class="tab-row">
+      <div class="tab-item active" onclick="showReport('uni',this)">ตามรหัส ม.</div>
+      <div class="tab-item" onclick="showReport('price',this)">ตามราคา</div>
+      <div class="tab-item" onclick="showReport('weight',this)">ตามน้ำหนัก</div>
+    </div>
+    <div id="reportContent"></div>
+  </div>
+  <div class="card">
+    <div class="card-title">ประวัติการนำเข้า (Import History)</div>
+    <div id="importHistoryContent"></div>
+  </div>
+</div>
+
+<!-- Bottom Nav -->
+<div class="bottom-nav">
+  <button class="nav-btn" data-page="calc" onclick="showPage('calc',this)">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 3c1.93 0 3.5 1.57 3.5 3.5S13.93 13 12 13s-3.5-1.57-3.5-3.5S10.07 6 12 6zm7 13H5v-.23c0-.62.28-1.2.76-1.58C7.47 15.82 9.64 15 12 15s4.53.82 6.24 2.19c.48.38.76.97.76 1.58V19z"/></svg>
+    คำนวณ
+  </button>
+  <button class="nav-btn" data-page="add" onclick="showPage('add',this)">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+    เพิ่มพัสดุ
+  </button>
+  <button class="nav-btn" data-page="list" onclick="showPage('list',this)">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 13h2v-2H3v2zm0 4h2v-2H3v2zm0-8h2V7H3v2zm4 4h14v-2H7v2zm0 4h14v-2H7v2zM7 7v2h14V7H7z"/></svg>
+    รายการ
+  </button>
+  <button class="nav-btn" data-page="receipt" onclick="showPage('receipt',this)">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 17H6v-2h12v2zm0-4H6v-2h12v2zm0-4H6V7h12v2zM3 22l1.5-1.5L6 22l1.5-1.5L9 22l1.5-1.5L12 22l1.5-1.5L15 22l1.5-1.5L18 22l1.5-1.5L21 22V2l-1.5 1.5L18 2l-1.5 1.5L15 2l-1.5 1.5L12 2l-1.5 1.5L9 2 7.5 3.5 6 2 4.5 3.5 3 2v20z"/></svg>
+    ใบเสร็จ
+  </button>
+  <button class="nav-btn" data-page="import" onclick="showPage('import',this)">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4zm2.5 2.1h-15V5h15v14.1zm0-16.1h-15c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h15c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/></svg>
+    นำเข้า / ใบเสร็จ
+  </button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ==================== UI HELPERS ====================
+function setElText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; return el; }
+function setElHtml(id, html) { const el = document.getElementById(id); if (el) el.innerHTML = html; return el; }
+
+// ==================== EMS BARCODE LOGIC ====================
+const EMS_WEIGHTS = [8,6,4,2,3,5,9,7];
+
+function emsCheckDigit(d8) {
+  let sum = 0;
+  for (let i = 0; i < 8; i++) sum += parseInt(d8[i]) * EMS_WEIGHTS[i];
+  const r = sum % 11;
+  return r === 0 ? 5 : r === 1 ? 0 : 11 - r;
+}
+
+function buildEMS(prefix, serial, country) {
+  const d8 = String(serial).padStart(8,'0');
+  return prefix + d8 + emsCheckDigit(d8) + country;
+}
+
+function parseEMS(code) {
+  const m = code.match(/^([A-Z]{2})(\d{8})(\d)([A-Z]{2})$/);
+  if (!m) return null;
+  const expected = emsCheckDigit(m[2]);
+  return { prefix:m[1], serial:parseInt(m[2]), check:parseInt(m[3]), country:m[4], valid: parseInt(m[3])===expected };
+}
+
+function formatEMSDisplay(code) {
+  if (code.length !== 13) return code;
+  return code.slice(0,2)+' '+code.slice(2,6)+' '+code.slice(6,10)+' '+code.slice(10,11)+' '+code.slice(11);
+}
+
+function generateSequence(startCode, count) {
+  const p = parseEMS(startCode);
+  if (!p || !p.valid) return null;
+  const list = [];
+  for (let i = 0; i < count; i++) list.push(buildEMS(p.prefix, p.serial+i, p.country));
+  return list;
+}
+
+function validateBarcode(inputId, statusId) {
+  const elInput = document.getElementById(inputId);
+  const val = elInput ? elInput.value.trim().toUpperCase() : '';
+  if (!val) { setElText(statusId, ''); return; }
+  const p = parseEMS(val);
+  if (!p) {
+    const el = document.getElementById(statusId);
+    if (el) { el.style.color='#e74c3c'; el.textContent='รูปแบบไม่ถูกต้อง (ต้องเป็น XX########XTH)'; }
+    return;
+  }
+  if (!p.valid) {
+    const el = document.getElementById(statusId);
+    if (el) { el.style.color='#e74c3c'; el.textContent=`Check digit ไม่ถูกต้อง (ควรเป็น ${emsCheckDigit(String(p.serial).padStart(8,'0'))})`; }
+    return;
+  }
+  const el = document.getElementById(statusId);
+  if (el) {
+    el.style.color='#27ae60';
+    el.textContent = `✓ ถูกต้อง | Serial: ${p.serial} | ${formatEMSDisplay(val)}`;
+  }
+}
+
+// ==================== PRICING ====================
+const PKG_BASE = {A1:17,A2:18,A3:19,A4:20,A5:21,A6:22,A7:23,A8:24,A9:25,A10:26,A11:28,A12:30};
+
+function calcPrice(wt, pkg='A3') {
+  if (!wt || wt<=0) return 0;
+  const base = PKG_BASE[pkg]||19;
+  const kg = Math.ceil(wt);
+  return kg<=10 ? base+(kg-1)*10 : base+90+(kg-10)*5;
+}
+
+function detectPkg(wt, price) {
+  for (const [p,b] of Object.entries(PKG_BASE)) if (calcPrice(wt,p)===price) return p;
+  return 'A3';
+}
+
+// ==================== STATE ====================
+let state = { parcels:[], calcPkg:'A3', calcWeight:1, filterUni:'', reportTab:'uni', addMode:'single', receiptMode:'smart', importHistory: [] };
+
+function loadState() {
+  try {
+    const s=localStorage.getItem('postalApp_v3');
+    if(s) {
+      const loaded = JSON.parse(s);
+      Object.assign(state, loaded);
+      if(!state.importHistory) state.importHistory = [];
+    }
+  } catch(e){}
+}
+function saveState() {
+  try {
+    localStorage.setItem('postalApp_v3', JSON.stringify({
+      parcels: state.parcels,
+      importHistory: state.importHistory
+    }));
+  } catch(e) {
+    try {
+      const recent = state.parcels.slice(-500);
+      localStorage.setItem('postalApp_v3', JSON.stringify({
+        parcels: recent,
+        importHistory: state.importHistory
+      }));
+      showToast('พื้นที่จัดเก็บเต็ม: บันทึกเฉพาะ 500 รายการล่าสุด', 3500);
+    } catch(e2) {
+      showToast('ไม่สามารถบันทึกข้อมูลได้: พื้นที่จัดเก็บเต็ม', 3500);
+    }
+  }
+}
+
+// ==================== UTILS ====================
+function showToast(msg, dur=2200) {
+  const t = setElText('toast', msg);
+  if (t) t.classList.add('show');
+  setTimeout(()=> { const el = document.getElementById('toast'); if(el) el.classList.remove('show'); }, dur);
+}
+function showPage(id, btn) {
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const pgEl = document.getElementById('page-'+id);
+  if (pgEl) pgEl.classList.add('active');
+  
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  if(btn) {
+    btn.classList.add('active');
+  } else {
+    const targetBtn = document.querySelector(`.nav-btn[data-page="${id}"]`);
+    if(targetBtn) targetBtn.classList.add('active');
+  }
+  
+  if(id==='list'){renderList();updateStats();}
+  if(id==='import'){showReport('uni',null); renderImportHistory();}
+  if(id==='receipt'){generateReceipt();}
+}
+
+function setReceiptMode(mode) {
+  state.receiptMode = mode;
+  const btnSmart = document.getElementById('modeReceiptSmart');
+  const btnOrig = document.getElementById('modeReceiptOriginal');
+  if(btnSmart) btnSmart.classList.toggle('active', mode==='smart');
+  if(btnOrig) btnOrig.classList.toggle('active', mode==='original');
+  generateReceipt();
+}
+
+// ==================== INIT ====================
+function init() {
+  loadState();
+  
+  // Daily reset check
+  const today = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
+  const lastDate = localStorage.getItem('postalApp_lastDate');
+  if(lastDate && lastDate !== today) {
+    state.parcels = [];
+    saveState();
+    console.log('Daily reset: data cleared for new day', today);
+  }
+  localStorage.setItem('postalApp_lastDate', today);
+
+  initCalcPage();
+  updateDate();
+  renderList();
+  updateStats();
+  buildUniTabs();
+  
+  // Always start at Import page as requested
+  showPage('import', null);
+}
+function updateDate() {
+  const n=new Date();
+  setElText('headerDate', 
+    n.toLocaleDateString('th-TH',{year:'numeric',month:'long',day:'numeric'})+' '+
+    n.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit'})
+  );
+}
+
+// ==================== CALC PAGE ====================
+function initCalcPage() {
+  setElHtml('pkgGrid', Object.keys(PKG_BASE).map(p=>
+    `<button class="pkg-btn${p===state.calcPkg?' active':''}" onclick="selectPkg('${p}',this)">${p}<br><span style="font-size:10px;opacity:.7">${PKG_BASE[p]}฿</span></button>`
+  ).join(''));
+  const ws=[1,2,3,4,5,6,7,8,10,15,20];
+  setElHtml('weightGrid', ws.map(w=>
+    `<button class="weight-btn${w===state.calcWeight?' active':''}" onclick="selectWeight(${w},this)">${w}กก</button>`
+  ).join(''));
+  updateCalcDisplay();
+  buildPriceTable();
+}
+function selectPkg(p,el){state.calcPkg=p;document.querySelectorAll('.pkg-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');updateCalcDisplay();}
+function selectWeight(w,el){state.calcWeight=w;document.querySelectorAll('.weight-btn').forEach(b=>b.classList.remove('active'));el.classList.add('active');document.getElementById('customWeight').value='';updateCalcDisplay();}
+function calcCustomWeight(){const w=parseFloat(document.getElementById('customWeight').value);if(!w||w<=0){showToast('กรุณากรอกน้ำหนัก');return;}state.calcWeight=w;document.querySelectorAll('.weight-btn').forEach(b=>b.classList.remove('active'));updateCalcDisplay();}
+function updateCalcDisplay(){setElText('calcPrice', calcPrice(state.calcWeight,state.calcPkg).toLocaleString());}
+function buildPriceTable(){
+  const rows=[1,2,3,4,5,6,7,8,10,15,20];
+  const pkgs=['A1','A3','A5','A10','A12'];
+  let h='<thead><tr><th>น้ำหนัก</th>'+pkgs.map(p=>`<th>${p}</th>`).join('')+'</tr></thead><tbody>';
+  rows.forEach(w=>{
+    h+=`<tr><td style="font-weight:600">${w}กก</td>`;
+    pkgs.forEach(p=>{ const pr=calcPrice(w,p); h+=`<td${p==='A3'?' class="hl"':''}>${pr}</td>`; });
+    h+='</tr>';
+  });
+  setElHtml('priceTableMini', h+'</tbody>');
+}
+
+// ==================== MODE SWITCH ====================
+function switchMode(m) {
+  state.addMode=m;
+  document.getElementById('singleMode').style.display=m==='single'?'':'none';
+  document.getElementById('batchMode').style.display=m==='batch'?'':'none';
+  document.getElementById('modeBtn1').classList.toggle('active',m==='single');
+  document.getElementById('modeBtn2').classList.toggle('active',m==='batch');
+}
+
+// ==================== SINGLE ADD ====================
+function updateSinglePrice(){
+  const w=parseFloat(document.getElementById('sWeight')?.value)||0;
+  const p=document.getElementById('sPkg')?.value;
+  setElText('sPriceShow', w>0?calcPrice(w,p).toLocaleString():'-');
+}
+
+let lastBarcode = null;
+
+function autoNextBarcode() {
+  const el = document.getElementById('sBarcode');
+  if(!el) return;
+  const cur = el.value.trim().toUpperCase();
+  const p = parseEMS(cur);
+  if (p && p.valid) {
+    const next = buildEMS(p.prefix, p.serial+1, p.country);
+    el.value = next;
+    validateBarcode('sBarcode','sBarcodeStatus');
+    lastBarcode = next;
+  } else {
+    showToast('กรอกบาร์โค้ดที่ถูกต้องก่อน');
+  }
+}
+
+function addSingle() {
+  const uni=(document.getElementById('sUni')?.value||'').trim().toUpperCase();
+  const picNo=(document.getElementById('sPicNo')?.value||'').trim();
+  const barcode=(document.getElementById('sBarcode')?.value||'').trim().toUpperCase();
+  const pkg=(document.getElementById('sPkg')?.value||'A3');
+  const wt=parseFloat(document.getElementById('sWeight')?.value)||0;
+  if(!barcode){showToast('กรุณากรอกบาร์โค้ด');return;}
+  const p=parseEMS(barcode);
+  if(!p||!p.valid){showToast('บาร์โค้ด EMS ไม่ถูกต้อง');return;}
+  if(!wt){showToast('กรุณากรอกน้ำหนัก');return;}
+  if(state.parcels.find(x=>x.barcode===barcode)){showToast('บาร์โค้ดนี้มีในรายการแล้ว');return;}
+  const price=calcPrice(wt,pkg);
+  const now=new Date();
+  state.parcels.push({uni,picNo,barcode,pkg,weight:wt,price,date:`${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`,id:Date.now()});
+  saveState(); updateStats(); buildUniTabs();
+  const next=buildEMS(p.prefix,p.serial+1,p.country);
+  const elB = document.getElementById('sBarcode'); if(elB) elB.value = next;
+  validateBarcode('sBarcode','sBarcodeStatus');
+  const picEl = document.getElementById('sPicNo'); if(picEl) picEl.value='';
+  const wtEl = document.getElementById('sWeight'); if(wtEl) wtEl.value='';
+  setElText('sPriceShow', '-');
+  showToast(`บันทึก ${barcode} ราคา ${price} บาท`);
+}
+
+// ==================== BATCH ADD ====================
+function previewBatch() {
+  const start=(document.getElementById('bBarcodeStart')?.value||'').trim().toUpperCase();
+  const count=parseInt(document.getElementById('bCount')?.value)||0;
+  const pkg=(document.getElementById('bPkg')?.value||'A3');
+  const wtAll=parseFloat(document.getElementById('bWeightAll')?.value)||0;
+  const card=document.getElementById('batchPreviewCard');
+  if(!start||!count||count<1){ if(card) card.style.display='none';return;}
+  const p=parseEMS(start);
+  if(!p||!p.valid){ if(card) card.style.display='none';return;}
+  if(card) card.style.display='';
+  const codes=generateSequence(start,count);
+  const picStart=parseInt(document.getElementById('bPicStart')?.value)||0;
+  let html='';
+  codes.forEach((code,i)=>{
+    const wt=wtAll>0?wtAll:0;
+    const pr=wt>0?calcPrice(wt,pkg):0;
+    html+=`<div class="var-wt-item">
+      <span class="var-wt-seq">${i+1}</span>
+      <span class="var-wt-code">${formatEMSDisplay(code)}</span>
+      ${picStart?`<span style="font-size:10px;color:#aaa;min-width:50px">#${String(picStart+i).padStart(6,'0')}</span>`:''}
+      <input type="number" class="var-wt-input" id="bwt_${i}" placeholder="กก." value="${wtAll||''}"
+        min="0.1" max="20" step="0.1"
+        oninput="updateBatchRow(${i},'${code}','${pkg}')" data-code="${code}">
+      <span class="var-wt-price" id="bpr_${i}">${pr>0?pr+' ฿':'-'}</span>
+    </div>`;
+  });
+  setElHtml('varWeightList', html);
+  updateBatchTotals(codes, pkg);
+}
+
+function updateBatchRow(i, code, pkg) {
+  const wt=parseFloat(document.getElementById('bwt_'+i)?.value)||0;
+  const pr=wt>0?calcPrice(wt,pkg):0;
+  setElText('bpr_'+i, pr>0?pr+' ฿':'-');
+  const count=parseInt(document.getElementById('bCount')?.value)||0;
+  const codes=Array.from({length:count},(_,j)=>{
+    const inp=document.getElementById('bwt_'+j);
+    return inp?{wt:parseFloat(inp.value)||0}:{wt:0};
+  });
+  const total=codes.reduce((s,c)=>s+(c.wt>0?calcPrice(c.wt,pkg):0),0);
+  const validCount=codes.filter(c=>c.wt>0).length;
+  setElText('batchSumCount', validCount);
+  setElText('batchSumPrice', total.toLocaleString()+' บาท');
+  setElText('batchTotalBadge', `รวม ${total.toLocaleString()} บาท`);
+}
+
+function updateBatchTotals(codes, pkg) {
+  let total=0, validCount=0;
+  codes.forEach((_,i)=>{
+    const wt=parseFloat(document.getElementById('bwt_'+i)?.value)||0;
+    if(wt>0){total+=calcPrice(wt,pkg);validCount++;}
+  });
+  setElText('batchSumCount', validCount);
+  setElText('batchSumPrice', total.toLocaleString()+' บาท');
+  setElText('batchTotalBadge', `รวม ${total.toLocaleString()} บาท`);
+}
+
+function addBatch() {
+  const start=(document.getElementById('bBarcodeStart')?.value||'').trim().toUpperCase();
+  const count=parseInt(document.getElementById('bCount')?.value)||0;
+  const pkg=(document.getElementById('bPkg')?.value||'A3');
+  const uni=(document.getElementById('bUni')?.value||'').trim().toUpperCase();
+  const picStart=parseInt(document.getElementById('bPicStart')?.value)||0;
+  const codes=generateSequence(start,count);
+  if(!codes){showToast('กรุณาตรวจสอบบาร์โค้ดเริ่มต้น');return;}
+  const now=new Date();
+  const dateStr=`${now.getDate()}/${now.getMonth()+1}/${now.getFullYear()}`;
+  const existing=new Set(state.parcels.map(p=>p.barcode));
+  let added=0, skipped=0;
+  codes.forEach((code,i)=>{
+    const wt=parseFloat(document.getElementById('bwt_'+i)?.value)||0;
+    if(!wt||wt<=0){skipped++;return;}
+    if(existing.has(code)){skipped++;return;}
+    existing.add(code);
+    const price=calcPrice(wt,pkg);
+    const picNo=picStart?String(picStart+i).padStart(6,'0'):'';
+    state.parcels.push({uni,picNo,barcode:code,pkg,weight:wt,price,date:dateStr,id:Date.now()+i});
+    added++;
+  });
+  saveState(); updateStats(); buildUniTabs(); renderList();
+  if(skipped) showToast(`บันทึก ${added} รายการ (ข้าม ${skipped} ที่ไม่มีน้ำหนัก/ซ้ำ)`,3000);
+  else showToast(`บันทึกสำเร็จ ${added} รายการ`);
+  setElValue('bBarcodeStart', '');
+  setElValue('bCount', '');
+  setElValue('bWeightAll', '');
+  setElText('bBarcodeStatus', '');
+  const card = document.getElementById('batchPreviewCard'); if(card) card.style.display='none';
+}
+function setElValue(id, val) { const el = document.getElementById(id); if(el) el.value = val; }
+
+// ==================== LIST ====================
+function updateStats() {
+  const p=state.parcels;
+  setElText('statCount', p.length.toLocaleString());
+  const tot=p.reduce((s,x)=>s+x.price,0);
+  setElText('statTotal', tot.toLocaleString());
+  setElText('statWeight', p.reduce((s,x)=>s+(x.weight||0),0).toFixed(1));
+  setElText('headerStats', `${p.length} ชิ้น\n${tot.toLocaleString()} บ.`);
+}
+function buildUniTabs() {
+  const unis=[...new Set(state.parcels.map(p=>p.uni).filter(Boolean))].sort();
+  setElHtml('uniTabRow', '<div class="tab-item active" onclick="filterUni(\'\',this)">ทั้งหมด</div>'+
+    unis.map(u=>`<div class="tab-item" onclick="filterUni('${u}',this)">${u}</div>`).join(''));
+}
+function filterUni(uni,el){
+  state.filterUni=uni;
+  document.querySelectorAll('#uniTabRow .tab-item').forEach(t=>t.classList.remove('active'));
+  if(el) el.classList.add('active');
+  renderList();
+}
+function renderList() {
+  const search=(document.getElementById('searchInput')?.value||'').toLowerCase();
+  let p=state.parcels;
+  if(state.filterUni) p=p.filter(x=>x.uni===state.filterUni);
+  if(search) p=p.filter(x=>(x.barcode||'').toLowerCase().includes(search)||(x.uni||'').toLowerCase().includes(search)||(x.picNo||'').toLowerCase().includes(search));
+  const el=document.getElementById('parcelList');
+  const em=document.getElementById('emptyState');
+  if(!p.length){ if(el) el.innerHTML=''; if(em) em.style.display='block'; return; }
+  if(em) em.style.display='none';
+  setElHtml('parcelList', p.map((x,i)=>`
+    <div class="parcel-item">
+      <div class="parcel-no">${i+1}</div>
+      <div class="parcel-info">
+        <div class="parcel-barcode">${formatEMSDisplay(x.barcode||'-')}</div>
+        <div class="parcel-meta">
+          ${x.uni?`<span class="uni-chip">${x.uni}</span> `:''}
+          ${x.picNo?`#${x.picNo} `:''}
+          ${x.weight}กก | ${x.pkg||'A3'} | ${x.date||''}
+        </div>
+      </div>
+      <div class="parcel-price">${x.price.toLocaleString()}฿</div>
+      <button class="parcel-del-btn" onclick="deleteParcel(${x.id})">×</button>
+    </div>`).join(''));
+}
+function deleteParcel(id){
+  state.parcels=state.parcels.filter(p=>p.id!==id);
+  saveState();renderList();updateStats();buildUniTabs();showToast('ลบรายการแล้ว');
+}
+function clearAll(){
+  if(!state.parcels.length) return;
+  if(!confirm(`ลบพัสดุทั้งหมด ${state.parcels.length} รายการ?`)) return;
+  state.parcels=[];saveState();renderList();updateStats();buildUniTabs();showToast('ล้างรายการทั้งหมดแล้ว');
+}
+function clearAllAndReset(){
+  if(!state.parcels.length){showToast('ไม่มีข้อมูล');return;}
+  if(!confirm(`ล้างข้อมูลทั้งหมด ${state.parcels.length} รายการ?`)) return;
+  state.parcels=[];saveState();updateStats();
+  setElHtml('receiptContent', '');
+  const st = document.getElementById('importStatus'); if(st) st.style.display='none';
+  showToast('ล้างข้อมูลแล้ว');
+}
+function toggleSettings(){
+  const body=document.getElementById('settingsBody');
+  const icon=document.getElementById('settingsToggleIcon');
+  if(!body || !icon) return;
+  const open=body.style.display==='none';
+  body.style.display=open?'block':'none';
+  icon.textContent=open?'▲ ย่อ':'▼ ขยาย';
+}
+
+// ==================== RECEIPT ====================
+// ==================== RECEIPT ====================
+function generateReceipt() {
+  const office=document.getElementById('officeName')?.value||'ที่ทำการไปรษณีย์ขนส่ง';
+  const pos=document.getElementById('posCode')?.value||'020020020';
+  const sender=document.getElementById('senderName')?.value||'';
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('th-TH',{day:'2-digit',month:'2-digit',year:'numeric'});
+  const timeStr=now.toLocaleTimeString('th-TH',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const total=state.parcels.reduce((s,p)=>s+p.price,0);
+
+  let processed = [];
+  
+  if (state.receiptMode === 'smart') {
+    // 1. Get price counts
+    const priceMap = {};
+    state.parcels.forEach(p => {
+      priceMap[p.price] = (priceMap[p.price] || 0) + 1;
+    });
+    // Sort prices ascending
+    const priceGroups = Object.keys(priceMap).map(Number).sort((a,b)=>a-b).map(pr => ({ price: pr, count: priceMap[pr] }));
+
+    // 2. Sort all unique barcodes by serial
+    const allParcels = [...state.parcels].sort((a,b) => {
+      const pa = parseEMS(a.barcode);
+      const pb = parseEMS(b.barcode);
+      if (pa && pb) return pa.serial - pb.serial;
+      return (a.barcode||'').localeCompare(b.barcode||'');
+    });
+
+    // 3. Reallocate prices based on serial sequence
+    let barcodeIdx = 0;
+    priceGroups.forEach(group => {
+      for (let i = 0; i < group.count; i++) {
+        if (barcodeIdx < allParcels.length) {
+          const original = allParcels[barcodeIdx];
+          processed.push({
+            ...original,
+            price: group.price // Override with reallocated price
+          });
+          barcodeIdx++;
+        }
+      }
+    });
+  } else {
+    // Original mode: Sort by price then serial
+    processed = [...state.parcels].sort((a,b) => {
+      if(a.price !== b.price) return a.price - b.price;
+      const pa = parseEMS(a.barcode);
+      const pb = parseEMS(b.barcode);
+      if(pa && pb) return pa.serial - pb.serial;
+      return (a.barcode||'').localeCompare(b.barcode||'');
+    });
+  }
+
+  // Detect Gaps and Group
+  const groups = [];
+  if(processed.length > 0) {
+    if (state.receiptMode === 'smart') {
+      // Smart Mode: Include Gap Detection
+      let current = {
+        uni: processed[0].uni, price: processed[0].price, weight: processed[0].weight, pkg: processed[0].pkg,
+        start: processed[0].barcode, end: processed[0].barcode,
+        lastSerial: parseEMS(processed[0].barcode)?.serial || 0,
+        count: 1, type: 'item'
+      };
+      
+      for(let i=1; i<processed.length; i++) {
+        const p = processed[i];
+        const ps = parseEMS(p.barcode);
+        const currentSerial = ps?.serial || 0;
+        
+        if (ps && currentSerial > current.lastSerial + 1) {
+          groups.push(current);
+          const missingPrefix = ps.prefix; const missingCountry = ps.country;
+          for (let s = current.lastSerial + 1; s < currentSerial; s++) {
+            groups.push({ type: 'missing', barcode: buildEMS(missingPrefix, s, missingCountry) });
+          }
+          current = { uni: p.uni, price: p.price, weight: p.weight, pkg: p.pkg, start: p.barcode, end: p.barcode, lastSerial: currentSerial, count: 1, type: 'item' };
+        } else {
+          const samePrice = p.price === current.price;
+          const isSequential = currentSerial === current.lastSerial + 1;
+          if (samePrice && isSequential) {
+            current.end = p.barcode; current.lastSerial = currentSerial; current.count++;
+          } else {
+            groups.push(current);
+            current = { uni: p.uni, price: p.price, weight: p.weight, pkg: p.pkg, start: p.barcode, end: p.barcode, lastSerial: currentSerial, count: 1, type: 'item' };
+          }
+        }
+      }
+      groups.push(current);
+    } else {
+      // Original Mode: Standard Grouping (No Gaps)
+      // Sort by uni, price, weight then sequence for original view consistency
+      processed.sort((a,b) => {
+        if(a.uni !== b.uni) return (a.uni||'').localeCompare(b.uni||'');
+        if(a.price !== b.price) return a.price - b.price;
+        if(a.weight !== b.weight) return a.weight - b.weight;
+        const pa = parseEMS(a.barcode); const pb = parseEMS(b.barcode);
+        if(pa && pb) return pa.serial - pb.serial;
+        return (a.barcode||'').localeCompare(b.barcode||'');
+      });
+
+      let current = {
+        uni: processed[0].uni, price: processed[0].price, weight: processed[0].weight, pkg: processed[0].pkg,
+        start: processed[0].barcode, end: processed[0].barcode,
+        lastSerial: parseEMS(processed[0].barcode)?.serial || 0,
+        count: 1, type: 'item'
+      };
+
+      for(let i=1; i<processed.length; i++) {
+        const p = processed[i];
+        const ps = parseEMS(p.barcode);
+        const currentSerial = ps?.serial || 0;
+        const sameAll = p.uni === current.uni && p.price === current.price && p.weight === current.weight;
+        const isSequential = currentSerial === current.lastSerial + 1;
+
+        if (sameAll && isSequential) {
+          current.end = p.barcode; current.lastSerial = currentSerial; current.count++;
+        } else {
+          groups.push(current);
+          current = { uni: p.uni, price: p.price, weight: p.weight, pkg: p.pkg, start: p.barcode, end: p.barcode, lastSerial: currentSerial, count: 1, type: 'item' };
+        }
+      }
+      groups.push(current);
+    }
+  }
+
+  const byUni={};
+  state.parcels.forEach(p=>{
+    if(!byUni[p.uni])byUni[p.uni]={count:0,total:0};
+    byUni[p.uni].count++;byUni[p.uni].total+=p.price;
+  });
+
+  let html=`<div class="receipt-wrap"><div class="receipt-paper">`;
+  html+=`<div class="r-center r-big">${office}</div>`;
+  html+=`<div class="r-center" style="font-size:11px">POS:${pos} &nbsp; ${timeStr}</div>`;
+  if(sender) html+=`<div class="r-center" style="font-size:11px">ผู้ส่ง: ${sender}</div>`;
+  html+=`<div class="r-center" style="font-size:11px">วันที่: ${dateStr}</div>`;
+  html+=`<hr class="r-line">`;
+
+  if(!groups.length) {
+    html+=`<div class="r-center" style="padding:16px;color:#888">ยังไม่มีรายการพัสดุ</div>`;
+  } else {
+    let itemIdx = 1;
+    groups.forEach((g)=>{
+      if (g.type === 'missing') {
+        html += `<div style="color:#e74c3c;font-weight:700;text-align:center;margin:4px 0;border:1px dashed #e74c3c;padding:2px">--- MISSING: ${formatEMSDisplay(g.barcode)} ---</div>`;
+      } else {
+        html+=`<div class="r-item">`;
+        html+=`<div class="r-row"><span><b>${itemIdx}.</b> EMS ในฯ</span><span style="font-size:11px;color:#666">${g.pkg||'A3'}</span></div>`;
+        itemIdx++;
+        if(g.count > 1) {
+          html+=`<div class="r-barcode" style="margin:2px 0">${formatEMSDisplay(g.start)} - ${formatEMSDisplay(g.end)}</div>`;
+          html+=`<div class="r-price-line"><span>${g.count} @ ${g.price.toLocaleString()}.00 บ.</span></div>`;
+        } else {
+          html+=`<div class="r-barcode" style="margin:2px 0">${formatEMSDisplay(g.start)}</div>`;
+        }
+        html+=`<div class="r-price-line"><span>${Number(g.weight).toFixed(3)} กก. &nbsp; ส่งด่วน EMS</span><span>${(g.price * g.count).toLocaleString()}.00 บ.</span></div>`;
+        html+=`</div>`;
+      }
+    });
+    html+=`<hr class="r-line">`;
+    html+=`<div class="r-total-box"><div class="r-grand"><span>รวม ${state.parcels.length} รายการ</span><span>${total.toLocaleString()}.00 บ.</span></div></div>`;
+    if(Object.keys(byUni).length>1){
+      html+=`<hr class="r-dash">`;
+      html+=`<div style="font-size:11px;font-weight:700;margin-bottom:3px">สรุปตามรหัส:</div>`;
+      Object.entries(byUni).sort().forEach(([u,v])=>{
+        html+=`<div class="r-uni-sum"><span>${u||'-'}</span><span>${v.count} ชิ้น = ${v.total.toLocaleString()} บ.</span></div>`;
+      });
+    }
+  }
+  html+=`<hr class="r-line">`;
+  html+=`<div class="r-center" style="font-size:10px;color:#888">พิมพ์: ${dateStr} ${timeStr}</div>`;
+  html+=`<div class="r-center" style="font-size:10px;color:#888">ระบบรับฝากพัสดุ EMS</div>`;
+  html+=`</div></div>`;
+  setElHtml('receiptContent', html);
+}
+
+// ==================== REPORT ====================
+function showReport(tab, el) {
+  state.reportTab=tab;
+  if(el){document.querySelectorAll('#page-import .tab-item').forEach(t=>t.classList.remove('active'));el.classList.add('active');}
+  const p=state.parcels;
+  let html='';
+  if(!p.length){setElHtml('reportContent', '<div style="text-align:center;padding:20px;color:#888">ยังไม่มีข้อมูล</div>');return;}
+  if(tab==='uni'){
+    const m={};
+    p.forEach(x=>{if(!m[x.uni])m[x.uni]={c:0,t:0,w:0};m[x.uni].c++;m[x.uni].t+=x.price;m[x.uni].w+=x.weight||0;});
+    const tot=p.reduce((s,x)=>s+x.price,0);
+    html=`<table class="sum-table"><thead><tr><th>รหัส</th><th class="right">ชิ้น</th><th class="right">กก.</th><th class="right">รวม (บ.)</th></tr></thead><tbody>`+
+      Object.entries(m).sort((a,b)=>b[1].t-a[1].t).map(([u,v])=>
+        `<tr><td>${u||'-'}</td><td class="right">${v.c}</td><td class="right">${v.w.toFixed(1)}</td><td class="right">${v.t.toLocaleString()}</td></tr>`
+      ).join('')+
+      `<tr class="total-row"><td>รวม</td><td class="right">${p.length}</td><td class="right">${p.reduce((s,x)=>s+(x.weight||0),0).toFixed(1)}</td><td class="right">${tot.toLocaleString()}</td></tr>`+
+      `</tbody></table>`;
+  } else if(tab==='price'){
+    const m={};p.forEach(x=>{if(!m[x.price])m[x.price]={c:0};m[x.price].c++;});
+    html=`<table class="sum-table"><thead><tr><th>ราคา</th><th class="right">จำนวน</th><th class="right">รวม (บ.)</th></tr></thead><tbody>`+
+      Object.entries(m).sort((a,b)=>Number(a[0])-Number(b[0])).map(([pr,v])=>
+        `<tr><td>${pr} บ.</td><td class="right">${v.c}</td><td class="right">${(v.c*Number(pr)).toLocaleString()}</td></tr>`
+      ).join('')+
+      `<tr class="total-row"><td>รวม</td><td class="right">${p.length}</td><td class="right">${p.reduce((s,x)=>s+x.price,0).toLocaleString()}</td></tr>`+
+      `</tbody></table>`;
+  } else {
+    const m={};p.forEach(x=>{const w=Math.ceil(x.weight||0)+' กก.';if(!m[w])m[w]={c:0};m[w].c++;});
+    html=`<table class="sum-table"><thead><tr><th>น้ำหนัก</th><th class="right">จำนวน</th></tr></thead><tbody>`+
+      Object.entries(m).sort((a,b)=>parseInt(a[0])-parseInt(b[0])).map(([w,v])=>
+        `<tr><td>${w}</td><td class="right">${v.c}</td></tr>`
+      ).join('')+
+      `<tr class="total-row"><td>รวม</td><td class="right">${p.length}</td></tr>`+
+      `</tbody></table>`;
+  }
+  setElHtml('reportContent', html);
+}
+
+function renderImportHistory() {
+  const h = state.importHistory || [];
+  if(!h.length) {
+    setElHtml('importHistoryContent', '<div style="text-align:center;padding:10px;color:#888;font-size:12px">ยังไม่มีประวัติการนำเข้า</div>');
+    return;
+  }
+  let html = `<table class="sum-table" style="font-size:11px">
+    <thead><tr><th>วัน/เวลา</th><th>ไฟล์</th><th class="right">จำนวน</th></tr></thead>
+    <tbody>`;
+  h.slice().reverse().forEach(x => {
+    html += `<tr>
+      <td>${x.timestamp}</td>
+      <td style="max-width:120px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x.filename}</td>
+      <td class="right">${x.count}</td>
+    </tr>`;
+  });
+  html += `</tbody></table>`;
+  setElHtml('importHistoryContent', html);
+}
+
+// ==================== IMPORT ====================
+function importExcel(input) {
+  const file=input.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const wb=XLSX.read(e.target.result,{type:'binary'});
+      const ws=wb.Sheets[wb.SheetNames[0]];
+      const data=XLSX.utils.sheet_to_json(ws,{header:1,defval:''});
+      let start=0;
+      for(let i=0;i<Math.min(5,data.length);i++){
+        const row = data[i];
+        if(row && Array.isArray(row) && row.some(c=>String(c).includes('มหาวิทยาลัย')||String(c).includes('บาร์'))){start=i+1;break;}
+      }
+      const existing=new Set(state.parcels.map(p=>p.barcode));
+      let added=0;
+      data.slice(start).forEach((row,idx)=>{
+        const uni=String(row[0]||'').trim();
+        const picNo=String(row[1]||'').trim();
+        const barcode=String(row[2]||'').trim().toUpperCase();
+        if(!barcode.match(/^[A-Z]{2}\d{9}[A-Z]{2}$/)) return;
+        if(existing.has(barcode)) return;
+        const price=parseFloat(row[3])||0;
+        const wt=parseFloat(String(row[4]||'').replace(/[^0-9.]/g,''))||0;
+        const date=String(row[5]||'').trim();
+        const pkg=price&&wt?detectPkg(wt,price):'A3';
+        existing.add(barcode);
+        state.parcels.push({uni,picNo,barcode,pkg,weight:wt,price:price||calcPrice(wt,'A3'),date,id:Date.now()+idx});
+        added++;
+      });
+      saveState();updateStats();buildUniTabs();renderList();showReport(state.reportTab,null);
+      
+      // Record to history
+      const now = new Date();
+      state.importHistory.push({
+        id: Date.now(),
+        timestamp: now.toLocaleDateString('th-TH') + ' ' + now.toLocaleTimeString('th-TH', {hour:'2-digit', minute:'2-digit'}),
+        filename: file.name,
+        count: added
+      });
+      // Keep only last 20 entries
+      if(state.importHistory.length > 20) state.importHistory.shift();
+      saveState();
+      
+      showPage('receipt', null);
+      const st=document.getElementById('importStatus');
+      if(st) {
+        st.className='alert alert-success';
+        st.textContent=`นำเข้าสำเร็จ ${added} รายการ จาก "${file.name}"`;
+        st.style.display='block';
+      }
+      showToast(`นำเข้า ${added} รายการ`);
+    } catch(err){
+      console.error('Import error:', err);
+      const st=document.getElementById('importStatus');
+      if(st) {
+        st.style.cssText='display:block;padding:10px;background:#fde;color:red;border-radius:8px;font-size:13px';
+        st.textContent='ไม่สามารถอ่านไฟล์: '+err.message;
+      }
+    }
+  };
+  reader.readAsBinaryString(file);
+  input.value='';
+}
+
+// ==================== EXPORT ====================
+function exportExcel() {
+  if(!state.parcels.length){showToast('ยังไม่มีข้อมูล');return;}
+  const wb=XLSX.utils.book_new();
+  const d1=[['มหาวิทยาลัย','หมายเลขรูป','รหัสบาร์โค้ด','ราคา','น้ำหนัก','แพ็กเกจ','วันที่ส่ง']];
+  state.parcels.forEach(p=>d1.push([p.uni,p.picNo,p.barcode,p.price,`${p.weight} กก`,p.pkg,p.date]));
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(d1),'รหัสบาร์โค้ด');
+  const byUni={};const byPr={};
+  state.parcels.forEach(p=>{
+    if(!byUni[p.uni])byUni[p.uni]=0;byUni[p.uni]+=p.price;
+    if(!byPr[p.price])byPr[p.price]=0;byPr[p.price]++;
+  });
+  const tot=state.parcels.reduce((s,p)=>s+p.price,0);
+  const d2=[['มหาวิทยาลัย','ราคา','','','ยอดรวม',tot]];
+  const ur=Object.entries(byUni).sort();const pr=Object.entries(byPr).sort((a,b)=>Number(a[0])-Number(b[0]));
+  for(let i=0;i<Math.max(ur.length,pr.length);i++){
+    const u=ur[i]||['',''];const p=pr[i]||['',''];
+    d2.push([u[0],u[1],'','',p[0]?p[0]+' บ':'',p[1]||'']);
+  }
+  XLSX.utils.book_append_sheet(wb,XLSX.utils.aoa_to_sheet(d2),'ยอดรวม');
+  const n=new Date();
+  XLSX.writeFile(wb,`พัสดุ_${n.getDate()}-${n.getMonth()+1}-${n.getFullYear()}.xlsx`);
+  showToast('บันทึก Excel แล้ว');
+}
+
+// Drag & drop
+document.addEventListener('DOMContentLoaded',()=>{
+  const zone=document.getElementById('importZone');
+  if(zone){
+    zone.addEventListener('dragover',e=>{e.preventDefault();zone.classList.add('drag');});
+    zone.addEventListener('dragleave',()=>zone.classList.remove('drag'));
+    zone.addEventListener('drop',e=>{
+      e.preventDefault();zone.classList.remove('drag');
+      const f=e.dataTransfer.files[0];
+      if(f){const fi=document.getElementById('fileInput');const dt=new DataTransfer();dt.items.add(f);fi.files=dt.files;importExcel(fi);}
+    });
+  }
+  init();
+  setInterval(updateDate,30000);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "id": "postal-data",
+  "name": "ข้อมูลไปรษณีย์",
+  "description": "ค้นหาและดูข้อมูลรหัสไปรษณีย์ทั่วประเทศ",
+  "icon": "📬",
+  "color": "#0891b2",
+  "version": "1.0",
+  "entry": "index.html",
+  "roles": ["admin", "customer"],
+  "active": true
+}

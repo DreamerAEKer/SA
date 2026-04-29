@@ -1,0 +1,730 @@
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ศูนย์ข้อมูลบริการไปรษณีย์ไทย (THP Knowledge Center)</title>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --thp-red: #ED1C24;
+            --thp-red-dark: #C40008;
+            --bg-page: #F3F4F6;
+            --bg-card: #FFFFFF;
+            --text-main: #1F2937;
+            --text-muted: #6B7280;
+            --font-main: 'Prompt', sans-serif;
+            --shadow-card: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        }
+
+        body {
+            font-family: var(--font-main);
+            background: var(--bg-page);
+            color: var(--text-main);
+            margin: 0;
+            line-height: 1.5;
+            padding-bottom: 40px;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        /* Components */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            border: none;
+            transition: 0.2s;
+            gap: 6px;
+            font-family: var(--font-main);
+        }
+
+        .btn-primary {
+            background: var(--thp-red);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--thp-red-dark);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-muted);
+        }
+
+        .btn-ghost:hover {
+            background: #e5e7eb;
+            color: var(--thp-red);
+        }
+
+        .btn-sm {
+            padding: 4px 8px;
+            font-size: 13px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+            border: 1px solid white;
+            transition: 0.2s;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .badge-green {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .badge-red {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-gray {
+            background: #f3f4f6;
+            color: #4b5563;
+        }
+
+        .badge-blue {
+            background: #eff6ff;
+            color: #1e40af;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 60px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            color: #111;
+            cursor: pointer;
+            font-size: 18px;
+        }
+
+        .brand-logo {
+            background: var(--thp-red);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 6px;
+        }
+
+        /* Grid & Table */
+        .grid {
+            display: grid;
+            gap: 20px;
+            grid-template-columns: 1fr;
+        }
+
+        .card-img-wrap {
+            padding-top: 56.25%;
+            position: relative;
+            background: #eee;
+        }
+
+        .card-img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .card-body {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: var(--shadow-card);
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transform: scale(1.1);
+        }
+
+        .data-table-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-card);
+            overflow: hidden;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+        }
+
+        .data-table th {
+            background: #f9fafb;
+            padding: 12px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .data-table td {
+            padding: 16px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 14px;
+            vertical-align: middle;
+        }
+
+        .data-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .data-table tr:hover {
+            background: #f9fafb;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: 0.2s;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal {
+            background: white;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            border-radius: 16px;
+            overflow-y: auto;
+            transform: scale(0.95);
+            transition: 0.2s;
+            padding: 0;
+        }
+
+        .modal-overlay.active .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            background: white;
+            z-index: 10;
+        }
+
+        .modal-body {
+            padding: 20px;
+        }
+
+        /* File List */
+        .file-list {
+            display: grid;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px;
+            background: #f9fafb;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            transition: 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .file-item:hover {
+            background: #f0fdf4;
+            border-color: #dcfce7;
+        }
+
+        .file-icon {
+            color: #ef4444;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-family: var(--font-main);
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--thp-red);
+            ring: 2px solid rgba(237, 28, 36, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .data-table thead {
+                display: none;
+            }
+
+            .data-table,
+            .data-table tbody,
+            .data-table tr,
+            .data-table td {
+                display: block;
+                width: 100%;
+            }
+
+            .data-table tr {
+                margin-bottom: 12px;
+                border: 1px solid #e5e7eb;
+                border-radius: 12px;
+                overflow: hidden;
+                background: white;
+            }
+
+            .data-table td {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-bottom: 1px solid #eee;
+                padding: 12px;
+                text-align: right;
+            }
+
+            .data-table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: var(--text-muted);
+                font-size: 13px;
+                text-align: left;
+            }
+
+            .grid-md-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .grid-md-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .grid-lg-3 {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- APP CONTAINER -->
+    <div id="app"></div>
+
+    <!-- MODAL CONTAINER -->
+    <div id="modal-container" class="modal-overlay">
+        <div class="modal" id="modal-content"></div>
+    </div>
+
+    <script>
+        // --- 1. FULL DATASET (Updated with Files) ---
+        const initialServices = [
+            // --- DOMESTIC ---
+            {
+                id: 'ems-th', name: 'EMS ในประเทศ', type: 'Domestic', status: 'Active', updated: '24/01/2026',
+                img: 'https://placehold.co/600x338/ED1C24/FFFFFF?text=EMS+TH',
+                desc: 'ส่งด่วนทั่วไทย มาตรฐานอันดับ 1 ถึงไวใน 1-2 วันทำการ',
+                features: ['1-2 วันทำการ', 'Tracking 24 ชม.', 'รับประกัน 2,000 บ.', 'COD เก็บเงินปลายทาง'],
+                conditions: ['พัสดุห้ามเกิน 20 กก.', 'กว้าง+ยาว+สูง ไม่เกิน 150 ซม.'],
+                files: [
+                    { name: 'ตารางค่าบริการ EMS 2568.pdf', url: '#' },
+                    { name: 'เงื่อนไขการรับประกัน.pdf', url: '#' }
+                ]
+            },
+            {
+                id: 'reg-th', name: 'ลงทะเบียน (ในประเทศ)', type: 'Domestic', status: 'Active', updated: '20/01/2026',
+                img: 'https://placehold.co/600x338/3b82f6/FFFFFF?text=Register',
+                desc: 'ส่งประหยัด มีหลักฐานการส่ง ปลอดภัย เหมาะกับเอกสาร/ของชิ้นเล็ก',
+                features: ['ราคาประหยัด', 'ตรวจสอบต้นทาง/ปลายทาง', 'รับประกัน 300 บ.'],
+                conditions: ['พัสดุห้ามเกิน 2 กก.'],
+                files: [{ name: 'อัตราค่าบริการไปรษณีย์ลงทะเบียน.pdf', url: '#' }]
+            },
+            { id: 'eco-post', name: 'eCo-Post', type: 'Domestic', status: 'Active', updated: '10/01/2026', img: 'https://placehold.co/600x338/0ea5e9/FFFFFF?text=EcoPost', desc: 'ส่งประหยัดคุ้มค่าสำหรับร้านค้าออนไลน์ รองรับน้ำหนักถึง 10 กก.', features: ['ราคาประหยัด', 'เหมาะกับ E-commerce', 'Tracking ได้'], conditions: ['ไม่เกิน 10 กก.'] },
+            { id: 'logis-th', name: 'Logispost (ในประเทศ)', type: 'Domestic', status: 'Active', updated: '15/01/2026', img: 'https://placehold.co/600x338/f59e0b/FFFFFF?text=Logispost', desc: 'ส่งของใหญ่ 20-200 กก. เฟอร์นิเจอร์ เครื่องใช้ไฟฟ้า มอเตอร์ไซค์', features: ['ของใหญ่/มีน้ำหนัก', 'Track & Trace', 'รับสินค้าที่ ปณ.'], conditions: ['20-200 กก.'] },
+
+            // --- INTERNATIONAL ---
+            {
+                id: 'courier', name: 'Courier Post', type: 'International', status: 'Active', updated: '24/01/2026',
+                img: 'https://placehold.co/600x338/1e3a8a/FFFFFF?text=Courier',
+                desc: 'ส่งด่วนพรีเมียมระหว่างประเทศ โดยสายการบินชั้นนำ ถึงใน 2-4 วัน',
+                features: ['ด่วนที่สุด (Premium)', 'Door-to-Door', 'รวมพิธีการศุลกากร'],
+                conditions: ['เอกสาร/พัสดุ', 'ทั่วโลก'],
+                files: [
+                    { name: 'Courier Post Rate Card 2025.pdf', url: '#' },
+                    { name: 'Fuel Surcharge Jan 2026.pdf', url: '#' }
+                ]
+            },
+            {
+                id: 'ems-world', name: 'EMS World', type: 'International', status: 'Active', updated: '24/01/2026',
+                img: 'https://placehold.co/600x338/d32f2f/FFFFFF?text=EMS+World',
+                desc: 'ส่งด่วนทั่วโลก 95 ประเทศปลายทาง ถึงผู้รับใน 3-5 วันทำการ',
+                features: ['ส่งด่วนทั่วโลก', 'Tracking Full Route', 'รับประกัน 3,000 บ.'],
+                conditions: ['ไม่เกิน 30 กก.', 'สินค้า/เอกสาร'],
+                files: [{ name: 'EMS World Zones & Rates.pdf', url: '#' }]
+            },
+            { id: 'epacket', name: 'ePacket', type: 'International', status: 'Active', updated: '22/01/2026', img: 'https://placehold.co/600x338/8b5cf6/FFFFFF?text=ePacket', desc: 'ส่งประหยัดระหว่างประเทศ เพื่อธุรกิจ E-commerce (น้ำหนักไม่เกิน 2 กก.)', features: ['ราคาประหยัด', 'เหมาะกับขายของ ebay/Amazon', 'Tracking ได้'], conditions: ['ไม่เกิน 2 กก.'] },
+            { id: 'intl-parcel', name: 'พัสดุไปรษณีย์ระหว่างประเทศ', type: 'International', status: 'Active', updated: '15/01/2026', img: 'https://placehold.co/600x338/059669/FFFFFF?text=Parcel+Intl', desc: 'ส่งของไปต่างประเทศ ราคาประหยัด ทางอากาศ/ทางภาคพื้น (Surface)', features: ['ราคาประหยัด', 'ส่งของหนักได้ (30 กก.)', 'ครอบคลุมทั่วโลก'], conditions: ['ไม่เกิน 30 กก.'] },
+            { id: 'small-packet', name: 'พัสดุย่อย (Small Packet)', type: 'International', status: 'Active', updated: '18/01/2026', img: 'https://placehold.co/600x338/6366f1/FFFFFF?text=Small+Packet', desc: 'ส่งของชิ้นเล็กไปต่างประเทศ ราคาถูกที่สุด (ห้ามปิดผนึกแน่นหนา)', features: ['ถูกที่สุด', 'เหมาะกับของที่ระลึก'], conditions: ['ไม่เกิน 2 กก.', 'ห้ามติดเทปกาว'] },
+
+            // --- FINANCIAL ---
+            { id: 'money', name: 'ธนาณัติออนไลน์', type: 'Financial', status: 'Active', updated: '15/01/2026', img: 'https://placehold.co/600x338/10b981/FFFFFF?text=Money', desc: 'ส่งเงินด่วนทั่วไทย ผู้รับได้รับเงินทันทีที่ทำการไปรษณีย์', features: ['ได้รับเงินทันที', 'ครอบคลุมทุกสาขา'], conditions: ['บัตรประชาชนผู้รับ'] },
+            { id: 'wu', name: 'Western Union', type: 'Financial', status: 'Active', updated: '12/01/2026', img: 'https://placehold.co/600x338/fbbf24/000000?text=Western', desc: 'บริการโอนเงินระหว่างประเทศ รับเงินได้ทั่วโลกในไม่กี่นาที', features: ['โอนทั่วโลก', 'ไม่ต้องมีบัญชี'], conditions: ['ใช้รหัส MTCN'], files: [{ name: 'แบบฟอร์ม Western Union.pdf', url: '#' }] },
+
+            // --- RETAIL & DIGITAL ---
+            { id: 'box', name: 'กล่อง/ซอง', type: 'Retail', status: 'Active', updated: '01/01/2026', img: 'https://placehold.co/600x338/f472b6/FFFFFF?text=Box', desc: 'กล่องพัสดุและซองกันกระแทกมาตรฐาน แข็งแรง ทนทาน', features: ['ครบทุกไซส์', 'ราคามาตรฐาน'], conditions: ['-'] },
+            { id: 'prompt', name: 'Prompt Post', type: 'Digital', status: 'Active', updated: '20/01/2026', img: 'https://placehold.co/600x338/14b8a6/FFFFFF?text=App', desc: 'เตรียมการฝากส่งล่วงหน้า พิมพ์จ่าหน้าเอง ส่งของไม่ต้องรอคิว', features: ['ไม่ต้องรอคิว', 'พิมพ์ใบเอง'], conditions: ['สมัครสมาชิก'], files: [{ name: 'คู่มือการใช้งาน Prompt Post.pdf', url: '#' }] }
+        ];
+
+        // STATE
+        let services = initialServices;
+        try {
+            const stored = JSON.parse(localStorage.getItem('thp_services_v5'));
+            if (stored && stored.length > 5) services = stored;
+        } catch (e) { }
+
+        let state = { mode: 'customer', cat: 'All' };
+
+        // SAVE
+        function saveServices() {
+            localStorage.setItem('thp_services_v5', JSON.stringify(services));
+            render();
+        }
+
+        // RENDER CORE
+        function render() {
+            const app = document.getElementById('app');
+            const isStaff = state.mode === 'staff';
+
+            app.innerHTML = `
+            <div class="header">
+                <div class="container navbar">
+                    <div class="brand" onclick="window.location.reload()">
+                        <div class="brand-logo">THP</div>
+                        <div class="hidden md:block">Knowledge Center</div>
+                    </div>
+                    <div>
+                        <button class="btn ${!isStaff ? 'btn-primary' : 'btn-ghost'}" onclick="setMode('customer')">ลูกค้า (Customer)</button>
+                        <button class="btn ${isStaff ? 'btn-primary' : 'btn-ghost'}" onclick="setMode('staff')">พนักงาน (Staff)</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="container animate-fade-in">
+                ${isStaff ? renderStaffDashboard() : renderCustomerGrid()}
+            </div>
+            `;
+
+            lucide.createIcons();
+        }
+
+        function renderCustomerGrid() {
+            const filtered = state.cat === 'All'
+                ? services.filter(s => s.status === 'Active')
+                : services.filter(s => s.type === state.cat && s.status === 'Active');
+
+            const categories = [
+                { id: 'All', label: 'ทั้งหมด' },
+                { id: 'Domestic', label: 'ในประเทศ' },
+                { id: 'International', label: 'ระหว่างประเทศ' },
+                { id: 'Financial', label: 'การเงิน' },
+                { id: 'Retail', label: 'สินค้า' },
+                { id: 'Digital', label: 'ดิจิทัล' }
+            ];
+
+            return `
+                <div style="margin-bottom:24px; display:flex; gap:8px; overflow-x:auto; padding-bottom:8px; scrollbar-width:none;">
+                    ${categories.map(c =>
+                `<button onclick="setCat('${c.id}')" class="btn ${state.cat === c.id ? 'btn-primary' : 'btn-ghost'}" style="border:1px solid #e5e7eb; border-radius:30px; font-size:14px; white-space:nowrap;">${c.label}</button>`
+            ).join('')}
+                </div>
+                
+                <div class="grid grid-md-2 grid-lg-3">
+                    ${filtered.map(s => `
+                    <div class="card" onclick="openDetail('${s.id}')">
+                        <div class="card-img-wrap">
+                            <img src="${s.img}" class="card-img" alt="${s.name}" loading="lazy">
+                            <div style="position:absolute; top:12px; right:12px;">
+                                <span class="badge ${getBadgeColor(s.type)}" style="background:rgba(255,255,255,0.95); backdrop-filter:blur(4px); box-shadow:0 2px 4px rgba(0,0,0,0.1); color:#111;">${s.type}</span>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h3 style="margin:0 0 8px 0; font-size:18px; line-height:1.4;">${s.name}</h3>
+                            <p style="color:#666; font-size:14px; margin:0; line-clamp:2; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; flex:1;">${s.desc}</p>
+                            <div style="margin-top:16px; padding-top:16px; border-top:1px solid #f3f4f6; display:flex; justify-content:space-between; align-items:center;">
+                                <span style="font-size:12px; color:#9ca3af;">อัปเดต: ${s.updated}</span>
+                                <span style="color:var(--thp-red); font-size:13px; font-weight:600; display:flex; align-items:center;">รายละเอียด <i data-lucide="chevron-right" style="width:14px;"></i></span>
+                            </div>
+                        </div>
+                    </div>`).join('')}
+                </div>
+            `;
+        }
+
+        // ... (Staff Dashboard omitted for brevity, logic identical to previous) ...
+        function renderStaffDashboard() {
+            const stats = {
+                total: services.length,
+                active: services.filter(s => s.status === 'Active').length,
+                expired: services.filter(s => s.status === 'Expired').length
+            };
+            return `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#eff6ff; color:#2563eb;"><i data-lucide="package" style="width:24px;"></i></div>
+                        <div><div style="font-size:24px; font-weight:700;">${stats.total}</div><div style="color:#6b7280; font-size:13px;">ทั้งหมด</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#dcfce7; color:#166534;"><i data-lucide="check-circle" style="width:24px;"></i></div>
+                        <div><div style="font-size:24px; font-weight:700;">${stats.active}</div><div style="color:#6b7280; font-size:13px;">ใช้งานอยู่</div></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#fee2e2; color:#991b1b;"><i data-lucide="alert-circle" style="width:24px;"></i></div>
+                        <div><div style="font-size:24px; font-weight:700;">${stats.expired}</div><div style="color:#6b7280; font-size:13px;">หมดอายุ</div></div>
+                    </div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h2 style="font-size:20px; font-weight:600; margin:0;">จัดการข้อมูล</h2>
+                    <button class="btn btn-primary" onclick="openAddModal()"><i data-lucide="plus" style="width:16px;"></i> เพิ่มบริการ</button>
+                </div>
+
+                <div class="data-table-container">
+                    <table class="data-table">
+                        <thead>
+                            <tr><th>ชื่อบริการ</th><th>หมวดหมู่</th><th>สถานะ</th><th style="text-align:right;">จัดการ</th></tr>
+                        </thead>
+                        <tbody>
+                            ${services.map(s => `
+                            <tr>
+                                <td data-label="ชื่อบริการ" style="font-weight:600;">${s.name}</td>
+                                <td data-label="หมวดหมู่"><span class="badge ${getBadgeColor(s.type)}">${s.type}</span></td>
+                                <td data-label="สถานะ"><span class="badge ${s.status === 'Active' ? 'badge-green' : 'badge-red'}">${s.status}</span></td>
+                                <td data-label="จัดการ" style="text-align:right;">
+                                    <button class="btn btn-ghost btn-sm" onclick="openDetail('${s.id}')"><i data-lucide="eye" style="width:14px;"></i></button>
+                                    <button class="btn btn-ghost btn-sm" style="color:#ef4444;" onclick="deleteService('${s.id}')"><i data-lucide="trash-2" style="width:14px;"></i></button>
+                                </td>
+                            </tr>`).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+
+        // --- MODALS ---
+
+        function openDetail(id) {
+            const s = services.find(x => x.id === id);
+            if (!s) return;
+            const modal = document.getElementById('modal-content');
+            modal.innerHTML = `
+                <div class="modal-header">
+                    <h3 style="margin:0;">${s.name}</h3>
+                    <button onclick="closeModal()" class="btn btn-ghost"><i data-lucide="x"></i></button>
+                </div>
+                <div style="height:200px; background:#eee; position:relative;">
+                    <img src="${s.img}" style="width:100%; height:100%; object-fit:cover;">
+                </div>
+                <div class="modal-body">
+                    <p style="font-size:16px; margin-bottom:24px;">${s.desc}</p>
+                    
+                    ${s.files && s.files.length > 0 ? `
+                    <div style="margin-bottom:24px;">
+                        <h4 style="margin:0 0 12px 0; font-size:16px;">📄 เอกสารและดาวน์โหลด</h4>
+                        <div class="file-list">
+                            ${s.files.map(f => `
+                                <a href="${f.url}" class="file-item" target="_blank" onclick="alert('Start downloading: ${f.name}')">
+                                    <span class="file-icon"><i data-lucide="file-text"></i></span>
+                                    <span style="flex:1; font-weight:500;">${f.name}</span>
+                                    <span style="color:#2563eb; font-size:13px;">ดาวน์โหลด</span>
+                                </a>
+                            `).join('')}
+                        </div>
+                    </div>` : ''}
+
+                    ${s.features ? `
+                    <div style="background:#f9fafb; padding:16px; border-radius:8px; margin-bottom:16px;">
+                        <h4 style="margin:0 0 8px 0; font-size:15px;">จุดเด่นบริการ</h4>
+                        <ul style="margin:0; padding-left:20px; color:#4b5563;">
+                            ${s.features.map(f => `<li>${f}</li>`).join('')}
+                        </ul>
+                    </div>` : ''}
+
+                    ${s.conditions ? `
+                    <div>
+                        <h4 style="margin:0 0 8px 0; font-size:15px;">เงื่อนไข</h4>
+                        <ul style="margin:0; padding-left:20px; color:#4b5563; font-size:14px;">
+                            ${s.conditions.map(c => `<li>${c}</li>`).join('')}
+                        </ul>
+                    </div>` : ''}
+                </div>
+            `;
+            document.getElementById('modal-container').classList.add('active');
+            lucide.createIcons();
+        }
+
+        function openAddModal() { /* Same as before */
+            const modal = document.getElementById('modal-content');
+            modal.innerHTML = `
+                <div class="modal-header">
+                    <h3 style="margin:0;">เพิ่มบริการใหม่ (Add Service)</h3>
+                    <button onclick="closeModal()" class="btn btn-ghost"><i data-lucide="x"></i></button>
+                </div>
+                <div class="modal-body">
+                    <form onsubmit="handleSubmit(event)">
+                        <div class="form-group">
+                            <label class="form-label">ชื่อบริการ</label>
+                            <input type="text" name="name" class="form-control" required placeholder="เช่น Courier Post">
+                        </div>
+                        <div class="grid grid-md-2" style="gap:16px;">
+                            <div class="form-group">
+                                <label class="form-label">หมวดหมู่</label>
+                                <select name="type" class="form-control">
+                                    <option value="Domestic">ในประเทศ</option>
+                                    <option value="International">ระหว่างประเทศ</option>
+                                    <option value="Financial">การเงิน</option>
+                                    <option value="Retail">สินค้า</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">สถานะ</label>
+                                <select name="status" class="form-control">
+                                    <option value="Active">Active</option>
+                                    <option value="Expired">Expired</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">รายละเอียด</label>
+                            <textarea name="desc" class="form-control" rows="3" required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary" style="width:100%;">บันทึกข้อมูล</button>
+                    </form>
+                </div>`;
+            document.getElementById('modal-container').classList.add('active');
+            lucide.createIcons();
+        }
+        function handleSubmit(e) { /* Same as before */ e.preventDefault(); const form = e.target; services.unshift({ id: Date.now().toString(), name: form.name.value, type: form.type.value, status: form.status.value, desc: form.desc.value, updated: new Date().toLocaleDateString('en-GB'), img: 'https://placehold.co/600x338/ED1C24/FFFFFF?text=' + form.type.value }); saveServices(); closeModal(); }
+        function deleteService(id) { if (confirm('ต้องการลบ?')) { services = services.filter(s => s.id !== id); saveServices(); } }
+        function closeModal() { document.getElementById('modal-container').classList.remove('active'); }
+        document.getElementById('modal-container').addEventListener('click', (e) => { if (e.target.id === 'modal-container') closeModal(); });
+        function getBadgeColor(type) { if (type === 'Domestic') return 'badge-red'; if (type === 'International') return 'badge-blue'; if (type === 'Financial') return 'badge-green'; return 'badge-gray'; }
+        function setMode(m) { state.mode = m; render(); }
+        function setCat(c) { state.cat = c; render(); }
+        window.onload = render;
+    </script>
+</body>
+
+</html>

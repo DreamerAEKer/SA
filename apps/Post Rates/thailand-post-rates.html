@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>อัตราค่าบริการไปรษณีย์ไทย</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Sarabun','Noto Sans Thai',Arial,sans-serif;font-size:15px;background:#f4f4f4;color:#222}
+
+/* HEADER */
+.hdr{background:linear-gradient(135deg,#c8102e 0%,#9b0d22 100%);color:#fff;padding:14px 24px;display:flex;align-items:center;gap:14px;box-shadow:0 3px 8px rgba(0,0,0,.25)}
+.hdr-logo{width:54px;height:54px;background:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:26px;flex-shrink:0}
+.hdr-text h1{font-size:20px;font-weight:700}
+.hdr-text p{font-size:12px;opacity:.85;margin-top:2px}
+.hdr-actions{margin-left:auto}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:none;border-radius:6px;font-size:13px;font-family:inherit;cursor:pointer;font-weight:600;transition:.15s}
+.btn-print{background:#fff;color:#c8102e}
+.btn-print:hover{background:#f0f0f0}
+
+/* TABS */
+.tab-nav{background:#fff;display:flex;border-bottom:2px solid #e0e0e0;padding:0 24px;box-shadow:0 1px 4px rgba(0,0,0,.06);overflow-x:auto}
+.tab-btn{padding:12px 20px;border:none;background:none;font-size:14px;font-family:inherit;font-weight:600;color:#666;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:.15s}
+.tab-btn.active{color:#c8102e;border-bottom-color:#c8102e}
+.tab-btn:hover:not(.active){color:#333}
+
+/* CONTENT */
+.content{max-width:1050px;margin:24px auto;padding:0 16px 60px}
+.tab-panel{display:none}
+.tab-panel.active{display:block}
+
+/* SECTION CARD */
+.card{background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.08);margin-bottom:20px;overflow:hidden}
+.card-head{background:linear-gradient(90deg,#c8102e,#e63950);color:#fff;padding:11px 18px;display:flex;align-items:center;gap:8px}
+.card-head h2{font-size:15px;font-weight:700}
+.card-head .icon{font-size:18px}
+.card-body{padding:16px 18px}
+
+/* TABLES */
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead tr{background:#f8e8ea}
+thead th{padding:9px 12px;text-align:left;font-weight:700;border-bottom:2px solid #e0c0c4;color:#7a0015}
+thead th:last-child,tbody td:last-child{text-align:right}
+tbody tr{border-bottom:1px solid #f0f0f0}
+tbody tr:hover{background:#fff5f6}
+tbody td{padding:8px 12px}
+tbody tr:last-child{border-bottom:none}
+.price{font-weight:700;color:#c8102e}
+.note-row td{background:#fffbf0;font-size:12px;color:#7a5c00}
+
+/* INFO BOXES */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:12px;margin-bottom:16px}
+.info-box{background:#f8f8f8;border-radius:8px;border-left:4px solid #c8102e;padding:12px 14px}
+.info-box .lbl{font-size:11px;color:#888;margin-bottom:3px}
+.info-box .val{font-size:17px;font-weight:700;color:#c8102e}
+.info-box .sub{font-size:11px;color:#666;margin-top:2px}
+
+/* NOTICE BOXES */
+.notice{border-radius:8px;padding:11px 14px;font-size:13px;margin-top:12px}
+.notice-warn{background:#fff8e1;border:1px solid #ffe082;color:#7a5c00}
+.notice-info{background:#e8f4fd;border:1px solid #b3d8f0;color:#1a5276}
+.notice-green{background:#e8f8f0;border:1px solid #a3d9b8;color:#1a5c36}
+
+/* CALCULATOR */
+.calc-form{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:600px){.calc-form{grid-template-columns:1fr}}
+.form-group{margin-bottom:14px}
+.form-group label{display:block;font-size:13px;font-weight:600;margin-bottom:5px;color:#333}
+.form-group input[type=number],.form-group select{width:100%;padding:9px 12px;border:1.5px solid #ddd;border-radius:7px;font-size:14px;font-family:inherit;outline:none;transition:.15s}
+.form-group input:focus,.form-group select:focus{border-color:#c8102e}
+.toggle-row{display:flex;align-items:center;gap:10px;padding:10px 14px;background:#f9f9f9;border-radius:8px;margin-bottom:12px;cursor:pointer}
+.toggle-row input[type=checkbox]{width:18px;height:18px;accent-color:#c8102e;cursor:pointer}
+.toggle-row span{font-size:14px;font-weight:600}
+.calc-result{background:linear-gradient(135deg,#fff5f6,#fff);border:2px solid #c8102e;border-radius:10px;padding:16px 18px;margin-top:16px}
+.calc-result h3{font-size:14px;color:#888;margin-bottom:12px}
+.result-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #f0f0f0}
+.result-row:last-child{border-bottom:none}
+.result-label{font-size:14px;font-weight:600}
+.result-price{font-size:22px;font-weight:700;color:#c8102e}
+.result-sub{font-size:12px;color:#888}
+.btn-calc{background:#c8102e;color:#fff;padding:11px 28px;font-size:15px;border-radius:8px;width:100%;margin-top:4px}
+.btn-calc:hover{background:#a80d26}
+
+/* TWO-COL GRID */
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:700px){.two-col{grid-template-columns:1fr}}
+
+/* ZONE CARDS */
+.zone-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.zone-card{background:#f9f9f9;border-radius:8px;padding:12px 14px;border:1px solid #eee}
+.zone-card h4{font-size:13px;color:#c8102e;margin-bottom:7px;font-weight:700}
+.zone-card ul{list-style:none}
+.zone-card ul li{font-size:12px;color:#444;padding:1px 0}
+.zone-card ul li::before{content:"• ";color:#c8102e}
+
+/* TAG */
+.tag{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;margin-left:6px}
+.tag-new{background:#fde8e8;color:#c8102e}
+.tag-remote{background:#fff3cd;color:#856404}
+
+/* REMOTE AREA LIST */
+.remote-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:6px;margin-top:10px}
+.remote-item{background:#fff3cd;border-radius:5px;padding:5px 10px;font-size:12px;color:#5c4a00}
+.remote-item span{font-weight:700}
+
+/* COLLAPSIBLE */
+.collapse-btn{display:flex;justify-content:space-between;align-items:center;width:100%;background:none;border:none;font-size:13px;font-weight:600;color:#c8102e;cursor:pointer;padding:8px 0;border-top:1px solid #f0f0f0;margin-top:12px}
+.collapse-content{display:none}
+.collapse-content.open{display:block}
+
+/* EMS JUMBO CALC */
+.zone-display{background:#f8e8ea;border-radius:8px;padding:12px 14px;text-align:center;margin-top:8px}
+.zone-display .zone-num{font-size:32px;font-weight:700;color:#c8102e}
+.zone-display .zone-name{font-size:13px;color:#555}
+
+/* FUZE */
+.fuze-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+.fuze-box{background:#e8f6ff;border-radius:8px;border-left:4px solid #0277bd;padding:14px 16px}
+.fuze-box h4{font-size:14px;font-weight:700;color:#01579b;margin-bottom:6px}
+.fuze-box p{font-size:13px;color:#333;line-height:1.6}
+
+/* PRINT */
+@media print{
+  @page{size:A4 portrait;margin:12mm 10mm}
+  body{background:#fff;font-size:11px}
+  .hdr{print-color-adjust:exact;-webkit-print-color-adjust:exact;padding:8px 12px}
+  .hdr-text h1{font-size:14px}
+  .hdr-actions,.tab-nav,.btn-calc,.collapse-btn,.toggle-row input{display:none!important}
+  .content{max-width:100%;margin:8px 0 0;padding:0}
+  .tab-panel{display:block!important}
+  .tab-panel+.tab-panel{page-break-before:always}
+  .card{box-shadow:none;border:1px solid #ddd;margin-bottom:10px;break-inside:avoid}
+  .card-head{print-color-adjust:exact;-webkit-print-color-adjust:exact;padding:7px 12px}
+  .card-head h2{font-size:12px}
+  .card-body{padding:8px 12px}
+  thead tr{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  table{font-size:10px}
+  thead th,tbody td{padding:5px 8px}
+  .calc-result{border:1px solid #ddd}
+  .two-col{gap:10px}
+  .info-grid{grid-template-columns:repeat(4,1fr);gap:8px}
+  .zone-grid{grid-template-columns:repeat(3,1fr);gap:8px}
+  .remote-list{grid-template-columns:repeat(4,1fr);gap:4px}
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-logo">📮</div>
+  <div class="hdr-text">
+    <h1>อัตราค่าบริการไปรษณีย์ไทย</h1>
+    <p>Thailand Post Service Rates &nbsp;|&nbsp; อ้างอิงประกาศ 1 ม.ค. 2568 &amp; 1 ม.ค. 2569</p>
+  </div>
+  <div class="hdr-actions">
+    <button class="btn btn-print" onclick="window.print()">🖨️ พิมพ์ / PDF</button>
+  </div>
+</div>
+
+<!-- TAB NAV -->
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab('basic',this)">📋 ตารางค่าบริการ</button>
+  <button class="tab-btn" onclick="switchTab('calc',this)">🔢 คำนวณ EMS / eCo Post</button>
+  <button class="tab-btn" onclick="switchTab('jumbo',this)">📦 EMS Jumbo</button>
+  <button class="tab-btn" onclick="switchTab('fuze',this)">❄️ Fuze Post</button>
+</div>
+
+<!-- ==================== TAB 1: BASIC TABLES ==================== -->
+<div class="content">
+<div class="tab-panel active" id="panel-basic">
+
+  <!-- EMS ในประเทศ -->
+  <div class="card">
+    <div class="card-head"><span class="icon">⚡</span><h2>ไปรษณีย์ด่วนพิเศษ EMS ในประเทศ</h2></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div class="info-box"><div class="lbl">ระยะเวลาจัดส่ง</div><div class="val">1–4 วัน</div><div class="sub">กทม. 1 วัน</div></div>
+        <div class="info-box"><div class="lbl">น้ำหนักสูงสุด</div><div class="val">30 กก.</div></div>
+        <div class="info-box"><div class="lbl">ชดใช้สูงสุด (ไม่ซื้อประกัน)</div><div class="val">2,000 ฿</div></div>
+        <div class="info-box"><div class="lbl">ซื้อประกันเพิ่ม สูงสุด</div><div class="val">50,000 ฿</div></div>
+      </div>
+      <table>
+        <thead><tr><th>น้ำหนักไม่เกิน</th><th>ราคาปกติ (บาท)</th><th>พื้นที่ท่องเที่ยว/ห่างไกล/เกาะ <span class="tag tag-new">+20 บาท</span></th></tr></thead>
+        <tbody>
+          <tr><td>20 กรัม</td><td class="price">32</td><td class="price">52</td></tr>
+          <tr><td>100 กรัม</td><td class="price">37</td><td class="price">57</td></tr>
+          <tr><td>250 กรัม</td><td class="price">42</td><td class="price">62</td></tr>
+          <tr><td>500 กรัม</td><td class="price">52</td><td class="price">72</td></tr>
+          <tr><td>1,000 กรัม</td><td class="price">67</td><td class="price">87</td></tr>
+          <tr><td>1,500 กรัม</td><td class="price">82</td><td class="price">102</td></tr>
+          <tr><td>2,000 กรัม</td><td class="price">97</td><td class="price">117</td></tr>
+          <tr><td>2,500 กรัม</td><td class="price">100</td><td class="price">120</td></tr>
+          <tr><td>3,000 กรัม</td><td class="price">105</td><td class="price">125</td></tr>
+          <tr><td>3,500 กรัม</td><td class="price">110</td><td class="price">130</td></tr>
+          <tr><td>4,000 กรัม</td><td class="price">120</td><td class="price">140</td></tr>
+          <tr><td>4,500 กรัม</td><td class="price">120</td><td class="price">140</td></tr>
+          <tr><td>5,000 กรัม</td><td class="price">120</td><td class="price">140</td></tr>
+          <tr><td>5,500 กรัม</td><td class="price">130</td><td class="price">150</td></tr>
+          <tr><td>6,000 กรัม</td><td class="price">140</td><td class="price">160</td></tr>
+          <tr><td>6,500 กรัม</td><td class="price">150</td><td class="price">170</td></tr>
+          <tr><td>7,000 กรัม</td><td class="price">160</td><td class="price">180</td></tr>
+          <tr><td>7,500 กรัม</td><td class="price">170</td><td class="price">190</td></tr>
+          <tr><td>8,000 กรัม</td><td class="price">180</td><td class="price">200</td></tr>
+          <tr><td>8,500 กรัม</td><td class="price">190</td><td class="price">210</td></tr>
+          <tr><td>9,000 กรัม</td><td class="price">200</td><td class="price">220</td></tr>
+          <tr><td>9,500 กรัม</td><td class="price">210</td><td class="price">230</td></tr>
+          <tr><td>10,000 กรัม</td><td class="price">220</td><td class="price">240</td></tr>
+          <tr><td>11,000 กรัม</td><td class="price">230</td><td class="price">250</td></tr>
+          <tr><td>12,000 กรัม</td><td class="price">240</td><td class="price">260</td></tr>
+          <tr><td>13,000 กรัม</td><td class="price">250</td><td class="price">270</td></tr>
+          <tr><td>14,000 กรัม</td><td class="price">260</td><td class="price">280</td></tr>
+          <tr><td>15,000 กรัม</td><td class="price">270</td><td class="price">290</td></tr>
+          <tr><td>16,000 กรัม</td><td class="price">280</td><td class="price">300</td></tr>
+          <tr><td>17,000 กรัม</td><td class="price">290</td><td class="price">310</td></tr>
+          <tr><td>18,000 กรัม</td><td class="price">300</td><td class="price">320</td></tr>
+          <tr><td>19,000 กรัม</td><td class="price">310</td><td class="price">330</td></tr>
+          <tr><td>20,000 กรัม</td><td class="price">320</td><td class="price">340</td></tr>
+          <tr><td>21,000 กรัม</td><td class="price">330</td><td class="price">350</td></tr>
+          <tr><td>22,000 กรัม</td><td class="price">340</td><td class="price">360</td></tr>
+          <tr><td>23,000 กรัม</td><td class="price">350</td><td class="price">370</td></tr>
+          <tr><td>24,000 กรัม</td><td class="price">360</td><td class="price">380</td></tr>
+          <tr><td>25,000 กรัม</td><td class="price">380</td><td class="price">400</td></tr>
+          <tr><td>26,000 กรัม</td><td class="price">400</td><td class="price">420</td></tr>
+          <tr><td>27,000 กรัม</td><td class="price">420</td><td class="price">440</td></tr>
+          <tr><td>28,000 กรัม</td><td class="price">440</td><td class="price">460</td></tr>
+          <tr><td>29,000 กรัม</td><td class="price">460</td><td class="price">480</td></tr>
+          <tr><td>30,000 กรัม</td><td class="price">480</td><td class="price">500</td></tr>
+          <tr class="note-row"><td colspan="3">⛽ ค่าน้ำมันเชื้อเพลิง EMS: บวกเพิ่ม +3 บาท/ชิ้น (ตั้งแต่ 16 เม.ย. 2569) | ขนาดสูงสุด: ด้านใดด้านหนึ่งไม่เกิน 60 ซม. รวมไม่เกิน 120 ซม.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- eCo Post -->
+  <div class="card">
+    <div class="card-head"><span class="icon">📬</span><h2>eCo Post (O) — ส่งราคาประหยัด</h2></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div class="info-box"><div class="lbl">ระยะเวลาจัดส่ง</div><div class="val">2–3 วัน</div></div>
+        <div class="info-box"><div class="lbl">น้ำหนักสูงสุด</div><div class="val">10 กก.</div></div>
+        <div class="info-box"><div class="lbl">ค่าชดใช้สูงสุด</div><div class="val">1,500 ฿</div></div>
+        <div class="info-box"><div class="lbl">ค่าน้ำมัน (16 เม.ย. 69)</div><div class="val">+3 ฿/ชิ้น</div></div>
+      </div>
+      <table>
+        <thead><tr><th>น้ำหนักไม่เกิน</th><th>พื้นที่ทั่วไป (บาท)</th><th>พื้นที่ท่องเที่ยว/ห่างไกล/เกาะ <span class="tag tag-remote">+20 บาท</span></th></tr></thead>
+        <tbody>
+          <tr><td>20 กรัม</td><td class="price">20</td><td class="price">40</td></tr>
+          <tr><td>100 กรัม</td><td class="price">22</td><td class="price">42</td></tr>
+          <tr><td>250 กรัม</td><td class="price">26</td><td class="price">46</td></tr>
+          <tr><td>500 กรัม</td><td class="price">30</td><td class="price">50</td></tr>
+          <tr><td>1,000 กรัม</td><td class="price">40</td><td class="price">60</td></tr>
+          <tr><td>2,000 กรัม</td><td class="price">60</td><td class="price">80</td></tr>
+          <tr><td>4,000 กรัม</td><td class="price">80</td><td class="price">100</td></tr>
+          <tr><td>6,000 กรัม</td><td class="price">120</td><td class="price">140</td></tr>
+          <tr><td>10,000 กรัม</td><td class="price">160</td><td class="price">180</td></tr>
+          <tr class="note-row"><td colspan="3">* ค่าชดใช้กรณีสูญหาย/เสียหาย สูงสุด 1,500 บาท | ไม่มีระบบติดตาม</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- จดหมาย + พัสดุ -->
+  <div class="two-col">
+    <div class="card">
+      <div class="card-head"><span class="icon">✉️</span><h2>จดหมายในประเทศ (เริ่ม 1 ม.ค. 2568)</h2></div>
+      <div class="card-body">
+        <table>
+          <thead><tr><th>น้ำหนัก</th><th>ซอง (฿)</th><th>หีบห่อ (฿)</th><th>ลงทะเบียน-ซอง (฿)</th><th>ลงทะเบียน-ห่อ (฿)</th></tr></thead>
+          <tbody>
+            <tr><td>≤10 กรัม</td><td class="price">5</td><td>—</td><td class="price">18</td><td>—</td></tr>
+            <tr><td>10–20 กรัม</td><td class="price">6</td><td>—</td><td class="price">19</td><td>—</td></tr>
+            <tr><td>20–100 กรัม</td><td class="price">11</td><td class="price">34</td><td class="price">24</td><td class="price">49</td></tr>
+            <tr><td>100–250 กรัม</td><td class="price">17</td><td>—</td><td class="price">30</td><td>—</td></tr>
+            <tr><td>250–500 กรัม</td><td class="price">23</td><td>—</td><td class="price">36</td><td>—</td></tr>
+            <tr><td>500 กรัม–1 กก.</td><td class="price">40</td><td class="price">45</td><td class="price">53</td><td class="price">60</td></tr>
+            <tr><td>1–2 กิโลกรัม</td><td class="price">62</td><td class="price">62</td><td class="price">75</td><td class="price">77</td></tr>
+            <tr class="note-row"><td colspan="5">น้ำหนักสูงสุด 2 กก. | จัดส่ง 2-5 วัน | ลงทะเบียน: ชดใช้สูงสุด ซอง 300 ฿ / หีบห่อ 500 ฿</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-head"><span class="icon">📦</span><h2>พัสดุไปรษณีย์ (P) &amp; ของตีพิมพ์</h2></div>
+      <div class="card-body">
+        <p style="font-size:13px;font-weight:700;margin-bottom:8px;color:#c8102e">พัสดุไปรษณีย์ธรรมดา — จัดส่ง 2–5 วัน</p>
+        <table style="margin-bottom:14px">
+          <thead><tr><th>น้ำหนัก</th><th>ราคา (บาท)</th></tr></thead>
+          <tbody>
+            <tr><td>ไม่เกิน 1 กิโลกรัม</td><td class="price">25</td></tr>
+            <tr><td>เกิน 1 กก. (ทุก กก. เพิ่ม)</td><td class="price">+20 บาท/กก.</td></tr>
+            <tr><td>ตัวอย่าง: 5 กก.</td><td class="price">25 + (4×20) = 105</td></tr>
+            <tr class="note-row"><td colspan="2">น้ำหนักสูงสุด 20 กก. | ชดใช้สูงสุด 1,000 บาท</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:13px;font-weight:700;margin-bottom:8px;color:#c8102e">ของตีพิมพ์ — จัดส่ง 2–5 วัน</p>
+        <table>
+          <thead><tr><th>น้ำหนัก</th><th>ราคา (บาท)</th></tr></thead>
+          <tbody>
+            <tr><td>≤50 กรัม</td><td class="price">4</td></tr>
+            <tr><td>51–100 กรัม</td><td class="price">5</td></tr>
+            <tr><td>100–250 กรัม</td><td class="price">8</td></tr>
+            <tr><td>250–500 กรัม</td><td class="price">11</td></tr>
+            <tr><td>500 กรัม–1 กก.</td><td class="price">17</td></tr>
+            <tr><td>1–2 กิโลกรัม</td><td class="price">33</td></tr>
+            <tr><td>เกิน 2 กก. (ทุก กก. เพิ่ม)</td><td class="price">+16 บาท/กก.</td></tr>
+            <tr class="note-row"><td colspan="2">น้ำหนักสูงสุด 5 กก. | ไม่มีชดใช้</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- พื้นที่ท่องเที่ยว 85 แห่ง -->
+  <div class="card">
+    <div class="card-head"><span class="icon">🗺️</span><h2>รายชื่อปลายทางพื้นที่ท่องเที่ยว พื้นที่ห่างไกล และพื้นที่เกาะ 85 พื้นที่ <span class="tag tag-new">มีผล 1 ม.ค. 2569</span></h2></div>
+    <div class="card-body">
+      <p style="font-size:13px;color:#555;margin-bottom:10px">กรณีต้นทาง-ปลายทางอยู่ในกลุ่มพื้นที่เดียวกัน ไม่คิดค่าบริการเพิ่ม</p>
+      <div class="remote-list">
+        <div class="remote-item"><span>20120</span> เกาะสีชัง (ชลบุรี)</div>
+        <div class="remote-item"><span>20150</span> บางละมุง — เฉพาะเกาะล้าน</div>
+        <div class="remote-item"><span>21160</span> เพ — เฉพาะเกาะเสม็ด (ระยอง)</div>
+        <div class="remote-item"><span>23000</span> ตราด — เฉพาะเกาะกูด</div>
+        <div class="remote-item"><span>23120</span> แหลมงอบ — เฉพาะเกาะหมาก</div>
+        <div class="remote-item"><span>23170</span> เกาะช้าง (ตราด)</div>
+        <div class="remote-item"><span>50250</span> สะเมิง (เชียงใหม่)</div>
+        <div class="remote-item"><span>50310</span> อมก๋อย (เชียงใหม่)</div>
+        <div class="remote-item"><span>50350</span> เวียงแหง (เชียงใหม่)</div>
+        <div class="remote-item"><span>55130</span> ทุ่งช้าง (น่าน)</div>
+        <div class="remote-item"><span>55220</span> บ่อเกลือ (น่าน)</div>
+        <div class="remote-item"><span>57170</span> เวียงป่าเป้า (เชียงราย)</div>
+        <div class="remote-item"><span>57180</span> แม่สรวย (เชียงราย)</div>
+        <div class="remote-item"><span>57260</span> แม่เจดีย์ (เชียงราย)</div>
+        <div class="remote-item"><span>57310</span> เวียงแก่น (เชียงราย)</div>
+        <div class="remote-item"><span>57340</span> ขุนตาล (เชียงราย)</div>
+        <div class="remote-item"><span>58000–58150</span> แม่ฮ่องสอน ทุกพื้นที่</div>
+        <div class="remote-item"><span>63150</span> ท่าสองยาง (ตาก)</div>
+        <div class="remote-item"><span>63170</span> อุ้มผาง (ตาก)</div>
+        <div class="remote-item"><span>71180</span> ทองผาภูมิ (กาญจนบุรี)</div>
+        <div class="remote-item"><span>71240</span> สังขละบุรี (กาญจนบุรี)</div>
+        <div class="remote-item"><span>81130</span> เหนือคลอง — เฉพาะเกาะศรีบอยา (กระบี่)</div>
+        <div class="remote-item"><span>81150</span> เกาะลันตา (กระบี่)</div>
+        <div class="remote-item"><span>81210</span> เกาะพีพี (กระบี่)</div>
+        <div class="remote-item"><span>82000</span> พังงา — เฉพาะเกาะปันหยี</div>
+        <div class="remote-item"><span>82160</span> เกาะยาว (พังงา)</div>
+        <div class="remote-item"><span>83000–83150</span> ภูเก็ต ทุกพื้นที่</div>
+        <div class="remote-item"><span>84140</span> เกาะสมุย (สุราษฎร์ธานี)</div>
+        <div class="remote-item"><span>84220</span> ดอนสัก — เฉพาะเกาะพลวย/เกาะนกเกาะ</div>
+        <div class="remote-item"><span>84280</span> เกาะพะงัน (สุราษฎร์ธานี)</div>
+        <div class="remote-item"><span>84310–84330</span> ละไม/เฉวง/แม่น้ำ (สมุย)</div>
+        <div class="remote-item"><span>84360</span> เกาะเต่า (สุราษฎร์ธานี)</div>
+        <div class="remote-item"><span>85000</span> ระนอง — เฉพาะเกาะพยาม</div>
+        <div class="remote-item"><span>91000</span> สตูล — เฉพาะเกาะสาหร่าย</div>
+        <div class="remote-item"><span>91110</span> ละงู — เกาะหลีเป๊ะ/เกาะบุโหลน</div>
+        <div class="remote-item"><span>92110</span> กันตัง — เกาะลิบง/เกาะมุก</div>
+        <div class="remote-item"><span>92120</span> ปะเหลียน — เฉพาะเกาะสุกร</div>
+        <div class="remote-item"><span>94000–94230</span> ปัตตานี ทุกพื้นที่</div>
+        <div class="remote-item"><span>95000–95170</span> ยะลา ทุกพื้นที่</div>
+        <div class="remote-item"><span>96000–96220</span> นราธิวาส ทุกพื้นที่</div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /basic -->
+
+<!-- ==================== TAB 2: CALCULATOR ==================== -->
+<div class="tab-panel" id="panel-calc">
+
+  <div class="two-col">
+    <!-- CALCULATOR -->
+    <div class="card">
+      <div class="card-head"><span class="icon">🔢</span><h2>คำนวณค่าบริการ EMS &amp; eCo Post</h2></div>
+      <div class="card-body">
+        <div class="form-group">
+          <label>น้ำหนักสิ่งของ</label>
+          <div style="display:flex;gap:8px">
+            <input type="number" id="calcWeight" placeholder="เช่น 500" min="1" style="flex:1" oninput="calcPrice()">
+            <select id="calcUnit" onchange="calcPrice()" style="width:80px">
+              <option value="g">กรัม</option>
+              <option value="kg">กก.</option>
+            </select>
+          </div>
+        </div>
+
+        <label class="toggle-row" for="chkRemote">
+          <input type="checkbox" id="chkRemote" onchange="calcPrice()">
+          <span>🏝️ ส่งไปพื้นที่ท่องเที่ยว / ห่างไกล / เกาะ (+20 บาท)</span>
+        </label>
+
+        <label class="toggle-row" for="chkFuel">
+          <input type="checkbox" id="chkFuel" onchange="calcPrice()" checked>
+          <span>⛽ รวมค่าน้ำมันเชื้อเพลิง +3 บาท (ตั้งแต่ 16 เม.ย. 2569)</span>
+        </label>
+
+        <div id="calcResult" class="calc-result" style="display:none">
+          <h3>ผลการคำนวณ</h3>
+          <div class="result-row">
+            <div><div class="result-label">⚡ EMS ในประเทศ</div><div class="result-sub" id="emsNote"></div></div>
+            <div class="result-price" id="emsPrice">—</div>
+          </div>
+          <div class="result-row">
+            <div><div class="result-label">📬 eCo Post (ราคาประหยัด)</div><div class="result-sub" id="ecoNote"></div></div>
+            <div class="result-price" id="ecoPrice">—</div>
+          </div>
+          <div id="ecoMaxWarn" class="notice notice-warn" style="margin-top:10px;display:none">⚠️ eCo Post รับน้ำหนักสูงสุด 10 กก. เท่านั้น</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INSURANCE CALCULATOR -->
+    <div class="card">
+      <div class="card-head"><span class="icon">🛡️</span><h2>คำนวณค่าบริการรับประกัน EMS</h2></div>
+      <div class="card-body">
+        <p style="font-size:13px;color:#555;margin-bottom:14px">กรณีสูญหาย/เสียหาย ชดใช้ตามจริง ไม่เกินวงเงินรับประกัน สูงสุด 50,000 บาท</p>
+        <div class="form-group">
+          <label>วงเงินรับประกัน (บาท)</label>
+          <input type="number" id="insureAmount" placeholder="500 – 50,000 บาท" min="500" max="50000" step="500" oninput="calcInsure()">
+        </div>
+        <div id="insureResult" class="calc-result" style="display:none">
+          <h3>ค่าบริการรับประกัน</h3>
+          <div class="result-row">
+            <div><div class="result-label">ค่าประกัน + ค่าปฏิบัติการ</div><div class="result-sub" id="insureFormula"></div></div>
+            <div class="result-price" id="insurePrice">—</div>
+          </div>
+        </div>
+        <div class="notice notice-info" style="margin-top:14px">
+          📌 สูตร: วงเงิน ≤ 20,000 บาท → (วงเงิน÷500) × 5 + 15 บาท<br>
+          วงเงิน > 20,000 บาท → (วงเงิน÷500) × 10 + 15 บาท
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- eCo Post vs EMS Comparison -->
+  <div class="card">
+    <div class="card-head"><span class="icon">📊</span><h2>เปรียบเทียบ EMS vs eCo Post</h2></div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>รายการ</th><th>⚡ EMS</th><th>📬 eCo Post</th></tr></thead>
+        <tbody>
+          <tr><td>ระยะเวลาจัดส่ง</td><td>1–4 วัน</td><td>2–3 วัน</td></tr>
+          <tr><td>น้ำหนักสูงสุด</td><td>30 กก.</td><td>10 กก.</td></tr>
+          <tr><td>ติดตามสถานะ</td><td>✅ ทุกขั้นตอน</td><td>❌ ไม่มี</td></tr>
+          <tr><td>ชดใช้กรณีสูญหาย (ไม่ซื้อประกัน)</td><td>ไม่เกิน 2,000 บาท</td><td>ไม่เกิน 1,500 บาท</td></tr>
+          <tr><td>ซื้อประกันเพิ่มได้</td><td>✅ สูงสุด 50,000 บาท</td><td>❌ ไม่มี</td></tr>
+          <tr><td>ค่าน้ำมัน (ตั้งแต่ 16 เม.ย. 69)</td><td>+3 บาท/ชิ้น</td><td>+3 บาท/ชิ้น</td></tr>
+          <tr><td>ราคาเริ่มต้น (≤20 กรัม)</td><td>32 บาท</td><td>20 บาท</td></tr>
+          <tr><td>เหมาะกับ</td><td>สินค้ามีมูลค่า / ด่วน</td><td>สินค้าทั่วไป / ประหยัด</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /calc -->
+
+<!-- ==================== TAB 3: EMS JUMBO ==================== -->
+<div class="tab-panel" id="panel-jumbo">
+
+  <div class="card">
+    <div class="card-head"><span class="icon">🚛</span><h2>EMS Jumbo — ส่งสิ่งของขนาดใหญ่ (30–200 กิโลกรัม)</h2></div>
+    <div class="card-body">
+      <div class="info-grid">
+        <div class="info-box"><div class="lbl">น้ำหนักเริ่มต้น</div><div class="val">30 กก.</div></div>
+        <div class="info-box"><div class="lbl">น้ำหนักสูงสุด</div><div class="val">200 กก.</div></div>
+        <div class="info-box"><div class="lbl">จำนวนโซน</div><div class="val">10 โซน</div></div>
+        <div class="info-box"><div class="lbl">ชดใช้สูงสุด</div><div class="val">3,000 ฿</div><div class="sub">หรือซื้อประกัน</div></div>
+      </div>
+
+      <div class="calc-form">
+        <div class="form-group">
+          <label>จังหวัดต้นทาง</label>
+          <select id="originProv" onchange="updateZone('origin'); calcJumbo()">
+            <option value="">-- เลือกจังหวัดต้นทาง --</option>
+          </select>
+          <div class="zone-display" id="originZoneDisplay" style="display:none">
+            <div class="lbl">โซนต้นทาง</div>
+            <div class="zone-num" id="originZoneNum">—</div>
+            <div class="zone-name" id="originZoneName"></div>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>จังหวัดปลายทาง</label>
+          <select id="destProv" onchange="updateZone('dest'); calcJumbo()">
+            <option value="">-- เลือกจังหวัดปลายทาง --</option>
+          </select>
+          <div class="zone-display" id="destZoneDisplay" style="display:none">
+            <div class="lbl">โซนปลายทาง</div>
+            <div class="zone-num" id="destZoneNum">—</div>
+            <div class="zone-name" id="destZoneName"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>น้ำหนักสิ่งของ (กิโลกรัม) — ระบุน้ำหนักจริง ระบบจะปัดขึ้นอัตโนมัติ</label>
+        <input type="number" id="jumboWeight" placeholder="30 – 200 กก." min="30" max="200" oninput="calcJumbo()">
+      </div>
+
+      <div id="jumboResult" class="calc-result" style="display:none">
+        <h3>ผลการคำนวณ EMS Jumbo</h3>
+        <div class="result-row">
+          <div><div class="result-label">ค่าบริการฝากส่ง</div><div class="result-sub" id="jumboNote"></div></div>
+          <div class="result-price" id="jumboPrice">—</div>
+        </div>
+        <div id="jumboIsland" class="notice notice-warn" style="margin-top:10px;display:none">
+          🏝️ กรณีส่งต่อทางเรือ / พื้นที่ยากลำบาก: บวกเพิ่ม 100–500 บาท/ชิ้น (ขึ้นอยู่กับน้ำหนัก)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zone reference -->
+  <div class="card">
+    <div class="card-head"><span class="icon">🗺️</span><h2>แผนผังโซน EMS Jumbo (10 โซน)</h2></div>
+    <div class="card-body">
+      <div class="zone-grid">
+        <div class="zone-card"><h4>โซน 1</h4><ul><li>กรุงเทพมหานคร</li><li>นนทบุรี</li><li>ปทุมธานี</li><li>สมุทรปราการ</li></ul></div>
+        <div class="zone-card"><h4>โซน 2</h4><ul><li>สระแก้ว</li><li>ปราจีนบุรี</li><li>ฉะเชิงเทรา</li><li>ชลบุรี</li><li>ระยอง</li><li>จันทบุรี</li><li>ตราด</li></ul></div>
+        <div class="zone-card"><h4>โซน 3</h4><ul><li>นครปฐม</li><li>กาญจนบุรี</li><li>ราชบุรี</li><li>สมุทรสาคร</li><li>สมุทรสงคราม</li><li>เพชรบุรี</li><li>ประจวบคีรีขันธ์</li></ul></div>
+        <div class="zone-card"><h4>โซน 4</h4><ul><li>อุทัยธานี</li><li>สิงห์บุรี</li><li>ชัยนาท</li><li>ลพบุรี</li><li>สระบุรี</li><li>อ่างทอง</li><li>พระนครศรีอยุธยา</li><li>สุพรรณบุรี</li><li>นครนายก</li></ul></div>
+        <div class="zone-card"><h4>โซน 5</h4><ul><li>อุตรดิตถ์</li><li>สุโขทัย</li><li>ตาก</li><li>พิษณุโลก</li><li>กำแพงเพชร</li><li>พิจิตร</li><li>เพชรบูรณ์</li><li>นครสวรรค์</li></ul></div>
+        <div class="zone-card"><h4>โซน 6</h4><ul><li>แม่ฮ่องสอน</li><li>เชียงราย</li><li>พะเยา</li><li>เชียงใหม่</li><li>ลำพูน</li><li>น่าน</li><li>ลำปาง</li><li>แพร่</li></ul></div>
+        <div class="zone-card"><h4>โซน 7</h4><ul><li>กาฬสินธุ์</li><li>มุกดาหาร</li><li>ร้อยเอ็ด</li><li>มหาสารคาม</li><li>ชัยภูมิ</li><li>อำนาจเจริญ</li><li>ยโสธร</li><li>ศรีสะเกษ</li><li>อุบลราชธานี</li><li>บุรีรัมย์</li><li>สุรินทร์</li><li>นครราชสีมา</li></ul></div>
+        <div class="zone-card"><h4>โซน 8</h4><ul><li>หนองคาย</li><li>บึงกาฬ</li><li>เลย</li><li>อุดรธานี</li><li>นครพนม</li><li>สกลนคร</li><li>หนองบัวลำภู</li><li>ขอนแก่น</li></ul></div>
+        <div class="zone-card"><h4>โซน 9</h4><ul><li>ชุมพร</li><li>ระนอง</li><li>สุราษฎร์ธานี</li><li>พังงา</li><li>นครศรีธรรมราช</li></ul></div>
+        <div class="zone-card"><h4>โซน 10</h4><ul><li>กระบี่</li><li>ภูเก็ต</li><li>ตรัง</li><li>พัทลุง</li><li>สงขลา</li><li>ปัตตานี</li><li>สตูล</li><li>ยะลา</li><li>นราธิวาส</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Additional charges -->
+  <div class="card">
+    <div class="card-head"><span class="icon">💰</span><h2>ค่าบริการเรียกเก็บเพิ่ม EMS Jumbo</h2></div>
+    <div class="card-body">
+      <div class="two-col">
+        <div>
+          <p style="font-size:13px;font-weight:700;color:#c8102e;margin-bottom:8px">ง. กรณีขนาดด้านใดด้านหนึ่งเกินที่กำหนด</p>
+          <table>
+            <thead><tr><th>ขนาดสินค้า</th><th>ค่าบริการเพิ่ม (บาท)</th></tr></thead>
+            <tbody>
+              <tr><td>ด้านใดด้านหนึ่งเกิน 100–150 ซม.</td><td class="price">300</td></tr>
+              <tr><td>ด้านใดด้านหนึ่งเกิน 150–200 ซม.</td><td class="price">500</td></tr>
+              <tr><td>ด้านใดด้านหนึ่งเกิน 200–300 ซม.</td><td class="price">1,000</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div>
+          <p style="font-size:13px;font-weight:700;color:#c8102e;margin-bottom:8px">จ. กรณีส่งทางเรือ/พื้นที่ยากลำบาก</p>
+          <table>
+            <thead><tr><th>น้ำหนัก</th><th>ค่าบริการเพิ่ม (บาท)</th></tr></thead>
+            <tbody>
+              <tr><td>≤50 กก./ชิ้น</td><td class="price">100</td></tr>
+              <tr><td>50–100 กก./ชิ้น</td><td class="price">300</td></tr>
+              <tr><td>100–200 กก./ชิ้น</td><td class="price">500</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <button class="collapse-btn" onclick="toggleCollapse('prodSurcharge')">
+        ดูค่าบริการตามประเภทสินค้าสำเร็จรูป (44 รายการ) <span id="prodSurcharge-icon">▼</span>
+      </button>
+      <div class="collapse-content" id="prodSurcharge">
+        <table style="margin-top:10px">
+          <thead><tr><th>ประเภทสินค้า</th><th>ค่าเพิ่ม (บาท)</th></tr></thead>
+          <tbody>
+            <tr><td>คอมพิวเตอร์ (รวม CPU)</td><td class="price">100</td></tr>
+            <tr><td>โทรทัศน์ ≤21 นิ้ว</td><td class="price">300</td></tr>
+            <tr><td>โทรทัศน์ ≤29 นิ้ว</td><td class="price">300</td></tr>
+            <tr><td>โทรทัศน์ 29–40 นิ้ว</td><td class="price">500</td></tr>
+            <tr><td>LCD/LED/Plasma TV ≤42 นิ้ว</td><td class="price">500</td></tr>
+            <tr><td>LCD/LED/Plasma TV ≤50 นิ้ว</td><td class="price">500</td></tr>
+            <tr><td>ตู้เย็น ≤12 คิว</td><td class="price">500</td></tr>
+            <tr><td>ตู้เย็น ≤15 คิว</td><td class="price">500</td></tr>
+            <tr><td>เครื่องปรับอากาศ (แขวนผนัง/ตั้งพื้น/ตู้)</td><td class="price">500</td></tr>
+            <tr><td>เครื่องซักผ้า (ถังคู่/ฝาบน/ฝาหน้า)</td><td class="price">500</td></tr>
+            <tr><td>พัดลมอุตสาหกรรม</td><td class="price">300</td></tr>
+            <tr><td>จักรเย็บผ้าอุตสาหกรรม (รวมขาถีบ)</td><td class="price">300</td></tr>
+            <tr><td>จักรยาน/รถจักรยานพับได้ใส่กล่อง</td><td class="price">300</td></tr>
+            <tr><td>รถจักรยานไฟฟ้า/รถจักรยานยนต์ไฟฟ้า</td><td class="price">300</td></tr>
+            <tr><td>จักรยานยนต์ ≤150cc</td><td class="price">500</td></tr>
+            <tr><td>จักรยานยนต์ 150–400cc</td><td class="price">1,000</td></tr>
+            <tr><td>Big Bike / Chopper ทุกขนาด</td><td class="price">1,000</td></tr>
+            <tr><td>รถแบตเตอรี่เด็ก / วีลแชร์ (พับไม่ได้)</td><td class="price">100</td></tr>
+            <tr><td>เก้าอี้ 1 ที่นั่ง</td><td class="price">100</td></tr>
+            <tr><td>โซฟา 1 ที่นั่ง</td><td class="price">300</td></tr>
+            <tr><td>โซฟา 2 ที่นั่ง</td><td class="price">500</td></tr>
+            <tr><td>โซฟา 3 ที่นั่ง</td><td class="price">1,000</td></tr>
+            <tr><td>ตู้เสื้อผ้า 1 บาน</td><td class="price">500</td></tr>
+            <tr><td>ตู้เสื้อผ้า 2 บาน</td><td class="price">500</td></tr>
+            <tr><td>ที่นอน ≤3.5 ฟุต</td><td class="price">500</td></tr>
+            <tr><td>ที่นอน ≤6 ฟุต</td><td class="price">1,000</td></tr>
+            <tr><td>เตียง ≤3.5 ฟุต</td><td class="price">500</td></tr>
+            <tr><td>เตียง ≤6 ฟุต</td><td class="price">1,000</td></tr>
+            <tr><td>เครื่องออกกำลังกาย (ด้านใด ≤150ซม.)</td><td class="price">500</td></tr>
+            <tr><td>เครื่องสูบน้ำ/ปั๊มน้ำ</td><td class="price">300</td></tr>
+            <tr><td>ล้อแม็กพร้อมยาง / ยางรถยนต์ 1 ล้อ</td><td class="price">300</td></tr>
+            <tr><td>ล้อแม็กไม่รวมยาง 1 ล้อ</td><td class="price">300</td></tr>
+            <tr><td>ลำโพง/ตู้เกมส์คอมพิวเตอร์</td><td class="price">500</td></tr>
+            <tr><td>เครื่องทำน้ำเย็นขนาดเล็ก</td><td class="price">300</td></tr>
+            <tr><td>เครื่องตัดหญ้า</td><td class="price">300</td></tr>
+            <tr><td>จานดาวเทียม ≤75ซม.</td><td class="price">300</td></tr>
+            <tr><td>จานดาวเทียม 75–200ซม.</td><td class="price">500</td></tr>
+            <tr><td>เตาแก๊ส 1–2 หัว</td><td class="price">100</td></tr>
+            <tr><td>เตาแก๊ส รวมตู้/ชั้นวาง</td><td class="price">300</td></tr>
+            <tr><td>บานประตู 1 บาน (≤90×200ซม.)</td><td class="price">300</td></tr>
+            <tr><td>กันชนรถยนต์ (ด้านใด ≤200ซม.)</td><td class="price">300</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /jumbo -->
+
+<!-- ==================== TAB 4: FUZE POST ==================== -->
+<div class="tab-panel" id="panel-fuze">
+
+  <div class="card">
+    <div class="card-head"><span class="icon">❄️</span><h2>Fuze Post — บริการส่งสินค้าที่ต้องการควบคุมอุณหภูมิ</h2></div>
+    <div class="card-body">
+      <div class="notice notice-green" style="margin-bottom:16px">
+        ✅ <strong>Fuze Post</strong> คือบริการของไปรษณีย์ไทยสำหรับสินค้าที่ต้องรักษาความเย็น เช่น อาหารสด ผลไม้ เนื้อสัตว์ ยา วัคซีน ผลิตภัณฑ์นม โดยควบคุมอุณหภูมิตลอดกระบวนการจัดส่ง
+      </div>
+      <div class="fuze-grid">
+        <div class="fuze-box">
+          <h4>🌡️ อุณหภูมิที่ควบคุม</h4>
+          <p>แช่เย็น (2–8°C) และแช่แข็ง (-18°C ลงไป) ตามประเภทสินค้า</p>
+        </div>
+        <div class="fuze-box">
+          <h4>📦 ประเภทสินค้า</h4>
+          <p>อาหารสด ผลไม้ เนื้อสัตว์ อาหารทะเล ยา วัคซีน ผลิตภัณฑ์นม เครื่องสำอาง</p>
+        </div>
+        <div class="fuze-box">
+          <h4>⏱️ ระยะเวลาจัดส่ง</h4>
+          <p>จัดส่งภายใน 1–2 วันทำการ (ขึ้นอยู่กับพื้นที่ปลายทาง)</p>
+        </div>
+        <div class="fuze-box">
+          <h4>🔍 ติดตามพัสดุ</h4>
+          <p>มีระบบ Track &amp; Trace ติดตามสถานะได้ตลอดการจัดส่ง</p>
+        </div>
+        <div class="fuze-box">
+          <h4>📏 ขนาดและน้ำหนัก</h4>
+          <p>รับฝากหลายขนาด ตั้งแต่ขนาดเล็กจนถึงขนาดใหญ่ สอบถามรายละเอียดเพิ่มเติมได้ที่ไปรษณีย์ที่ทำการ</p>
+        </div>
+        <div class="fuze-box">
+          <h4>💰 อัตราค่าบริการ</h4>
+          <p>คิดตามขนาดกล่องบรรจุภัณฑ์และระยะทาง สอบถามราคาได้ที่ <strong>Call Center 1545</strong></p>
+        </div>
+      </div>
+
+      <div class="notice notice-warn" style="margin-top:16px">
+        ⚠️ <strong>หมายเหตุ:</strong> อัตราค่าบริการ Fuze Post ปัจจุบันยังไม่มีการประกาศตารางราคาสาธารณะ
+        กรุณาสอบถามราคาโดยตรงที่ที่ทำการไปรษณีย์ที่ให้บริการ หรือโทร <strong>1545</strong>
+        หรือสอบถามผ่านเว็บไซต์ <strong>www.thailandpost.co.th</strong>
+      </div>
+
+      <div class="notice notice-info" style="margin-top:12px">
+        📍 <strong>จุดให้บริการ:</strong> Fuze Post เปิดให้บริการที่ที่ทำการไปรษณีย์ที่ร่วมโครงการ
+        แนะนำให้ตรวจสอบจุดให้บริการก่อนนำสินค้าไปฝากส่ง
+      </div>
+    </div>
+  </div>
+
+  <!-- บริการที่เกี่ยวข้อง -->
+  <div class="card">
+    <div class="card-head"><span class="icon">🔗</span><h2>บริการที่เกี่ยวข้อง / ข้อมูลเพิ่มเติม</h2></div>
+    <div class="card-body">
+      <table>
+        <thead><tr><th>ช่องทาง</th><th>รายละเอียด</th></tr></thead>
+        <tbody>
+          <tr><td>📞 Call Center</td><td><strong>1545</strong> (ทุกวัน 08:00–20:00 น.)</td></tr>
+          <tr><td>🌐 เว็บไซต์</td><td>www.thailandpost.co.th</td></tr>
+          <tr><td>📱 แอปพลิเคชัน</td><td>Thailand Post Mobile App</td></tr>
+          <tr><td>📬 บริการอื่นที่แช่เย็นได้</td><td>EMS พร้อมกล่องโฟม / เจลแพ็ค (สอบถามที่ทำการ)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div><!-- /fuze -->
+
+<div style="text-align:center;padding:16px;font-size:12px;color:#999">
+  ข้อมูลอ้างอิงจากประกาศไปรษณีย์ไทย 1 ม.ค. 2568 / 1 ม.ค. 2569 | โทรสอบถาม 1545 | www.thailandpost.co.th
+</div>
+
+</div><!-- /content -->
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+
+// EMS rates: [maxGrams, normalPrice]
+const EMS_RATES = [
+  [20,32],[100,37],[250,42],[500,52],[1000,67],[1500,82],[2000,97],
+  [2500,100],[3000,105],[3500,110],[4000,120],[4500,120],[5000,120],
+  [5500,130],[6000,140],[6500,150],[7000,160],[7500,170],[8000,180],
+  [8500,190],[9000,200],[9500,210],[10000,220],[11000,230],[12000,240],
+  [13000,250],[14000,260],[15000,270],[16000,280],[17000,290],[18000,300],
+  [19000,310],[20000,320],[21000,330],[22000,340],[23000,350],[24000,360],
+  [25000,380],[26000,400],[27000,420],[28000,440],[29000,460],[30000,480]
+];
+const EMS_MAX_G = 30000;
+const EMS_REMOTE = 20;
+
+// eCo Post rates: [maxGrams, normalPrice]
+const ECO_RATES = [
+  [20,20],[100,22],[250,26],[500,30],[1000,40],
+  [2000,60],[4000,80],[6000,120],[10000,160]
+];
+const ECO_MAX_G = 10000;
+const ECO_REMOTE = 20;
+
+// EMS Jumbo weight tiers (kg)
+const JUMBO_KG = [30,40,50,60,70,80,90,100,110,120,130,140,150,160,170,180,190,200];
+
+// JUMBO_RATES[origin-1][dest-1] = array of prices for JUMBO_KG
+const JUMBO_RATES = [
+  // Origin Zone 1
+  [[200,240,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [250,250,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [250,280,350,420,490,560,630,700,770,840,910,980,1050,1120,1190,1260,1330,1400],
+   [250,280,350,420,490,560,630,700,770,840,910,980,1050,1120,1190,1260,1330,1400],
+   [250,280,350,420,490,560,630,700,770,840,910,980,1050,1120,1190,1260,1330,1400],
+   [270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800],
+   [250,320,400,480,560,640,720,800,880,960,1040,1120,1200,1280,1360,1440,1520,1600],
+   [270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800],
+   [270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800],
+   [270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800]],
+  // Origin Zone 2
+  [[250,250,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [200,240,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [250,250,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000],
+   [300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [330,440,550,660,770,880,990,1100,1210,1320,1430,1540,1650,1760,1870,1980,2090,2200],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400]],
+  // Origin Zone 3
+  [[250,280,350,420,490,560,630,700,770,840,910,980,1050,1120,1190,1260,1330,1400],
+   [250,250,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [200,240,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [250,250,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800],
+   [270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800],
+   [330,440,550,660,770,880,990,1100,1210,1320,1430,1540,1650,1760,1870,1980,2090,2200],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400]],
+  // Origin Zone 4
+  [[250,280,350,420,490,560,630,700,770,840,910,980,1050,1120,1190,1260,1330,1400],
+   [300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000],
+   [250,250,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [200,240,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [250,250,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600]],
+  // Origin Zone 5
+  [[250,280,350,420,490,560,630,700,770,840,910,980,1050,1120,1190,1260,1330,1400],
+   [300,400,500,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1700,1800,1900,2000],
+   [270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800],
+   [250,250,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [200,240,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [250,250,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600]],
+  // Origin Zone 6
+  [[270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800],
+   [270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800],
+   [250,250,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [200,240,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600],
+   [450,600,750,900,1050,1200,1350,1500,1650,1800,1950,2100,2250,2400,2550,2700,2850,3000],
+   [450,600,750,900,1050,1200,1350,1500,1650,1800,1950,2100,2250,2400,2550,2700,2850,3000],
+   [450,600,750,900,1050,1200,1350,1500,1650,1800,1950,2100,2250,2400,2550,2700,2850,3000]],
+  // Origin Zone 7
+  [[250,320,400,480,560,640,720,800,880,960,1040,1120,1200,1280,1360,1440,1520,1600],
+   [330,440,550,660,770,880,990,1100,1210,1320,1430,1540,1650,1760,1870,1980,2090,2200],
+   [330,440,550,660,770,880,990,1100,1210,1320,1430,1540,1650,1760,1870,1980,2090,2200],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600],
+   [200,240,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [250,280,350,420,490,560,630,700,770,840,910,980,1050,1120,1190,1260,1330,1400],
+   [420,560,700,840,980,1120,1260,1400,1540,1680,1820,1960,2100,2240,2380,2520,2660,2800],
+   [420,560,700,840,980,1120,1260,1400,1540,1680,1820,1960,2100,2240,2380,2520,2660,2800]],
+  // Origin Zone 8
+  [[270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600],
+   [450,600,750,900,1050,1200,1350,1500,1650,1800,1950,2100,2250,2400,2550,2700,2850,3000],
+   [250,280,350,420,490,560,630,700,770,840,910,980,1050,1120,1190,1260,1330,1400],
+   [200,240,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [420,560,700,840,980,1120,1260,1400,1540,1680,1820,1960,2100,2240,2380,2520,2660,2800],
+   [450,600,750,900,1050,1200,1350,1500,1650,1800,1950,2100,2250,2400,2550,2700,2850,3000]],
+  // Origin Zone 9
+  [[270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600],
+   [450,600,750,900,1050,1200,1350,1500,1650,1800,1950,2100,2250,2400,2550,2700,2850,3000],
+   [420,560,700,840,980,1120,1260,1400,1540,1680,1820,1960,2100,2240,2380,2520,2660,2800],
+   [420,560,700,840,980,1120,1260,1400,1540,1680,1820,1960,2100,2240,2380,2520,2660,2800],
+   [200,240,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200],
+   [250,280,350,420,490,560,630,700,770,840,910,980,1050,1120,1190,1260,1330,1400]],
+  // Origin Zone 10
+  [[270,360,450,540,630,720,810,900,990,1080,1170,1260,1350,1440,1530,1620,1710,1800],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [360,480,600,720,840,960,1080,1200,1320,1440,1560,1680,1800,1920,2040,2160,2280,2400],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600],
+   [390,520,650,780,910,1040,1170,1300,1430,1560,1690,1820,1950,2080,2210,2340,2470,2600],
+   [450,600,750,900,1050,1200,1350,1500,1650,1800,1950,2100,2250,2400,2550,2700,2850,3000],
+   [420,560,700,840,980,1120,1260,1400,1540,1680,1820,1960,2100,2240,2380,2520,2660,2800],
+   [450,600,750,900,1050,1200,1350,1500,1650,1800,1950,2100,2250,2400,2550,2700,2850,3000],
+   [250,280,350,420,490,560,630,700,770,840,910,980,1050,1120,1190,1260,1330,1400],
+   [200,240,300,360,420,480,540,600,660,720,780,840,900,960,1020,1080,1140,1200]]
+];
+
+// Province to Zone mapping
+const PROV_ZONE = {
+  'กรุงเทพมหานคร':1,'นนทบุรี':1,'ปทุมธานี':1,'สมุทรปราการ':1,
+  'สระแก้ว':2,'ปราจีนบุรี':2,'ฉะเชิงเทรา':2,'ชลบุรี':2,'ระยอง':2,'จันทบุรี':2,'ตราด':2,
+  'นครปฐม':3,'กาญจนบุรี':3,'ราชบุรี':3,'สมุทรสาคร':3,'สมุทรสงคราม':3,'เพชรบุรี':3,'ประจวบคีรีขันธ์':3,
+  'อุทัยธานี':4,'สิงห์บุรี':4,'ชัยนาท':4,'ลพบุรี':4,'สระบุรี':4,'อ่างทอง':4,'พระนครศรีอยุธยา':4,'สุพรรณบุรี':4,'นครนายก':4,
+  'อุตรดิตถ์':5,'สุโขทัย':5,'ตาก':5,'พิษณุโลก':5,'กำแพงเพชร':5,'พิจิตร':5,'เพชรบูรณ์':5,'นครสวรรค์':5,
+  'แม่ฮ่องสอน':6,'เชียงราย':6,'พะเยา':6,'เชียงใหม่':6,'ลำพูน':6,'น่าน':6,'ลำปาง':6,'แพร่':6,
+  'กาฬสินธุ์':7,'มุกดาหาร':7,'ร้อยเอ็ด':7,'มหาสารคาม':7,'ชัยภูมิ':7,'อำนาจเจริญ':7,'ยโสธร':7,'ศรีสะเกษ':7,'อุบลราชธานี':7,'บุรีรัมย์':7,'สุรินทร์':7,'นครราชสีมา':7,
+  'หนองคาย':8,'บึงกาฬ':8,'เลย':8,'อุดรธานี':8,'นครพนม':8,'สกลนคร':8,'หนองบัวลำภู':8,'ขอนแก่น':8,
+  'ชุมพร':9,'ระนอง':9,'สุราษฎร์ธานี':9,'พังงา':9,'นครศรีธรรมราช':9,
+  'กระบี่':10,'ภูเก็ต':10,'ตรัง':10,'พัทลุง':10,'สงขลา':10,'ปัตตานี':10,'สตูล':10,'ยะลา':10,'นราธิวาส':10
+};
+
+const ZONE_NAMES = {
+  1:'กทม. และปริมณฑล',2:'ภาคตะวันออก',3:'ภาคตะวันตก',
+  4:'ภาคกลาง',5:'ภาคเหนือตอนล่าง',6:'ภาคเหนือตอนบน',
+  7:'ภาคตะวันออกเฉียงเหนือตอนล่าง',8:'ภาคตะวันออกเฉียงเหนือตอนบน',
+  9:'ภาคใต้ตอนบน',10:'ภาคใต้ตอนล่าง'
+};
+
+// ============================================================
+// UI FUNCTIONS
+// ============================================================
+
+function switchTab(id, btn) {
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('panel-'+id).classList.add('active');
+}
+
+function toggleCollapse(id) {
+  const el = document.getElementById(id);
+  const icon = document.getElementById(id+'-icon');
+  el.classList.toggle('open');
+  icon.textContent = el.classList.contains('open') ? '▲' : '▼';
+}
+
+// ============================================================
+// EMS / eCo POST CALCULATOR
+// ============================================================
+function getWeightGrams() {
+  const w = parseFloat(document.getElementById('calcWeight').value)||0;
+  const u = document.getElementById('calcUnit').value;
+  return u==='kg' ? w*1000 : w;
+}
+
+function lookupRate(rates, grams) {
+  for(const [maxG, price] of rates) {
+    if(grams <= maxG) return price;
+  }
+  return null;
+}
+
+function calcPrice() {
+  const g = getWeightGrams();
+  const remote = document.getElementById('chkRemote').checked;
+  const fuel = document.getElementById('chkFuel').checked;
+  const fuelFee = fuel ? 3 : 0;
+  const res = document.getElementById('calcResult');
+
+  if(!g || g<=0){ res.style.display='none'; return; }
+  res.style.display='block';
+
+  // EMS
+  if(g > EMS_MAX_G){
+    document.getElementById('emsPrice').textContent='เกิน 30 กก.';
+    document.getElementById('emsNote').textContent='EMS รับสูงสุด 30,000 กรัม → ใช้ EMS Jumbo';
+  } else {
+    const base = lookupRate(EMS_RATES, g);
+    const total = base + (remote?EMS_REMOTE:0) + fuelFee;
+    document.getElementById('emsPrice').textContent=total.toLocaleString()+' บาท';
+    document.getElementById('emsNote').textContent=`ฐาน ${base}${remote?' + พื้นที่ '+EMS_REMOTE:''}${fuel?' + น้ำมัน 3':''} บาท`;
+  }
+
+  // eCo Post
+  const warn = document.getElementById('ecoMaxWarn');
+  if(g > ECO_MAX_G){
+    document.getElementById('ecoPrice').textContent='เกิน 10 กก.';
+    document.getElementById('ecoNote').textContent='eCo Post รับสูงสุด 10,000 กรัม';
+    warn.style.display='block';
+  } else {
+    warn.style.display='none';
+    const base = lookupRate(ECO_RATES, g);
+    const total = base + (remote?ECO_REMOTE:0) + fuelFee;
+    document.getElementById('ecoPrice').textContent=total.toLocaleString()+' บาท';
+    document.getElementById('ecoNote').textContent=`ฐาน ${base}${remote?' + พื้นที่ '+ECO_REMOTE:''}${fuel?' + น้ำมัน 3':''} บาท`;
+  }
+}
+
+// ============================================================
+// INSURANCE CALCULATOR
+// ============================================================
+function calcInsure() {
+  const amt = parseFloat(document.getElementById('insureAmount').value)||0;
+  const res = document.getElementById('insureResult');
+  if(!amt || amt<500){ res.style.display='none'; return; }
+  if(amt>50000){ res.style.display='none'; return; }
+  res.style.display='block';
+  const units = Math.ceil(amt/500);
+  const rate = amt <= 20000 ? 5 : 10;
+  const fee = units*rate + 15;
+  document.getElementById('insurePrice').textContent=fee.toLocaleString()+' บาท';
+  document.getElementById('insureFormula').textContent=`(${amt.toLocaleString()}÷500)×${rate}+15 = ${fee} บาท`;
+}
+
+// ============================================================
+// EMS JUMBO CALCULATOR
+// ============================================================
+function initJumboDropdowns() {
+  const provs = Object.keys(PROV_ZONE).sort();
+  ['originProv','destProv'].forEach(id=>{
+    const sel = document.getElementById(id);
+    provs.forEach(p=>{
+      const opt = document.createElement('option');
+      opt.value=p; opt.textContent=p;
+      sel.appendChild(opt);
+    });
+  });
+}
+
+function updateZone(type) {
+  const selId = type==='origin'?'originProv':'destProv';
+  const dispId = type==='origin'?'originZoneDisplay':'destZoneDisplay';
+  const numId = type==='origin'?'originZoneNum':'destZoneNum';
+  const nameId = type==='origin'?'originZoneName':'destZoneName';
+  const prov = document.getElementById(selId).value;
+  if(!prov){ document.getElementById(dispId).style.display='none'; return; }
+  const z = PROV_ZONE[prov];
+  document.getElementById(dispId).style.display='block';
+  document.getElementById(numId).textContent='โซน '+z;
+  document.getElementById(nameId).textContent=ZONE_NAMES[z]||'';
+}
+
+function calcJumbo() {
+  const origP = document.getElementById('originProv').value;
+  const destP = document.getElementById('destProv').value;
+  const wInput = parseFloat(document.getElementById('jumboWeight').value)||0;
+  const res = document.getElementById('jumboResult');
+
+  if(!origP||!destP||!wInput){ res.style.display='none'; return; }
+  if(wInput<30||wInput>200){ res.style.display='none'; return; }
+
+  // Find weight tier (round up to nearest tier)
+  let wTier = JUMBO_KG.find(k=>k>=wInput);
+  if(!wTier) wTier = 200;
+  const wIdx = JUMBO_KG.indexOf(wTier);
+
+  const oz = PROV_ZONE[origP]-1;
+  const dz = PROV_ZONE[destP]-1;
+  const price = JUMBO_RATES[oz][dz][wIdx];
+
+  res.style.display='block';
+  document.getElementById('jumboPrice').textContent=price.toLocaleString()+' บาท';
+  document.getElementById('jumboNote').textContent=
+    `โซน ${oz+1} → โซน ${dz+1} | น้ำหนัก ≤${wTier} กก. | (ยังไม่รวมค่าบริการพิเศษ ถ้ามี)`;
+
+  // Show island warning if dest is zone 9 or 10
+  const islandWarn = document.getElementById('jumboIsland');
+  islandWarn.style.display = (dz+1 >= 9) ? 'block' : 'none';
+}
+
+// ============================================================
+// INIT
+// ============================================================
+initJumboDropdowns();
+</script>
+</body>
+</html>

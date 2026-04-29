@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หน้าหลัก — Super App</title>
+  <link rel="stylesheet" href="core/style.css">
+  <style>
+    body { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Header */
+    .header {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      padding: 0 1.5rem;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .header-brand {
+      display: flex;
+      align-items: center;
+      gap: .625rem;
+      font-weight: 700;
+      font-size: 1.125rem;
+      color: var(--text);
+    }
+    .header-brand span { font-size: 1.375rem; }
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: .75rem;
+    }
+    .user-badge {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .875rem;
+      color: var(--muted);
+    }
+    .role-pill {
+      font-size: .7rem;
+      font-weight: 600;
+      padding: .2rem .55rem;
+      border-radius: 99px;
+      color: white;
+      letter-spacing: .02em;
+    }
+
+    /* Main */
+    .main { flex: 1; padding: 2rem 1.5rem; max-width: 1100px; margin: 0 auto; width: 100%; }
+    .greeting { margin-bottom: 2rem; }
+    .greeting h2 { font-size: 1.375rem; font-weight: 700; }
+    .greeting p  { font-size: .9rem; color: var(--muted); margin-top: .25rem; }
+
+    /* App Grid */
+    .section-title {
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+    }
+    .app-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+      padding: 1.5rem 1.25rem;
+      cursor: pointer;
+      transition: transform .15s, box-shadow .15s;
+      border: 1.5px solid transparent;
+      text-decoration: none;
+      display: block;
+      color: var(--text);
+    }
+    .app-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,.1);
+      border-color: var(--border);
+    }
+    .app-icon {
+      font-size: 2.5rem;
+      width: 56px;
+      height: 56px;
+      border-radius: .75rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 1rem;
+      opacity: .9;
+    }
+    .app-name  { font-size: .975rem; font-weight: 600; margin-bottom: .25rem; }
+    .app-desc  { font-size: .8rem; color: var(--muted); line-height: 1.5; }
+
+    .no-apps { text-align: center; color: var(--muted); padding: 3rem 0; font-size: .95rem; }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      font-size: .75rem;
+      color: var(--muted);
+      padding: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="header-brand">
+      <span>⚡</span> Super App
+    </div>
+    <div class="header-right">
+      <div class="user-badge">
+        <span id="userName"></span>
+        <span id="userRole" class="role-pill"></span>
+      </div>
+      <button class="btn-ghost" onclick="logout()">ออกจากระบบ</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="greeting">
+      <h2 id="greetingText">สวัสดี!</h2>
+      <p id="greetingDate"></p>
+    </div>
+
+    <div class="section-title">แอปพลิเคชัน</div>
+    <div class="app-grid" id="appGrid">
+      <p class="no-apps">ไม่มีแอปพลิเคชันที่คุณมีสิทธิ์เข้าใช้งาน</p>
+    </div>
+  </main>
+
+  <footer class="footer">Super App v1.0</footer>
+
+  <script src="core/config.js"></script>
+  <script src="core/auth.js"></script>
+  <script>
+    const session = requireAuth();
+    if (!session) throw new Error('redirect');
+
+    // Header
+    document.getElementById('userName').textContent = session.name;
+    const roleInfo = ROLES[session.role] || { label: session.role, badge: '#64748b' };
+    const pill = document.getElementById('userRole');
+    pill.textContent = roleInfo.label;
+    pill.style.background = roleInfo.badge;
+
+    // Greeting
+    document.getElementById('greetingText').textContent = `สวัสดี, ${session.name}!`;
+    const now = new Date();
+    document.getElementById('greetingDate').textContent =
+      now.toLocaleDateString('th-TH', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+    // Apps
+    const allowed = APPS.filter(app => hasAccess(app, session));
+    const grid = document.getElementById('appGrid');
+    if (allowed.length > 0) {
+      grid.innerHTML = allowed.map(app => `
+        <a class="app-card" href="${app.entry}">
+          <div class="app-icon" style="background:${app.color}18;">
+            <span>${app.icon}</span>
+          </div>
+          <div class="app-name">${app.name}</div>
+          <div class="app-desc">${app.description}</div>
+        </a>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

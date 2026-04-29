@@ -1,0 +1,11 @@
+{
+  "id": "postal-rates",
+  "name": "ค่าบริการไปรษณีย์",
+  "description": "ตรวจสอบอัตราค่าบริการส่งพัสดุ",
+  "icon": "💰",
+  "color": "#059669",
+  "version": "1.0",
+  "entry": "index.html",
+  "roles": ["admin", "customer"],
+  "active": true
+}

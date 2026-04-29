@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thai Post Manifest - GPO Standard</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Sarabun:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="src/style.css">
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="logo-container">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 13V6a2 2 0 00-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2h9"></path>
+                    <path d="M2 8l10 7 10-7"></path>
+                    <path d="M16 19h6"></path>
+                    <path d="M19 16l3 3-3 3"></path>
+                </svg>
+                <span>Thai Post Manifest</span>
+            </div>
+
+            <!-- Consolidated Entry Form -->
+            <div class="sidebar-form-container">
+                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 1.5rem;">
+                    <div style="flex: 1;">
+                        <label for="prefix" style="font-size: 0.8rem; margin-bottom: 2px;">หมวดเลขที่</label>
+                        <input type="text" id="prefix" placeholder="EJ" maxlength="2" value="EJ" style="font-size: 1.25rem; font-weight: bold; padding: 10px;">
+                    </div>
+                    <div id="tracking-preview" style="flex: 2; text-align: right; font-family: monospace; font-weight: bold; color: var(--primary-color); font-size: 1.1rem; padding-bottom: 10px;">-</div>
+                </div>
+
+                <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label for="digits" id="digits-label">ตัวเลข (8 หลัก)</label>
+                        <label class="bulk-toggle-label">
+                            <input type="checkbox" id="bulk-mode-toggle"> 📋 เพิ่มแบบชุด (Bulk)
+                        </label>
+                    </div>
+                    <div style="display:flex; gap:5px;">
+                        <input type="text" id="digits" placeholder="12345678" maxlength="8" style="flex:1;">
+                        <button id="next-num-btn" class="btn-icon" title="เพิ่มลำดับเลขถัดไป">+1</button>
+                    </div>
+                </div>
+
+                <div id="batch-end-group" class="batch-only" style="display: none; margin-bottom: 1rem;">
+                    <div class="form-group">
+                        <label>ถึงเลขที่</label>
+                        <input type="text" id="digits-end" placeholder="88888888" maxlength="8">
+                    </div>
+                    <div class="form-group">
+                        <label>จำนวนชุด</label>
+                        <input type="number" id="batch-count" placeholder="0" min="1">
+                    </div>
+                </div>
+
+                <div class="form-group single-only">
+                    <label for="recipient">ชื่อผู้รับ</label>
+                    <input type="text" id="recipient" placeholder="สมชาย ใจดี">
+                </div>
+
+                <div class="form-group single-only">
+                    <label for="destination">ปลายทาง (จังหวัด/รหัสไปรษณีย์)</label>
+                    <input type="text" id="destination" placeholder="กรุงเทพฯ 10500">
+                </div>
+
+                <div class="form-group">
+                    <label for="weight">น้ำหนัก (กรัม)</label>
+                    <input type="number" id="weight" placeholder="500" value="0">
+                </div>
+
+                <div class="options-group">
+                    <label style="color: var(--primary-color); display: block; margin-bottom: 5px;">บริการเสริม:</label>
+                    <label class="option-item"><input type="checkbox" id="opt-ar"> ตอบรับ (AR)</label>
+                    <label class="option-item" id="opt-insurance-row"><input type="checkbox" id="opt-insurance"> รับประกัน (EMS)</label>
+                    <div id="insurance-detail" style="display: none; padding: 5px 0 5px 25px; gap: 5px; flex-direction: column;">
+                        <label style="font-size: 0.75rem;">วงเงิน (สูงสุด 50,000.-)</label>
+                        <input type="number" id="insurance-val" value="2000" style="padding: 4px; font-size: 0.9rem;">
+                        <span id="ins-warn" style="color: var(--primary-color); font-size: 0.7rem; display: none;">ยอด 2,000 - 50,000 บาทเท่านั้น</span>
+                    </div>
+                    <div id="remote-status-badge" class="hidden" style="margin-bottom: 10px;">
+                        <span style="font-size: 1.1rem;">🏝️</span>
+                        <span>บวกพื้นที่ห่างไกล/เกาะ (+20 ฿)</span>
+                    </div>
+                    <input type="checkbox" id="opt-remote" style="display: none;">
+                </div>
+
+                <div class="form-group">
+                    <label for="fee">ค่าบริการ <span id="fee-unit-label" style="display:none;">ต่อฉบับ</span> (บาท)</label>
+                    <input type="number" id="fee" placeholder="32" value="0">
+                </div>
+
+                <button id="add-btn" class="btn-primary">เพิ่มรายการ (+)</button>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <header class="header">
+                <div>
+                    <h1>แผงควบคุมใบนำส่ง</h1>
+                    <p id="service-title" style="color: #888;">จัดการรายการ: EMS</p>
+                </div>
+                <!-- ... rest of header ... -->
+                <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 1rem;">
+                    <div style="display: flex; gap: 1rem; align-items: center;">
+                        <button id="undo-btn" class="btn-icon" title="ย้อนกลับ (Undo)">↩️ ย้อนกลับ</button>
+                        <button id="redo-btn" class="btn-icon" title="ไปข้างหน้า (Redo)">↪️ ถัดไป</button>
+                        <button id="print-btn" style="background: var(--secondary-color); color: white; width: auto; padding: 0.5rem 1.5rem;">พิมพ์ใบนำส่ง (Print)</button>
+                    </div>
+                    <div class="stats">
+                        <div class="stat-card"><div id="total-items" style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">0</div><div style="font-size: 0.75rem; color: #888;">จำนวนชิ้น</div></div>
+                        <div class="stat-card"><div id="total-weight" style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">0</div><div style="font-size: 0.75rem; color: #888;">น้ำหนักรวม (กรัม)</div></div>
+                        <div class="stat-card"><div id="total-fee" style="font-size: 1.25rem; font-weight: 700; color: var(--primary-color);">0</div><div style="font-size: 0.75rem; color: #888;">ค่าบริการรวม (บาท)</div></div>
+                    </div>
+                </div>
+            </header>
+
+            <div class="table-container" style="background: white; border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden;">
+                <div class="service-tabs">
+                    <div class="service-tab active" data-service="EMS">EMS <span class="tab-count" id="count-ems">0</span></div>
+                    <div class="service-tab" data-service="REG">ลงทะเบียน <span class="tab-count" id="count-reg">0</span></div>
+                    <div class="service-tab" data-service="ECO">eCo-Post <span class="tab-count" id="count-eco">0</span></div>
+                    <div class="service-tab" data-service="PARCEL">พัสดุ <span class="tab-count" id="count-parcel">0</span></div>
+                </div>
+                <table id="shipment-table">
+                    <thead>
+                        <tr><th>ลำดับ</th><th>นามผู้รับ</th><th>ปลายทาง</th><th>เลขที่ TRACKING</th><th>น้ำหนัก</th><th>ค่าบริการ</th><th>ลบ</th></tr>
+                    </thead>
+                    <tbody id="shipment-list"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <div id="print-section">
+        <center>
+            <h1>ใบนำส่งเงินเชื่อ</h1>
+            <p>ไปรษณีย์กลาง 10501</p>
+        </center>
+        <table class="print-table">
+            <thead>
+                <tr><th>ลำดับ</th><th>นามผู้รับ</th><th>ปลายทาง</th><th width="140">เลขที่</th><th>น้ำหนัก</th><th>ค่าบริการ</th><th>หมายเหตุ</th></tr>
+            </thead>
+            <tbody id="print-list"></tbody>
+            <tfoot>
+                <tr><td colspan="4" style="text-align: right;"><b>รวม</b></td><td id="print-total-weight"></td><td id="print-total-fee"></td><td></td></tr>
+            </tfoot>
+        </table>
+    </div>
+
+    <script type="module" src="src/main.js"></script>
+</body>
+</html>
