@@ -1,42 +1,284 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ข้อมูลไปรษณีย์</title>
-  <link rel="stylesheet" href="../../core/style.css">
-  <style>
-    body { display:flex; flex-direction:column; min-height:100vh; }
-    .topbar {
-      background:white; border-bottom:1px solid var(--border);
-      padding:.875rem 1.5rem; display:flex; align-items:center; gap:1rem;
-    }
-    .topbar a { color:var(--muted); font-size:.875rem; text-decoration:none; }
-    .topbar a:hover { color:var(--text); }
-    .topbar-title { font-weight:600; font-size:1rem; }
-    .placeholder {
-      flex:1; display:flex; flex-direction:column;
-      align-items:center; justify-content:center;
-      text-align:center; padding:3rem;
-    }
-    .placeholder-icon { font-size:4rem; margin-bottom:1rem; }
-    .placeholder h2 { font-size:1.25rem; font-weight:700; margin-bottom:.5rem; }
-    .placeholder p  { color:var(--muted); font-size:.9rem; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ค้นหารหัสไปรษณีย์</title>
+<style>
+:root {
+  --primary: #1a56db;
+  --primary-dark: #1e429f;
+  --bg: #f1f5f9;
+  --card: #fff;
+  --text: #0f172a;
+  --muted: #64748b;
+  --border: #e2e8f0;
+  --radius: .75rem;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', -apple-system, 'Sarabun', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; }
+
+/* Topbar */
+.topbar { background: #fff; border-bottom: 1px solid var(--border); padding: .875rem 1.25rem; display: flex; align-items: center; gap: .75rem; position: sticky; top: 0; z-index: 20; }
+.topbar a { color: var(--muted); font-size: .875rem; text-decoration: none; white-space: nowrap; }
+.topbar a:hover { color: var(--text); }
+.topbar-sep { color: var(--border); }
+.topbar-title { font-weight: 600; font-size: 1rem; }
+
+/* Hero */
+.hero { background: linear-gradient(135deg, #1e429f 0%, #1a56db 60%, #0891b2 100%); color: #fff; padding: 2rem 1.25rem 1.5rem; text-align: center; }
+.hero h1 { font-size: 1.5rem; font-weight: 700; margin-bottom: .375rem; }
+.hero p  { font-size: .9rem; opacity: .85; }
+
+/* Search bar */
+.search-wrap { padding: 1.25rem; max-width: 780px; margin: 0 auto; width: 100%; }
+.search-box { display: flex; gap: .5rem; background: #fff; border-radius: var(--radius); box-shadow: 0 4px 20px rgba(0,0,0,.1); padding: .75rem 1rem; align-items: center; }
+.search-box input { flex: 1; border: none; outline: none; font-size: 1rem; color: var(--text); min-width: 0; }
+.search-box input::placeholder { color: #94a3b8; }
+.search-icon { color: var(--muted); font-size: 1.2rem; flex-shrink: 0; }
+.clear-btn { background: none; border: none; cursor: pointer; color: var(--muted); font-size: 1.1rem; padding: .1rem .3rem; display: none; }
+.clear-btn.show { display: block; }
+
+/* Filters */
+.filters { padding: 0 1.25rem .75rem; max-width: 780px; margin: 0 auto; width: 100%; display: flex; gap: .5rem; flex-wrap: wrap; }
+.filter-select { flex: 1; min-width: 140px; padding: .5rem .75rem; border: 1.5px solid var(--border); border-radius: .5rem; font-size: .875rem; background: #fff; color: var(--text); cursor: pointer; }
+.filter-select:focus { outline: none; border-color: var(--primary); }
+
+/* Main content */
+.main { flex: 1; padding: 0 1.25rem 2rem; max-width: 780px; margin: 0 auto; width: 100%; }
+
+/* Stats bar */
+.stats { font-size: .8rem; color: var(--muted); margin-bottom: .75rem; display: flex; justify-content: space-between; align-items: center; }
+.stats strong { color: var(--primary); }
+
+/* Table */
+.result-table { width: 100%; border-collapse: collapse; background: #fff; border-radius: var(--radius); overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,.06); }
+.result-table thead { background: #f8fafc; }
+.result-table th { padding: .7rem .9rem; text-align: left; font-size: .75rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .05em; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.result-table td { padding: .65rem .9rem; font-size: .9rem; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+.result-table tr:last-child td { border-bottom: none; }
+.result-table tr:hover td { background: #f8fafc; }
+.zip-cell { display: flex; align-items: center; gap: .5rem; }
+.zip-code { font-weight: 700; font-size: 1rem; color: var(--primary); font-family: monospace; letter-spacing: .05em; }
+.copy-btn { background: none; border: 1px solid var(--border); border-radius: .375rem; padding: .15rem .45rem; font-size: .7rem; color: var(--muted); cursor: pointer; transition: all .15s; white-space: nowrap; }
+.copy-btn:hover { background: var(--primary); color: #fff; border-color: var(--primary); }
+.copy-btn.copied { background: #059669; color: #fff; border-color: #059669; }
+
+/* Empty / loading */
+.state-box { text-align: center; padding: 4rem 1rem; color: var(--muted); }
+.state-icon { font-size: 3rem; margin-bottom: .75rem; display: block; }
+.state-box h3 { font-size: 1rem; font-weight: 600; color: var(--text); margin-bottom: .375rem; }
+.state-box p  { font-size: .875rem; }
+
+/* More results */
+.load-more { width: 100%; margin-top: .75rem; padding: .625rem; background: #fff; border: 1.5px solid var(--border); border-radius: var(--radius); font-size: .875rem; color: var(--primary); cursor: pointer; font-weight: 500; }
+.load-more:hover { background: #eff6ff; }
+
+/* Responsive */
+@media (max-width: 520px) {
+  .result-table th:nth-child(3), .result-table td:nth-child(3) { display: none; }
+}
+</style>
 </head>
 <body>
-  <div class="topbar">
-    <a href="../../dashboard.html">← กลับหน้าหลัก</a>
-    <span style="color:var(--border)">|</span>
-    <span class="topbar-title">📬 ข้อมูลไปรษณีย์</span>
+
+<div class="topbar">
+  <a href="../../dashboard.html">← กลับหน้าหลัก</a>
+  <span class="topbar-sep">|</span>
+  <span class="topbar-title">📬 ค้นหารหัสไปรษณีย์</span>
+</div>
+
+<div class="hero">
+  <h1>ค้นหารหัสไปรษณีย์ไทย</h1>
+  <p>ครอบคลุม 7,498 ตำบล ทั่วประเทศไทย</p>
+</div>
+
+<div class="search-wrap">
+  <div class="search-box">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="searchInput" placeholder="พิมพ์จังหวัด อำเภอ ตำบล หรือรหัสไปรษณีย์..." autocomplete="off" autofocus>
+    <button class="clear-btn" id="clearBtn" onclick="clearSearch()" title="ล้าง">✕</button>
   </div>
-  <div class="placeholder">
-    <div class="placeholder-icon">📬</div>
-    <h2>ข้อมูลไปรษณีย์</h2>
-    <p>วางโค้ดแอปจริงที่นี่<br>แทนไฟล์ index.html นี้ด้วยแอปที่พัฒนาไว้แล้ว</p>
+</div>
+
+<div class="filters">
+  <select class="filter-select" id="provinceFilter" onchange="onProvinceChange()">
+    <option value="">— ทุกจังหวัด —</option>
+  </select>
+  <select class="filter-select" id="amphoeFilter" onchange="renderResults()">
+    <option value="">— ทุกอำเภอ —</option>
+  </select>
+</div>
+
+<div class="main">
+  <div class="stats" id="stats"></div>
+  <div id="output">
+    <div class="state-box">
+      <span class="state-icon">⏳</span>
+      <h3>กำลังโหลดข้อมูล...</h3>
+      <p>รอสักครู่</p>
+    </div>
   </div>
-  <script src="../../core/config.js"></script>
-  <script src="../../core/auth.js"></script>
-  <script>requireAuth('../../index.html');</script>
+</div>
+
+<script>
+let DB = [];
+let page = 1;
+const PAGE_SIZE = 50;
+
+// ── Load data ──────────────────────────────────────────────
+async function loadData() {
+  try {
+    const res = await fetch('db.json');
+    DB = await res.json();
+    buildProvinceFilter();
+    renderResults();
+  } catch (e) {
+    document.getElementById('output').innerHTML = `
+      <div class="state-box">
+        <span class="state-icon">❌</span>
+        <h3>โหลดข้อมูลไม่ได้</h3>
+        <p>${e.message}</p>
+      </div>`;
+  }
+}
+
+// ── Filters ────────────────────────────────────────────────
+function buildProvinceFilter() {
+  const provinces = [...new Set(DB.map(r => r.province))].sort();
+  const sel = document.getElementById('provinceFilter');
+  provinces.forEach(p => {
+    const o = document.createElement('option');
+    o.value = p; o.textContent = p;
+    sel.appendChild(o);
+  });
+}
+
+function onProvinceChange() {
+  const prov = document.getElementById('provinceFilter').value;
+  const sel  = document.getElementById('amphoeFilter');
+  sel.innerHTML = '<option value="">— ทุกอำเภอ —</option>';
+  if (prov) {
+    const amphoes = [...new Set(DB.filter(r => r.province === prov).map(r => r.amphoe))].sort();
+    amphoes.forEach(a => {
+      const o = document.createElement('option');
+      o.value = a; o.textContent = a;
+      sel.appendChild(o);
+    });
+  }
+  page = 1;
+  renderResults();
+}
+
+// ── Search ─────────────────────────────────────────────────
+let debounceTimer;
+document.getElementById('searchInput').addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  const val = document.getElementById('searchInput').value;
+  document.getElementById('clearBtn').classList.toggle('show', val.length > 0);
+  page = 1;
+  debounceTimer = setTimeout(renderResults, 180);
+});
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  document.getElementById('clearBtn').classList.remove('show');
+  document.getElementById('provinceFilter').value = '';
+  document.getElementById('amphoeFilter').innerHTML = '<option value="">— ทุกอำเภอ —</option>';
+  page = 1;
+  renderResults();
+}
+
+function normalize(str) {
+  return String(str || '').toLowerCase().trim();
+}
+
+function getFiltered() {
+  const q     = normalize(document.getElementById('searchInput').value);
+  const prov  = document.getElementById('provinceFilter').value;
+  const amph  = document.getElementById('amphoeFilter').value;
+
+  return DB.filter(r => {
+    if (prov && r.province !== prov) return false;
+    if (amph && r.amphoe  !== amph)  return false;
+    if (!q) return true;
+    return (
+      normalize(r.district).includes(q) ||
+      normalize(r.amphoe).includes(q)   ||
+      normalize(r.province).includes(q) ||
+      String(r.zipcode).startsWith(q)
+    );
+  });
+}
+
+// ── Render ─────────────────────────────────────────────────
+function renderResults() {
+  const filtered = getFiltered();
+  const total    = filtered.length;
+  const shown    = filtered.slice(0, page * PAGE_SIZE);
+  const hasMore  = total > shown.length;
+
+  document.getElementById('stats').innerHTML = total > 0
+    ? `พบ <strong>${total.toLocaleString()}</strong> รายการ`
+    : '';
+
+  if (total === 0) {
+    document.getElementById('output').innerHTML = `
+      <div class="state-box">
+        <span class="state-icon">🔍</span>
+        <h3>ไม่พบข้อมูล</h3>
+        <p>ลองค้นหาด้วยคำอื่น หรือเลือกจังหวัดใหม่</p>
+      </div>`;
+    return;
+  }
+
+  const rows = shown.map(r => `
+    <tr>
+      <td>${r.district}</td>
+      <td>${r.amphoe}</td>
+      <td>${r.province}</td>
+      <td>
+        <div class="zip-cell">
+          <span class="zip-code">${r.zipcode}</span>
+          <button class="copy-btn" onclick="copyZip(this,'${r.zipcode}')">คัดลอก</button>
+        </div>
+      </td>
+    </tr>`).join('');
+
+  document.getElementById('output').innerHTML = `
+    <table class="result-table">
+      <thead>
+        <tr>
+          <th>ตำบล / แขวง</th>
+          <th>อำเภอ / เขต</th>
+          <th>จังหวัด</th>
+          <th>รหัสไปรษณีย์</th>
+        </tr>
+      </thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${hasMore ? `<button class="load-more" onclick="loadMore()">แสดงเพิ่มอีก (เหลือ ${(total - shown.length).toLocaleString()} รายการ)</button>` : ''}`;
+}
+
+function loadMore() {
+  page++;
+  renderResults();
+}
+
+// ── Copy ───────────────────────────────────────────────────
+function copyZip(btn, zip) {
+  navigator.clipboard.writeText(zip).then(() => {
+    btn.textContent = '✓ คัดลอกแล้ว';
+    btn.classList.add('copied');
+    setTimeout(() => {
+      btn.textContent = 'คัดลอก';
+      btn.classList.remove('copied');
+    }, 1800);
+  });
+}
+
+// ── Initial ────────────────────────────────────────────────
+loadData();
+</script>
 </body>
 </html>
