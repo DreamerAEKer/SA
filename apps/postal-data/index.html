@@ -83,7 +83,7 @@ body { font-family: 'Segoe UI', -apple-system, 'Sarabun', sans-serif; background
 <body>
 
 <div class="topbar">
-  <a href="../../dashboard.html">← กลับหน้าหลัก</a>
+  <a href="#" onclick="goBack();return false;">← กลับหน้าหลัก</a>
   <span class="topbar-sep">|</span>
   <span class="topbar-title">📬 ค้นหารหัสไปรษณีย์</span>
 </div>
@@ -125,6 +125,11 @@ body { font-family: 'Segoe UI', -apple-system, 'Sarabun', sans-serif; background
 let DB = [];
 let page = 1;
 const PAGE_SIZE = 50;
+
+function goBack() {
+  const session = sessionStorage.getItem('superapp_session');
+  window.location.href = session ? '../../dashboard.html' : '../../public.html';
+}
 
 // ── Load data ──────────────────────────────────────────────
 async function loadData() {

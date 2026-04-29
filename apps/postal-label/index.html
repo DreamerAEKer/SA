@@ -54,6 +54,11 @@ table.dest td input,table.dest td select{padding:5px 7px;font-size:13px;border-r
 </head>
 <body>
 
+<!-- Back button -->
+<div class="no-print" style="background:#fff;border-bottom:1px solid #e2e8f0;padding:.7rem 1.25rem;display:flex;align-items:center;gap:.75rem;">
+  <a href="#" onclick="goBack();return false;" style="color:#64748b;font-size:.875rem;text-decoration:none;">← กลับหน้าหลัก</a>
+</div>
+
 <!-- App Bar -->
 <div class="app-bar no-print">
   <img id="app-logo" src="" alt="ปณท" onerror="this.style.display='none'">
@@ -595,6 +600,11 @@ body{font-family:'TH SarabunIT9','TH Sarabun New','Sarabun',serif;font-size:16pt
 </style></head><body>${pages}
 <script>window.onload=function(){setTimeout(function(){window.print();},400);};<\/script>
 </body></html>`;
+}
+
+function goBack() {
+  const session = sessionStorage.getItem('superapp_session');
+  window.location.href = session ? '../../dashboard.html' : '../../public.html';
 }
 
 // ── Print ──

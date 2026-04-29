@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>บริการออนไลน์ — ไปรษณีย์</title>
+  <link rel="stylesheet" href="core/style.css">
+  <style>
+    body { min-height: 100vh; display: flex; flex-direction: column; }
+
+    /* Hero */
+    .hero {
+      background: linear-gradient(135deg, #1e429f 0%, #1a56db 60%, #0891b2 100%);
+      color: white;
+      padding: 2.5rem 1.5rem 3rem;
+      text-align: center;
+    }
+    .hero-icon { font-size: 3rem; display: block; margin-bottom: .75rem; }
+    .hero h1 { font-size: 1.75rem; font-weight: 700; margin-bottom: .375rem; }
+    .hero p  { font-size: .95rem; opacity: .85; }
+
+    /* Main */
+    .main {
+      flex: 1;
+      max-width: 900px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 2rem 1.25rem;
+    }
+    .section-label {
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+    }
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .app-card {
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: 0 1px 4px rgba(0,0,0,.07);
+      padding: 1.5rem 1.25rem;
+      text-decoration: none;
+      color: var(--text);
+      display: block;
+      transition: transform .15s, box-shadow .15s;
+      border: 1.5px solid transparent;
+    }
+    .app-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,.1);
+      border-color: var(--border);
+    }
+    .app-icon {
+      font-size: 2.25rem;
+      width: 52px; height: 52px;
+      border-radius: .625rem;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: .875rem;
+    }
+    .app-name { font-size: .975rem; font-weight: 600; margin-bottom: .25rem; }
+    .app-desc { font-size: .8rem; color: var(--muted); line-height: 1.5; }
+
+    /* Staff login box */
+    .staff-box {
+      background: #f8fafc;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .staff-box-text p { font-size: .9rem; font-weight: 500; }
+    .staff-box-text span { font-size: .8rem; color: var(--muted); }
+
+    /* Footer */
+    .footer {
+      text-align: center;
+      font-size: .75rem;
+      color: var(--muted);
+      padding: 1.25rem;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="hero">
+    <span class="hero-icon">⚡</span>
+    <h1>บริการออนไลน์</h1>
+    <p>เครื่องมือไปรษณีย์ — ใช้งานได้ทันที ไม่ต้องสมัครสมาชิก</p>
+  </div>
+
+  <div class="main">
+    <div class="section-label">บริการสำหรับลูกค้า</div>
+    <div class="app-grid">
+
+      <a class="app-card" href="apps/postal-data/index.html">
+        <div class="app-icon" style="background:#0891b218;">📬</div>
+        <div class="app-name">ค้นหารหัสไปรษณีย์</div>
+        <div class="app-desc">ค้นหาจากจังหวัด อำเภอ ตำบล หรือรหัส 5 หลัก ครบ 77 จังหวัด</div>
+      </a>
+
+      <a class="app-card" href="apps/Post Rates/thailand-post-rates.html">
+        <div class="app-icon" style="background:#05996918;">💰</div>
+        <div class="app-name">อัตราค่าบริการไปรษณีย์</div>
+        <div class="app-desc">ตรวจสอบอัตราค่าบริการส่งพัสดุทุกประเภท</div>
+      </a>
+
+      <a class="app-card" href="apps/Post Rates/summary_price_list.html">
+        <div class="app-icon" style="background:#0f766e18;">📊</div>
+        <div class="app-name">ตารางราคาสรุป</div>
+        <div class="app-desc">ตารางอัตราค่าบริการแบบย่อ พิมพ์ได้สะดวก</div>
+      </a>
+
+      <a class="app-card" href="apps/thp-service-knowledge-center/index.html">
+        <div class="app-icon" style="background:#4f46e518;">📚</div>
+        <div class="app-name">ศูนย์ข้อมูลบริการ</div>
+        <div class="app-desc">ข้อมูลบริการไปรษณีย์ไทยครบถ้วน</div>
+      </a>
+
+      <a class="app-card" href="apps/postal-label/index.html">
+        <div class="app-icon" style="background:#2563eb18;">📮</div>
+        <div class="app-name">ใบนำส่งไปรษณีย์</div>
+        <div class="app-desc">พิมพ์ใบนำส่งไปรษณียภัณฑ์ไม่มีจ่าหน้า</div>
+      </a>
+
+      <a class="app-card" href="apps/post-family-helper/index.html">
+        <div class="app-icon" style="background:#d9770618;">🤝</div>
+        <div class="app-name">POST Family Helper</div>
+        <div class="app-desc">ช่วยเหลือการสมัครสมาชิก POST Family</div>
+      </a>
+
+    </div>
+
+    <!-- Staff login -->
+    <div class="staff-box">
+      <div class="staff-box-text">
+        <p>เจ้าหน้าที่และผู้ดูแลระบบ</p>
+        <span>เข้าสู่ระบบเพื่อใช้งานเครื่องมือทั้งหมด</span>
+      </div>
+      <a href="index.html" class="btn-primary">เข้าสู่ระบบ →</a>
+    </div>
+  </div>
+
+  <footer class="footer">Super App v1.0 — บริการไปรษณีย์ออนไลน์</footer>
+
+</body>
+</html>
