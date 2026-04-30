@@ -609,6 +609,10 @@ const DataEntry = () => {
   const [mrForm, setMrForm] = useState({ machineRemaining: '', machineAccumulated: '', topUpConfirmed: false });
   const [showCompanyFilter, setShowCompanyFilter] = useState(false);
 
+  const refService = React.useRef(null);
+  const refCount   = React.useRef(null);
+  const refAmount  = React.useRef(null);
+
   const filteredServices = useMemo(() => {
     const rareKeywords = ['รับประกัน', 'รับรอง', 'ธุรกิจตอบรับ'];
     return [...services]
@@ -645,6 +649,7 @@ const DataEntry = () => {
       timestamp: Date.now()
     }]);
     setFormData({ serviceId: '', count: '', amount: '' });
+    setTimeout(() => refService.current?.focus(), 50);
   };
 
 
@@ -781,16 +786,18 @@ const DataEntry = () => {
           <div className="entry-form-vertical">
             <div className="form-group">
               <label>ประเภทบริการ</label>
-              <select 
-                className="input-select full" 
-                value={formData.serviceId} 
+              <select
+                ref={refService}
+                className="input-select full"
+                value={formData.serviceId}
                 onChange={e => setFormData({...formData, serviceId: e.target.value})}
+                onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); refCount.current?.focus(); refCount.current?.select(); } }}
               >
                 <option value="">เลือกบริการ...</option>
                 {filteredServices.map(s => (
-                  <option 
-                    key={s.id} 
-                    value={s.id} 
+                  <option
+                    key={s.id}
+                    value={s.id}
                     className={['รับประกัน', 'รับรอง', 'ธุรกิจตอบรับ'].some(kw => s.name.includes(kw)) ? 'rare-service' : ''}
                   >
                     {s.name} ({s.code})
@@ -798,24 +805,28 @@ const DataEntry = () => {
                 ))}
               </select>
             </div>
-            
+
             <div className="form-row">
               <div className="form-group">
                 <label>จำนวนชิ้น</label>
-                <input 
-                  type="number" 
-                  value={formData.count} 
+                <input
+                  ref={refCount}
+                  type="number"
+                  value={formData.count}
                   onChange={e => setFormData({...formData, count: e.target.value})}
                   placeholder="0"
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); refAmount.current?.focus(); refAmount.current?.select(); } }}
                 />
               </div>
               <div className="form-group">
                 <label>จำนวนเงิน (บาท)</label>
-                <input 
-                  type="number" 
-                  value={formData.amount} 
+                <input
+                  ref={refAmount}
+                  type="number"
+                  value={formData.amount}
                   onChange={e => setFormData({...formData, amount: e.target.value})}
                   placeholder="0.00"
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); saveRecord(); } }}
                 />
               </div>
             </div>
