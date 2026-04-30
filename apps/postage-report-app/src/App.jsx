@@ -42,6 +42,28 @@ const safeFormat = (date, formatStr, options) => {
   }
 };
 
+// Sanitize number input: convert Thai digits ๐-๙ → 0-9, strip everything else non-numeric
+const sanitizeNumeric = (val, allowDecimal = false) => {
+  let s = String(val ?? '');
+  // 1. Convert Thai digits (Shift+number in Thai mode)
+  s = s.replace(/[๐-๙]/g, d => '๐๑๒๓๔๕๖๗๘๙'.indexOf(d).toString());
+  // 2. Strip anything that's not digit, decimal point (if allowed), or leading minus
+  if (allowDecimal) {
+    s = s.replace(/[^0-9.]/g, '');
+    // Keep only first decimal point
+    const parts = s.split('.');
+    s = parts[0] + (parts.length > 1 ? '.' + parts.slice(1).join('') : '');
+  } else {
+    s = s.replace(/[^0-9]/g, '');
+  }
+  return s;
+};
+
+// onChange helper for number inputs
+const numericChange = (setter, allowDecimal = false) => (e) => {
+  setter(sanitizeNumeric(e.target.value, allowDecimal));
+};
+
 const getPreviousWorkDay = (date) => {
   try {
     let target = subDays(date, 1);
@@ -812,8 +834,9 @@ const DataEntry = () => {
                 <input
                   ref={refCount}
                   type="number"
+                  inputMode="numeric"
                   value={formData.count}
-                  onChange={e => setFormData({...formData, count: e.target.value})}
+                  onChange={numericChange(v => setFormData(p => ({...p, count: v})))}
                   placeholder="0"
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); refAmount.current?.focus(); refAmount.current?.select(); } }}
                 />
@@ -823,8 +846,9 @@ const DataEntry = () => {
                 <input
                   ref={refAmount}
                   type="number"
+                  inputMode="decimal"
                   value={formData.amount}
-                  onChange={e => setFormData({...formData, amount: e.target.value})}
+                  onChange={numericChange(v => setFormData(p => ({...p, amount: v})))}
                   placeholder="0.00"
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); saveRecord(); } }}
                 />
@@ -918,8 +942,9 @@ const DataEntry = () => {
                 <label>แถวบน (ยอดคงเหลือ)</label>
                 <input
                   type="number"
+                  inputMode="decimal"
                   value={mrForm.machineRemaining}
-                  onChange={e => setMrForm(prev => ({ ...prev, machineRemaining: e.target.value }))}
+                  onChange={numericChange(v => setMrForm(prev => ({ ...prev, machineRemaining: v })))}
                   placeholder="0.00"
                   className={mrValidation.isTopUpDetected ? 'input-warning' : ''}
                 />
@@ -933,8 +958,9 @@ const DataEntry = () => {
                 <label>แถวล่าง (ยอดสะสม)</label>
                 <input
                   type="number"
+                  inputMode="decimal"
                   value={mrForm.machineAccumulated}
-                  onChange={e => setMrForm(prev => ({ ...prev, machineAccumulated: e.target.value }))}
+                  onChange={numericChange(v => setMrForm(prev => ({ ...prev, machineAccumulated: v })))}
                   placeholder="0.00"
                   className={mrValidation.accDecreased ? 'input-error' : ''}
                 />
