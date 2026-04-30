@@ -123,6 +123,34 @@ export const AppProvider = ({ children }) => {
     return saved ? JSON.parse(saved) : [];
   });
 
+  const [machineReadings, setMachineReadings] = useState(() => {
+    const saved = localStorage.getItem('postage_machine_readings');
+    if (saved) return JSON.parse(saved);
+    // Migrate from records on first load
+    const recordsSaved = localStorage.getItem('postage_records');
+    if (!recordsSaved) return [];
+    const allRecords = JSON.parse(recordsSaved);
+    const grouped = {};
+    allRecords.forEach(r => {
+      if (r && (r.machineRemaining != null || r.machineAccumulated != null)) {
+        const key = `${r.date}__${r.companyId}`;
+        if (!grouped[key] || (r.timestamp || 0) > (grouped[key].timestamp || 0)) {
+          grouped[key] = r;
+        }
+      }
+    });
+    return Object.values(grouped).map(r => ({
+      id: `mig_${r.date}_${r.companyId}`,
+      date: r.date,
+      companyId: r.companyId,
+      machineRemaining: r.machineRemaining,
+      machineAccumulated: r.machineAccumulated,
+      topUpAmount: r.topUpAmount || 0,
+      isTopUp: (r.topUpAmount || 0) > 0,
+      timestamp: r.timestamp || 0,
+    }));
+  });
+
   const [reportLogo, setReportLogo] = useState(() => {
     return localStorage.getItem('postage_report_logo') || null;
   });
@@ -261,6 +289,14 @@ export const AppProvider = ({ children }) => {
     }
   }, [records]);
 
+  useEffect(() => {
+    try {
+      localStorage.setItem('postage_machine_readings', JSON.stringify(machineReadings));
+    } catch (e) {
+      console.error('Failed to save machine readings:', e);
+    }
+  }, [machineReadings]);
+
   const addRecord = (newRecords) => {
     if (!newRecords || !Array.isArray(newRecords)) return;
     
@@ -303,6 +339,17 @@ export const AppProvider = ({ children }) => {
     setRecords(prev => prev.filter(r => !(r.date === date && r.companyId === companyId)));
   };
 
+  const addMachineReading = (reading) => {
+    setMachineReadings(prev => {
+      const filtered = prev.filter(r => !(r.date === reading.date && r.companyId === reading.companyId));
+      return [...filtered, { ...reading, id: `mr_${Date.now()}`, timestamp: Date.now() }];
+    });
+  };
+
+  const deleteMachineReading = (date, companyId) => {
+    setMachineReadings(prev => prev.filter(r => !(r.date === date && r.companyId === companyId)));
+  };
+
   const reorderCompaniesByCode = () => {
     setCompanies(prev => {
       const sorted = [...prev].sort((a,b) => {
@@ -335,7 +382,7 @@ export const AppProvider = ({ children }) => {
   };
 
   const exportData = () => {
-    const data = { services, companies, records, version: '1.1', exportDate: new Date().toISOString() };
+    const data = { services, companies, records, machineReadings, version: '1.2', exportDate: new Date().toISOString() };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -357,6 +404,7 @@ export const AppProvider = ({ children }) => {
             setServices(data.services);
             setCompanies(data.companies);
             setRecords(data.records);
+            if (data.machineReadings) setMachineReadings(data.machineReadings);
             alert('นำเข้าแบบเขียนทับสำเร็จแล้ว!');
           } else {
             // MERGE Logic
@@ -384,6 +432,16 @@ export const AppProvider = ({ children }) => {
               });
               return merged;
             });
+            if (data.machineReadings) {
+              setMachineReadings(prev => {
+                const merged = [...prev];
+                data.machineReadings.forEach(nr => {
+                  const isDuplicate = merged.find(r => r.date === nr.date && r.companyId === nr.companyId);
+                  if (!isDuplicate) merged.push(nr);
+                });
+                return merged;
+              });
+            }
             alert('รวมข้อมูลสำเร็จเรียบร้อยแล้ว!');
           }
         } else {
@@ -397,10 +455,11 @@ export const AppProvider = ({ children }) => {
   };
 
   return (
-    <AppContext.Provider value={{ 
+    <AppContext.Provider value={{
       services, setServices, updateService,
       companies, setCompanies, updateCompany, reorderCompaniesByCode, moveCompany,
       records, setRecords, addRecord, deleteRecords, deleteSingleRecord,
+      machineReadings, addMachineReading, deleteMachineReading,
       exportData, importData,
       reportLogo, setReportLogo, reportLogoSize, setReportLogoSize, reportLogoAlign, setReportLogoAlign
     }}>

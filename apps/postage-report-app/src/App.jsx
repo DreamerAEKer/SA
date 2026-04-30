@@ -591,7 +591,7 @@ const Dashboard = () => {
 };
 
 const DataEntry = () => {
-  const { services, companies, records, addRecord, deleteSingleRecord } = useApp();
+  const { services, companies, records, addRecord, deleteSingleRecord, machineReadings, addMachineReading, deleteMachineReading } = useApp();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(getSmartDefaultDate());
   const [selectedCompany, setSelectedCompany] = useState(companies[0]?.id || '');
@@ -605,7 +605,8 @@ const DataEntry = () => {
 
   const [activeCategory, setActiveCategory] = useState('domestic');
 
-  const [formData, setFormData] = useState({ serviceId: '', count: '', amount: '', machineRemaining: '', machineMixed: '' });
+  const [formData, setFormData] = useState({ serviceId: '', count: '', amount: '' });
+  const [mrForm, setMrForm] = useState({ machineRemaining: '', machineAccumulated: '', topUpConfirmed: false });
 
   const filteredServices = useMemo(() => {
     const rareKeywords = ['รับประกัน', 'รับรอง', 'ธุรกิจตอบรับ'];
@@ -640,83 +641,82 @@ const DataEntry = () => {
       serviceId: formData.serviceId,
       count: Number(formData.count),
       amount: Number(formData.amount),
-      machineRemaining: formData.machineRemaining ? Number(formData.machineRemaining) : null,
-      machineAccumulated: formData.machineMixed ? Number(formData.machineMixed) : null,
-      topUpAmount: formData.topUpAmount ? Number(formData.topUpAmount) : 0,
       timestamp: Date.now()
     }]);
-    setFormData({ serviceId: '', count: '', amount: '', machineRemaining: '', machineMixed: '', topUpAmount: '', manualTopUp: false });
+    setFormData({ serviceId: '', count: '', amount: '' });
   };
 
 
-  const machineContext = useMemo(() => {
-    // Find the chronologically latest record before (or same day but earlier timestamp) the current selection
-    // to determine the machine state context.
-    const companyRecords = (records || []).filter(r => r && r.companyId === selectedCompany && r.machineAccumulated != null);
-    
-    // Sort all records by date and then by timestamp
-    const sorted = [...companyRecords].sort((a, b) => {
-      if (a.date !== b.date) {
-        const da = new Date(a.date).getTime();
-        const db = new Date(b.date).getTime();
-        if (isNaN(da) || isNaN(db)) return 0;
-        return da - db;
-      }
-      return (a.timestamp || 0) - (b.timestamp || 0);
+  // Prev machine reading: last machineReadings entry before selectedDay for selectedCompany
+  const prevMachineReading = useMemo(() => {
+    const all = (machineReadings || []).filter(r => r && r.companyId === selectedCompany && r.date < selectedDay);
+    if (all.length === 0) {
+      // Fallback: look in records for backward compat
+      const fromRecords = (records || []).filter(r => r && r.companyId === selectedCompany && r.date < selectedDay && r.machineRemaining != null);
+      if (fromRecords.length === 0) return null;
+      return [...fromRecords].sort((a, b) => b.date.localeCompare(a.date))[0];
+    }
+    return [...all].sort((a, b) => b.date.localeCompare(a.date))[0];
+  }, [machineReadings, records, selectedCompany, selectedDay]);
+
+  // Today's machine reading (if already saved)
+  const todayMachineReading = useMemo(() => {
+    return (machineReadings || []).find(r => r && r.date === selectedDay && r.companyId === selectedCompany) || null;
+  }, [machineReadings, selectedDay, selectedCompany]);
+
+  // Today's total spend from service records
+  const todayTotalSpend = useMemo(() => {
+    return (records || [])
+      .filter(r => r && r.date === selectedDay && r.companyId === selectedCompany)
+      .reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+  }, [records, selectedDay, selectedCompany]);
+
+  // Machine reading validation
+  const mrValidation = useMemo(() => {
+    const enteredRem = mrForm.machineRemaining !== '' ? Number(mrForm.machineRemaining) : null;
+    const enteredAcc = mrForm.machineAccumulated !== '' ? Number(mrForm.machineAccumulated) : null;
+    const prevRem = prevMachineReading?.machineRemaining ?? null;
+    const prevAcc = prevMachineReading?.machineAccumulated ?? null;
+    const expectedRem = prevRem !== null ? prevRem - todayTotalSpend : null;
+
+    // แถวบน: ถ้าใส่แล้วมากกว่าค่าก่อนหน้า = top-up
+    const isTopUpDetected = enteredRem !== null && prevRem !== null && enteredRem > prevRem;
+    const detectedTopUpAmount = isTopUpDetected
+      ? enteredRem - (prevRem - todayTotalSpend)
+      : (enteredRem !== null && expectedRem !== null ? Math.max(0, enteredRem - expectedRem) : 0);
+
+    // แถวล่าง: ห้ามน้อยกว่าค่าก่อนหน้า
+    const accDecreased = enteredAcc !== null && prevAcc !== null && enteredAcc < prevAcc;
+
+    return { enteredRem, enteredAcc, prevRem, prevAcc, expectedRem, isTopUpDetected, detectedTopUpAmount, accDecreased };
+  }, [mrForm.machineRemaining, mrForm.machineAccumulated, prevMachineReading, todayTotalSpend]);
+
+  const saveMachineReading = () => {
+    const { enteredRem, enteredAcc, isTopUpDetected, detectedTopUpAmount, accDecreased } = mrValidation;
+    if (enteredRem === null && enteredAcc === null) return;
+    if (accDecreased) {
+      alert('ยอดสะสม (แถวล่าง) ต้องไม่น้อยกว่าค่าครั้งที่แล้ว กรุณาตรวจสอบอีกครั้ง');
+      return;
+    }
+    if (isTopUpDetected && !mrForm.topUpConfirmed) {
+      alert('ตรวจพบยอดแถวบนเพิ่มขึ้น กรุณายืนยันว่าเป็นการเติมเงินเข้าเครื่อง โดยติ๊กช่อง "ยืนยันเติมเงิน" ก่อนบันทึก');
+      return;
+    }
+    addMachineReading({
+      date: selectedDay,
+      companyId: selectedCompany,
+      machineRemaining: enteredRem,
+      machineAccumulated: enteredAcc,
+      topUpAmount: isTopUpDetected ? detectedTopUpAmount : 0,
+      isTopUp: isTopUpDetected && mrForm.topUpConfirmed,
     });
+    setMrForm({ machineRemaining: '', machineAccumulated: '', topUpConfirmed: false });
+  };
 
-    // Find the last record that is before the selected day OR same day (if we want to chain entries)
-    // For a new entry, we look for the last one in the sorted list that isn't the current entry
-    const last = [...sorted].reverse().find(r => r.date <= selectedDay);
-    
-    return last ? { acc: last.machineAccumulated, rem: last.machineRemaining } : { acc: 0, rem: null };
-  }, [records, selectedCompany, selectedDay]);
-
-  const topUpCalculation = useMemo(() => {
-    if (!formData.machineRemaining || machineContext.rem === null || !formData.amount) return 0;
-    const currentRem = Number(formData.machineRemaining);
-    const expectedRem = machineContext.rem - Number(formData.amount);
-    
-    if (currentRem > expectedRem) {
-      // Potentially a top-up
-      return currentRem - expectedRem;
-    }
-    return 0;
-  }, [formData.machineRemaining, formData.amount, machineContext]);
-
-  // Sync auto-calculated top-up to formData if detected
+  // Reset mrForm top-up confirm when values change
   useEffect(() => {
-    // Only update if value actually changed to avoid infinite cycles
-    if (topUpCalculation > 0 && formData.topUpAmount !== topUpCalculation) {
-      setFormData(prev => ({ ...prev, topUpAmount: topUpCalculation }));
-    } else if (topUpCalculation === 0 && formData.topUpAmount && !formData.manualTopUp) {
-      setFormData(prev => ({ ...prev, topUpAmount: '' }));
-    }
-  }, [topUpCalculation, formData.topUpAmount, formData.manualTopUp]);
-
-  const validation = useMemo(() => {
-    if (!formData.amount) return { accValid: true, remValid: true };
-    
-    const amount = Number(formData.amount);
-    let accValid = true;
-    let remValid = true;
-    let expectedAcc = machineContext.acc + amount;
-    let expectedRem = machineContext.rem !== null ? machineContext.rem - amount : null;
-
-    const currentMachineRem = formData.machineRemaining ? Number(formData.machineRemaining) : null;
-    const currentMachineMixed = formData.machineMixed ? Number(formData.machineMixed) : null;
-    const currentTopUp = Number(formData.topUpAmount) || 0;
-
-    if (currentMachineMixed != null) {
-      accValid = Math.abs(currentMachineMixed - expectedAcc) < 0.01;
-    }
-
-    if (currentMachineRem != null && machineContext.rem !== null) {
-      remValid = Math.abs(currentMachineRem - (expectedRem + currentTopUp)) < 0.01;
-    }
-
-    return { accValid, remValid, expectedAcc, expectedRem };
-  }, [formData.machineMixed, formData.machineRemaining, formData.amount, formData.topUpAmount, machineContext]);
+    setMrForm(prev => ({ ...prev, topUpConfirmed: false }));
+  }, [mrForm.machineRemaining, selectedDay, selectedCompany]);
 
   if (!selectedCompany) return <div className="glass-card">กรุณาเพิ่มบริษัทก่อนบันทึกข้อมูล</div>;
 
@@ -787,56 +787,6 @@ const DataEntry = () => {
                 />
               </div>
             </div>
-            <div className="form-row">
-              <div className="form-group">
-                <label>ยอดคงเหลือ (แถวบน)</label>
-                <input 
-                  type="number" 
-                  value={formData.machineRemaining} 
-                  onChange={e => setFormData({...formData, machineRemaining: e.target.value})}
-                  placeholder="0.00"
-                  className={!validation.remValid ? 'input-error' : ''}
-                />
-                {!validation.remValid && (
-                  <p className="text-danger" style={{ fontSize: '0.75rem', marginTop: '4px' }}>
-                    * ควรเป็น {(validation.expectedRem + (Number(formData.topUpAmount) || 0)).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </p>
-                )}
-              </div>
-              <div className="form-group">
-                <label>ยอดสะสม (แถวล่าง)</label>
-                <input 
-                  type="number" 
-                  value={formData.machineMixed} 
-                  onChange={e => setFormData({...formData, machineMixed: e.target.value})}
-                  placeholder="0.00"
-                  className={!validation.accValid ? 'input-error' : ''}
-                />
-                {!validation.accValid && (
-                  <p className="text-danger" style={{ fontSize: '0.75rem', marginTop: '4px' }}>
-                    * ควรเป็น {validation.expectedAcc.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {(topUpCalculation > 0 || formData.manualTopUp) && (
-              <div className="form-group fade-in" style={{ background: 'rgba(16, 185, 129, 0.1)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--primary)' }}>
-                <label style={{ color: 'var(--primary)', fontWeight: 'bold' }}>✨ ตรวจพบยอดเติมเงิน (คาดการณ์)</label>
-                <input 
-                  type="number" 
-                  value={formData.topUpAmount} 
-                  onChange={e => setFormData({...formData, topUpAmount: e.target.value, manualTopUp: true})}
-                  placeholder="0.00"
-                  className="input-select full"
-                  style={{ marginTop: '0.5rem', borderColor: 'var(--primary)' }}
-                />
-                <p style={{ fontSize: '0.75rem', marginTop: '4px', color: 'var(--text-muted)' }}>
-                  * ระบบคำนวณเบื้องต้นให้ {topUpCalculation.toLocaleString()} บาท (แก้ไขได้)
-                </p>
-              </div>
-            )}
-
             <button className="btn btn-primary full py-3" onClick={saveRecord}>
               <Save size={18}/> บันทึกรายการ
             </button>
@@ -869,12 +819,120 @@ const DataEntry = () => {
           )}
         </div>
       </div>
+
+      {/* Machine Reading Card */}
+      <div className="glass-card mt-8">
+        <div className="flex-between mb-4">
+          <h2 style={{ marginBottom: 0 }}>ค่าเครื่องประทับ — {safeFormat(selectedDay, 'd MMM yyyy', { locale: th })}</h2>
+          {todayMachineReading && (
+            <button className="btn-icon" onClick={() => deleteMachineReading(selectedDay, selectedCompany)} title="ลบค่าเครื่องวันนี้">
+              <Trash2 size={16} color="#ef4444" />
+            </button>
+          )}
+        </div>
+
+        {todayMachineReading ? (
+          <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap', background: 'rgba(16,185,129,0.07)', padding: '1rem', borderRadius: '8px', border: '1px solid var(--primary)' }}>
+            <div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>แถวบน (ยอดคงเหลือ)</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{todayMachineReading.machineRemaining != null ? todayMachineReading.machineRemaining.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '-'}</div>
+            </div>
+            <div>
+              <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>แถวล่าง (ยอดสะสม)</div>
+              <div style={{ fontSize: '1.1rem', fontWeight: 'bold' }}>{todayMachineReading.machineAccumulated != null ? todayMachineReading.machineAccumulated.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '-'}</div>
+            </div>
+            {todayMachineReading.isTopUp && (
+              <div>
+                <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>เติมเงิน</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#10b981' }}>+{(todayMachineReading.topUpAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+              </div>
+            )}
+            <div style={{ alignSelf: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>บันทึกแล้ว — กดไอคอนขยะเพื่อแก้ไข</div>
+          </div>
+        ) : (
+          <div>
+            {prevMachineReading && (
+              <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.04)', borderRadius: '8px', flexWrap: 'wrap' }}>
+                <div>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>ค่าล่าสุด ({safeFormat(prevMachineReading.date, 'd MMM', { locale: th })}) — แถวบน: </span>
+                  <strong>{prevMachineReading.machineRemaining != null ? prevMachineReading.machineRemaining.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '-'}</strong>
+                </div>
+                <div>
+                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>แถวล่าง: </span>
+                  <strong>{prevMachineReading.machineAccumulated != null ? prevMachineReading.machineAccumulated.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '-'}</strong>
+                </div>
+                {todayTotalSpend > 0 && mrValidation.prevRem !== null && (
+                  <div>
+                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>คาดแถวบน (หักค่าใช้จ่ายวันนี้ {todayTotalSpend.toLocaleString()}): </span>
+                    <strong>{(mrValidation.prevRem - todayTotalSpend).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
+                  </div>
+                )}
+              </div>
+            )}
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>แถวบน (ยอดคงเหลือ)</label>
+                <input
+                  type="number"
+                  value={mrForm.machineRemaining}
+                  onChange={e => setMrForm(prev => ({ ...prev, machineRemaining: e.target.value }))}
+                  placeholder="0.00"
+                  className={mrValidation.isTopUpDetected ? 'input-warning' : ''}
+                />
+                {mrValidation.isTopUpDetected && (
+                  <p style={{ fontSize: '0.75rem', marginTop: '4px', color: '#f59e0b' }}>
+                    ⚠️ ยอดแถวบนเพิ่มขึ้นจากเดิม {mrValidation.prevRem?.toLocaleString()} → {Number(mrForm.machineRemaining).toLocaleString()} (อาจเป็นการเติมเงิน ≈ {mrValidation.detectedTopUpAmount.toLocaleString()} บาท)
+                  </p>
+                )}
+              </div>
+              <div className="form-group">
+                <label>แถวล่าง (ยอดสะสม)</label>
+                <input
+                  type="number"
+                  value={mrForm.machineAccumulated}
+                  onChange={e => setMrForm(prev => ({ ...prev, machineAccumulated: e.target.value }))}
+                  placeholder="0.00"
+                  className={mrValidation.accDecreased ? 'input-error' : ''}
+                />
+                {mrValidation.accDecreased && (
+                  <p className="text-danger" style={{ fontSize: '0.75rem', marginTop: '4px' }}>
+                    ❌ ยอดสะสมต้องไม่น้อยกว่าครั้งที่แล้ว ({mrValidation.prevAcc?.toLocaleString()})
+                  </p>
+                )}
+              </div>
+            </div>
+
+            {mrValidation.isTopUpDetected && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem', padding: '0.75rem 1rem', background: 'rgba(245,158,11,0.1)', borderRadius: '8px', border: '1px solid #f59e0b' }}>
+                <input
+                  type="checkbox"
+                  id="topup-confirm"
+                  checked={mrForm.topUpConfirmed}
+                  onChange={e => setMrForm(prev => ({ ...prev, topUpConfirmed: e.target.checked }))}
+                />
+                <label htmlFor="topup-confirm" style={{ cursor: 'pointer', fontWeight: 'bold', color: '#f59e0b' }}>
+                  ยืนยัน: บันทึกเป็นการเติมเงินเข้าเครื่องประทับ (+{mrValidation.detectedTopUpAmount.toLocaleString()} บาท)
+                </label>
+              </div>
+            )}
+
+            <button
+              className="btn btn-primary"
+              onClick={saveMachineReading}
+              disabled={mrForm.machineRemaining === '' && mrForm.machineAccumulated === ''}
+            >
+              <Save size={16}/> บันทึกค่าเครื่อง
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
 
 const Reports = () => {
-  const { services, companies, records } = useApp();
+  const { services, companies, records, machineReadings } = useApp();
   const [reportMonth, setReportMonth] = useState(new Date());
   const [reportType, setReportType] = useState('pn3'); // pn3, admin, company, machine
   const [selectedCompany, setSelectedCompany] = useState(companies[0]?.id || '');
@@ -1540,14 +1598,17 @@ const Reports = () => {
                   const companyRecords = stats.filter(r => matchingCompanyIds.includes(r.companyId));
                   const count = companyRecords.reduce((sum, r) => sum + (Number(r.count) || 0), 0);
                   const amount = companyRecords.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
-                  
-                  const latestRecordWithMachineStatus = [...companyRecords]
+
+                  const monthStr = safeFormat(reportMonth, 'yyyy-MM');
+                  const latestMR = [...(machineReadings || [])]
+                    .filter(mr => matchingCompanyIds.includes(mr.companyId) && mr.date && mr.date.startsWith(monthStr))
+                    .sort((a, b) => b.date.localeCompare(a.date))[0];
+                  const fallbackRecord = !latestMR ? [...companyRecords]
                     .sort((a, b) => new Date(b.date) - new Date(a.date))
-                    .find(r => r.machineRemaining !== null || r.machineAccumulated !== null);
-                    
-                  const remaining = latestRecordWithMachineStatus?.machineRemaining;
-                  const accumulated = latestRecordWithMachineStatus?.machineAccumulated;
-                  
+                    .find(r => r.machineRemaining !== null || r.machineAccumulated !== null) : null;
+                  const remaining = latestMR?.machineRemaining ?? fallbackRecord?.machineRemaining;
+                  const accumulated = latestMR?.machineAccumulated ?? fallbackRecord?.machineAccumulated;
+
                   return (
                     <tr key={officialCompany.id}>
                       <td style={{ fontSize: '0.85rem' }}>{code || '-'}</td>
@@ -1650,14 +1711,16 @@ const Reports = () => {
                   const companyRecords = stats.filter(r => r.companyId === c.id);
                   const count = companyRecords.reduce((sum, r) => sum + (Number(r.count) || 0), 0);
                   const amount = companyRecords.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
-                  
-                  // Get the latest recorded machine status for this company in this month
-                  const latestRecordWithMachineStatus = [...companyRecords]
+
+                  const monthStrM = safeFormat(reportMonth, 'yyyy-MM');
+                  const latestMRM = [...(machineReadings || [])]
+                    .filter(mr => mr.companyId === c.id && mr.date && mr.date.startsWith(monthStrM))
+                    .sort((a, b) => b.date.localeCompare(a.date))[0];
+                  const fallbackM = !latestMRM ? [...companyRecords]
                     .sort((a, b) => new Date(b.date) - new Date(a.date))
-                    .find(r => r.machineRemaining !== null || r.machineAccumulated !== null);
-                    
-                  const remaining = latestRecordWithMachineStatus?.machineRemaining;
-                  const accumulated = latestRecordWithMachineStatus?.machineAccumulated;
+                    .find(r => r.machineRemaining !== null || r.machineAccumulated !== null) : null;
+                  const remaining = latestMRM?.machineRemaining ?? fallbackM?.machineRemaining;
+                  const accumulated = latestMRM?.machineAccumulated ?? fallbackM?.machineAccumulated;
 
                   if (count === 0 && !remaining && !accumulated) return null;
                   
