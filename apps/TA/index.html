@@ -60,9 +60,13 @@
     </header>
 
     <!-- Subordinate Header (Hidden by default) -->
-    <div id="user-mode-header" class="hidden">
+    <div id="user-mode-header" class="hidden" style="position:relative;">
         <span class="logo-main">TRACK</span>
         <span class="title-sub">ระบบนำเข้าข้อมูลพัสดุ (Import Data Entry)</span>
+        <button onclick="showAdminLogin()" title="Admin Access"
+            style="position:absolute; top:50%; right:14px; transform:translateY(-50%); background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.3); color:white; border-radius:8px; padding:6px 10px; cursor:pointer; font-size:0.75rem; line-height:1; backdrop-filter:blur(4px);">
+            🔐
+        </button>
     </div>
 
     <main class="container">
@@ -752,7 +756,37 @@
         </div>
     </div>
 
+    <!-- Admin Login Modal -->
+    <div id="admin-login-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:99999; justify-content:center; align-items:center;">
+        <div style="background:#fff; border-radius:16px; padding:2rem; width:90%; max-width:360px; box-shadow:0 20px 60px rgba(0,0,0,0.3);">
+            <div style="text-align:center; margin-bottom:1.5rem;">
+                <div style="font-size:2rem; margin-bottom:0.5rem;">🔐</div>
+                <h3 style="margin:0; color:#003366; font-size:1.2rem;">เข้าระบบ Admin</h3>
+                <p style="margin:4px 0 0; font-size:0.8rem; color:#888;">Tracking Analyst — Restricted Access</p>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:12px;">
+                <input id="al-username" type="text" placeholder="ชื่อผู้ใช้ (Username)" autocomplete="username"
+                    style="padding:10px 14px; border:1px solid #ddd; border-radius:8px; font-size:1rem; font-family:inherit; outline:none;"
+                    onkeydown="if(event.key==='Enter') document.getElementById('al-password').focus()">
+                <input id="al-password" type="password" placeholder="รหัสผ่าน (Password)" autocomplete="current-password"
+                    style="padding:10px 14px; border:1px solid #ddd; border-radius:8px; font-size:1rem; font-family:inherit; outline:none;"
+                    onkeydown="if(event.key==='Enter') submitAdminLogin()">
+                <div id="al-error" style="display:none; background:#fff5f5; border:1px solid #ffcdd2; color:#c62828; padding:8px 12px; border-radius:6px; font-size:0.85rem;"></div>
+                <button onclick="submitAdminLogin()" id="al-submit-btn"
+                    style="padding:12px; background:linear-gradient(135deg,#da291c,#b92015); color:white; border:none; border-radius:8px; font-size:1rem; font-family:inherit; font-weight:bold; cursor:pointer; transition:opacity 0.2s;">
+                    เข้าสู่ระบบ
+                </button>
+                <button onclick="closeAdminLogin()"
+                    style="padding:10px; background:none; border:1px solid #ddd; border-radius:8px; font-size:0.9rem; font-family:inherit; cursor:pointer; color:#666;">
+                    ยกเลิก
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Scripts -->
+    <script src="../../core/config.js"></script>
+    <script src="../../core/auth.js"></script>
     <script src="utils.js?v=4.3.0-stable"></script>
     <script src="db_manager.js?v=4.3.0-stable"></script>
     <script src="smart_input.js?v=4.3.0-stable"></script>

@@ -3,10 +3,103 @@
  */
 
 // Global App State & Mode Detection
+const TA_SESSION_KEY = 'ta_admin_session';
+
+function _hasValidAdminSession() {
+    try {
+        // Check SA session first
+        const sa = sessionStorage.getItem('superapp_session');
+        if (sa) {
+            const s = JSON.parse(sa);
+            if (s && s.role === 'admin') return true;
+        }
+        // Check TA-specific session
+        const ta = sessionStorage.getItem(TA_SESSION_KEY);
+        if (ta) {
+            const t = JSON.parse(ta);
+            if (t && t.role === 'admin' && t.expiry > Date.now()) return true;
+        }
+    } catch(e) {}
+    return false;
+}
+
 const AppMode = {
-    isAdmin: new URLSearchParams(window.location.search).has('admin'),
+    get isAdmin() {
+        if (!new URLSearchParams(window.location.search).has('admin')) return false;
+        return _hasValidAdminSession();
+    },
     get isUser() { return !this.isAdmin; }
 };
+
+// --- Admin Login Modal Functions ---
+function showAdminLogin() {
+    // If already has valid SA session as admin, go straight in
+    if (_hasValidAdminSession()) {
+        const url = new URL(window.location.href);
+        url.searchParams.set('admin', '');
+        window.location.href = url.toString();
+        return;
+    }
+    const modal = document.getElementById('admin-login-modal');
+    if (modal) {
+        modal.style.display = 'flex';
+        setTimeout(() => document.getElementById('al-username')?.focus(), 100);
+    }
+}
+
+function closeAdminLogin() {
+    const modal = document.getElementById('admin-login-modal');
+    if (modal) modal.style.display = 'none';
+    const err = document.getElementById('al-error');
+    if (err) err.style.display = 'none';
+    const u = document.getElementById('al-username');
+    const p = document.getElementById('al-password');
+    if (u) u.value = '';
+    if (p) p.value = '';
+}
+
+async function submitAdminLogin() {
+    const username = document.getElementById('al-username')?.value.trim();
+    const password = document.getElementById('al-password')?.value;
+    const errEl = document.getElementById('al-error');
+    const submitBtn = document.getElementById('al-submit-btn');
+
+    if (!username || !password) {
+        if (errEl) { errEl.textContent = 'กรุณากรอกชื่อผู้ใช้และรหัสผ่าน'; errEl.style.display = 'block'; }
+        return;
+    }
+
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'กำลังตรวจสอบ...'; }
+
+    try {
+        const ok = await login(username, password);
+        const session = getSession();
+        if (ok && session && session.role === 'admin') {
+            // Store TA-specific session (8-hour expiry)
+            sessionStorage.setItem(TA_SESSION_KEY, JSON.stringify({
+                role: 'admin', username: session.username,
+                expiry: Date.now() + 8 * 60 * 60 * 1000
+            }));
+            closeAdminLogin();
+            const url = new URL(window.location.href);
+            url.searchParams.set('admin', '');
+            window.location.href = url.toString();
+        } else {
+            if (errEl) { errEl.textContent = 'ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง หรือไม่มีสิทธิ์ Admin'; errEl.style.display = 'block'; }
+            if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'เข้าสู่ระบบ'; }
+        }
+    } catch(e) {
+        if (errEl) { errEl.textContent = 'เกิดข้อผิดพลาด กรุณาลองใหม่'; errEl.style.display = 'block'; }
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'เข้าสู่ระบบ'; }
+    }
+}
+
+function adminLogout() {
+    sessionStorage.removeItem(TA_SESSION_KEY);
+    const url = new URL(window.location.href);
+    url.searchParams.delete('admin');
+    window.location.href = url.toString();
+}
 
 // Tab Switching
 function switchTab(tabId) {
@@ -2720,10 +2813,21 @@ function checkAuth() {
             // ==========================================
             document.body.classList.add('admin-mode');
             document.body.classList.remove('user-mode');
-            
+
             if (header) header.classList.remove('hidden');
             if (tabNav) tabNav.classList.remove('hidden');
             if (userHeader) userHeader.classList.add('hidden');
+
+            // Add logout button to navbar if not already there
+            if (header && !document.getElementById('admin-logout-btn')) {
+                const logoutBtn = document.createElement('button');
+                logoutBtn.id = 'admin-logout-btn';
+                logoutBtn.textContent = 'ออกจากระบบ';
+                logoutBtn.onclick = adminLogout;
+                logoutBtn.style.cssText = 'position:absolute; right:16px; top:50%; transform:translateY(-50%); background:rgba(255,255,255,0.15); border:1px solid rgba(255,255,255,0.4); color:white; border-radius:8px; padding:6px 12px; cursor:pointer; font-size:0.8rem; font-family:inherit;';
+                header.style.position = 'relative';
+                header.appendChild(logoutBtn);
+            }
 
             // Default Admin tab
             if (!document.querySelector('.tab-btn.active')) switchTab('smart');
@@ -2743,6 +2847,12 @@ function checkAuth() {
             // ==========================================
             // STAFF MODE (Excel Import ONLY)
             // ==========================================
+            // If ?admin was in URL but session is invalid, strip it silently
+            if (new URLSearchParams(window.location.search).has('admin')) {
+                const url = new URL(window.location.href);
+                url.searchParams.delete('admin');
+                window.history.replaceState({}, '', url.toString());
+            }
             document.body.classList.add('user-mode');
             document.body.classList.remove('admin-mode');
             
