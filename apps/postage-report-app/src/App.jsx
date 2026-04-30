@@ -591,7 +591,7 @@ const Dashboard = () => {
 };
 
 const DataEntry = () => {
-  const { services, companies, records, addRecord, deleteSingleRecord, machineReadings, addMachineReading, deleteMachineReading } = useApp();
+  const { services, companies, records, addRecord, deleteSingleRecord, machineReadings, addMachineReading, deleteMachineReading, updateCompany } = useApp();
   const [selectedMonth, setSelectedMonth] = useState(new Date());
   const [selectedDay, setSelectedDay] = useState(getSmartDefaultDate());
   const [selectedCompany, setSelectedCompany] = useState(companies[0]?.id || '');
@@ -607,6 +607,7 @@ const DataEntry = () => {
 
   const [formData, setFormData] = useState({ serviceId: '', count: '', amount: '' });
   const [mrForm, setMrForm] = useState({ machineRemaining: '', machineAccumulated: '', topUpConfirmed: false });
+  const [showCompanyFilter, setShowCompanyFilter] = useState(false);
 
   const filteredServices = useMemo(() => {
     const rareKeywords = ['รับประกัน', 'รับรอง', 'ธุรกิจตอบรับ'];
@@ -724,7 +725,7 @@ const DataEntry = () => {
     <div className="fade-in app-content-inner">
       <div className="flex-between mb-8">
         <h1>บันทึกข้อมูลรายวัน</h1>
-        <div className="flex-form-controls">
+        <div className="flex-form-controls" style={{ position: 'relative' }}>
           <select className="input-select" value={selectedCompany} onChange={e => setSelectedCompany(e.target.value)}>
             {companies
               .filter(c => c.showInEntry)
@@ -732,7 +733,38 @@ const DataEntry = () => {
               .map(c => <option key={c.id} value={c.id}>{c.name} {c.code ? `(${c.code})` : ''}</option>)
             }
           </select>
+          <button
+            title="เลือกบริษัทที่แสดง"
+            onClick={() => setShowCompanyFilter(v => !v)}
+            style={{ padding: '0 10px', background: showCompanyFilter ? 'var(--primary)' : 'rgba(255,255,255,0.07)', border: '1px solid var(--glass-border)', borderRadius: '8px', color: showCompanyFilter ? '#fff' : 'inherit', cursor: 'pointer', whiteSpace: 'nowrap', fontSize: '0.85rem' }}
+          >
+            ⚙ บ.
+          </button>
           <input type="date" className="input-select" value={selectedDay} onChange={e => setSelectedDay(e.target.value)} />
+
+          {showCompanyFilter && (
+            <div style={{ position: 'absolute', top: '110%', right: 0, zIndex: 200, background: 'var(--card-bg, #1e1e2e)', border: '1px solid var(--glass-border)', borderRadius: '12px', padding: '1rem', minWidth: '280px', boxShadow: '0 8px 32px rgba(0,0,0,0.3)' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.75rem' }}>
+                <strong style={{ fontSize: '0.9rem' }}>แสดงในรายการบันทึก</strong>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <button onClick={() => companies.forEach(c => updateCompany(c.id, { showInEntry: true }))}  style={{ fontSize: '0.72rem', padding: '3px 8px', border: '1px solid var(--glass-border)', borderRadius: '6px', cursor: 'pointer', background: 'none' }}>ทั้งหมด</button>
+                  <button onClick={() => companies.forEach(c => updateCompany(c.id, { showInEntry: false }))} style={{ fontSize: '0.72rem', padding: '3px 8px', border: '1px solid var(--glass-border)', borderRadius: '6px', cursor: 'pointer', background: 'none' }}>ซ่อนหมด</button>
+                  <button onClick={() => setShowCompanyFilter(false)} style={{ fontSize: '0.72rem', padding: '3px 8px', border: 'none', borderRadius: '6px', cursor: 'pointer', background: 'none', opacity: 0.5 }}>✕</button>
+                </div>
+              </div>
+              <div style={{ maxHeight: '260px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '4px' }}>
+                {[...companies].sort((a,b) => (a.order||0)-(b.order||0)).map(c => (
+                  <label key={c.id} style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '5px 6px', borderRadius: '6px', cursor: 'pointer', background: c.showInEntry ? 'rgba(99,102,241,0.1)' : 'transparent', fontSize: '0.85rem' }}>
+                    <input type="checkbox" checked={!!c.showInEntry} onChange={e => { updateCompany(c.id, { showInEntry: e.target.checked }); if (e.target.checked && !selectedCompany) setSelectedCompany(c.id); }} style={{ width: '16px', height: '16px', cursor: 'pointer', accentColor: 'var(--primary)' }} />
+                    <span style={{ opacity: c.showInEntry ? 1 : 0.4 }}>{c.name}{c.code ? ` (${c.code})` : ''}</span>
+                  </label>
+                ))}
+              </div>
+              <div style={{ marginTop: '0.75rem', fontSize: '0.75rem', opacity: 0.5, textAlign: 'center' }}>
+                แสดงอยู่ {companies.filter(c=>c.showInEntry).length} / {companies.length} บริษัท
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
