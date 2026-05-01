@@ -717,8 +717,9 @@ const DataEntry = () => {
 
     // แถวล่าง: ห้ามน้อยกว่าค่าก่อนหน้า
     const accDecreased = enteredAcc !== null && prevAcc !== null && enteredAcc < prevAcc;
+    const expectedAcc = prevAcc !== null ? prevAcc + todayTotalSpend : null;
 
-    return { enteredRem, enteredAcc, prevRem, prevAcc, expectedRem, isTopUpDetected, detectedTopUpAmount, accDecreased };
+    return { enteredRem, enteredAcc, prevRem, prevAcc, expectedRem, expectedAcc, isTopUpDetected, detectedTopUpAmount, accDecreased };
   }, [mrForm.machineRemaining, mrForm.machineAccumulated, prevMachineReading, todayTotalSpend]);
 
   const saveMachineReading = () => {
@@ -745,6 +746,15 @@ const DataEntry = () => {
       refService.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       refService.current?.focus();
     }, 50);
+  };
+
+  const editMachineReading = () => {
+    setMrForm({
+      machineRemaining: todayMachineReading.machineRemaining != null ? String(todayMachineReading.machineRemaining) : '',
+      machineAccumulated: todayMachineReading.machineAccumulated != null ? String(todayMachineReading.machineAccumulated) : '',
+      topUpConfirmed: false,
+    });
+    deleteMachineReading(selectedDay, selectedCompany);
   };
 
   // Reset mrForm top-up confirm when values change
@@ -898,9 +908,14 @@ const DataEntry = () => {
         <div className="flex-between mb-4">
           <h2 style={{ marginBottom: 0 }}>ค่าเครื่องประทับ — {safeFormat(selectedDay, 'd MMM yyyy', { locale: th })}</h2>
           {todayMachineReading && (
-            <button className="btn-icon" onClick={() => deleteMachineReading(selectedDay, selectedCompany)} title="ลบค่าเครื่องวันนี้">
-              <Trash2 size={16} color="#ef4444" />
-            </button>
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <button className="btn-icon" onClick={editMachineReading} title="แก้ไขค่าเครื่อง">
+                <Edit2 size={16} color="#3b82f6" />
+              </button>
+              <button className="btn-icon" onClick={() => deleteMachineReading(selectedDay, selectedCompany)} title="ลบค่าเครื่องวันนี้">
+                <Trash2 size={16} color="#ef4444" />
+              </button>
+            </div>
           )}
         </div>
 
@@ -920,26 +935,52 @@ const DataEntry = () => {
                 <div style={{ fontSize: '1.1rem', fontWeight: 'bold', color: '#10b981' }}>+{(todayMachineReading.topUpAmount || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
               </div>
             )}
-            <div style={{ alignSelf: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>บันทึกแล้ว — กดไอคอนขยะเพื่อแก้ไข</div>
+            <div style={{ alignSelf: 'center', fontSize: '0.8rem', color: 'var(--text-muted)' }}>บันทึกแล้ว</div>
           </div>
         ) : (
           <div>
             {prevMachineReading && (
-              <div style={{ display: 'flex', gap: '2rem', marginBottom: '1rem', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.04)', borderRadius: '8px', flexWrap: 'wrap' }}>
-                <div>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>ค่าล่าสุด ({safeFormat(prevMachineReading.date, 'd MMM', { locale: th })}) — แถวบน: </span>
-                  <strong>{prevMachineReading.machineRemaining != null ? prevMachineReading.machineRemaining.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '-'}</strong>
+              <div style={{ marginBottom: '1rem', padding: '0.75rem 1rem', background: 'rgba(0,0,0,0.04)', borderRadius: '8px' }}>
+                <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
+                  ค่าล่าสุด ({safeFormat(prevMachineReading.date, 'd MMM', { locale: th })})
+                  {todayTotalSpend > 0 && <span> · ใช้วันนี้ {todayTotalSpend.toLocaleString()} บาท</span>}
                 </div>
-                <div>
-                  <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>แถวล่าง: </span>
-                  <strong>{prevMachineReading.machineAccumulated != null ? prevMachineReading.machineAccumulated.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '-'}</strong>
-                </div>
-                {todayTotalSpend > 0 && mrValidation.prevRem !== null && (
+                <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                  {/* แถวบน */}
                   <div>
-                    <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>คาดแถวบน (หักค่าใช้จ่ายวันนี้ {todayTotalSpend.toLocaleString()}): </span>
-                    <strong>{(mrValidation.prevRem - todayTotalSpend).toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '2px' }}>แถวบน (ยอดคงเหลือ)</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.9rem' }}>ล่าสุด: <strong>{prevMachineReading.machineRemaining != null ? prevMachineReading.machineRemaining.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '-'}</strong></span>
+                      {mrValidation.expectedRem !== null && (
+                        <>
+                          <span style={{ color: 'var(--text-muted)' }}>→</span>
+                          <span style={{ fontSize: '0.9rem' }}>คาด: <strong style={{ color: 'var(--primary)' }}>{mrValidation.expectedRem.toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong></span>
+                          <button
+                            style={{ padding: '2px 8px', fontSize: '0.72rem', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            onClick={() => { setMrForm(prev => ({ ...prev, machineRemaining: String(mrValidation.expectedRem) })); setTimeout(() => { refMachineAccumulated.current?.focus(); refMachineAccumulated.current?.select(); }, 50); }}
+                          >ใช้ค่านี้</button>
+                        </>
+                      )}
+                    </div>
                   </div>
-                )}
+                  {/* แถวล่าง */}
+                  <div>
+                    <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginBottom: '2px' }}>แถวล่าง (ยอดสะสม)</div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                      <span style={{ fontSize: '0.9rem' }}>ล่าสุด: <strong>{prevMachineReading.machineAccumulated != null ? prevMachineReading.machineAccumulated.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '-'}</strong></span>
+                      {mrValidation.expectedAcc !== null && (
+                        <>
+                          <span style={{ color: 'var(--text-muted)' }}>→</span>
+                          <span style={{ fontSize: '0.9rem' }}>คาด: <strong style={{ color: 'var(--primary)' }}>{mrValidation.expectedAcc.toLocaleString(undefined, { minimumFractionDigits: 2 })}</strong></span>
+                          <button
+                            style={{ padding: '2px 8px', fontSize: '0.72rem', background: 'var(--primary)', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+                            onClick={() => setMrForm(prev => ({ ...prev, machineAccumulated: String(mrValidation.expectedAcc) }))}
+                          >ใช้ค่านี้</button>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
             )}
 
