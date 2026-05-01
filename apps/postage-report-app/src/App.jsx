@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { LayoutDashboard, Settings, FileText, PlusCircle, Printer, Trash2, ChevronLeft, ChevronRight, Save, Edit2, Check, X, Download, Upload, ChevronUp, ChevronDown } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subDays, isWeekend } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subDays, subMonths, isWeekend } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import './App.css';
@@ -306,7 +306,11 @@ const Dashboard = () => {
   
   // States for filters
   const [viewMode, setViewMode] = useState('monthly'); // 'monthly' | 'quarterly'
-  const [selectedMonth, setSelectedMonth] = useState(format(new Date(), 'yyyy-MM'));
+  const [selectedMonth, setSelectedMonth] = useState(() => {
+    const currentMonth = format(new Date(), 'yyyy-MM');
+    const uniqueDays = new Set((records || []).filter(r => r.date?.startsWith(currentMonth)).map(r => r.date));
+    return uniqueDays.size >= 1 ? currentMonth : format(subMonths(new Date(), 1), 'yyyy-MM');
+  });
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [selectedQuarter, setSelectedQuarter] = useState(Math.floor(new Date().getMonth() / 3) + 1);
   const [selectedCompany, setSelectedCompany] = useState('all');
