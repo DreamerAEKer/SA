@@ -719,28 +719,10 @@ const DataEntry = () => {
       .reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
   }, [records, selectedDay, selectedCompany]);
 
-  // Find first missing working day in recorded sequence for this company
+  // Next expected date = next working day after last recorded date for this company
   const expectedNextDate = useMemo(() => {
-    const companyDates = new Set(
-      (records || []).filter(r => r.companyId === selectedCompany && r.date).map(r => r.date)
-    );
-    if (companyDates.size === 0) return null;
-
-    const sortedDates = [...companyDates].sort();
-    const today = format(new Date(), 'yyyy-MM-dd');
-
-    // Scan forward from day after first recorded date
-    let target = parseISO(sortedDates[0]);
-    for (let i = 0; i < 500; i++) {
-      target = addDays(target, 1);
-      const dateStr = format(target, 'yyyy-MM-dd');
-      if (dateStr > today) break;
-      if (isWeekend(target) || THAI_HOLIDAYS_2026.includes(dateStr)) continue;
-      if (!companyDates.has(dateStr)) return dateStr;
-    }
-
-    // No gaps — next is working day after last recorded
-    return getNextWorkingDay(sortedDates[sortedDates.length - 1]);
+    const dates = (records || []).filter(r => r.companyId === selectedCompany && r.date).map(r => r.date).sort();
+    return dates.length > 0 ? getNextWorkingDay(dates[dates.length - 1]) : null;
   }, [records, selectedCompany]);
 
   // Machine reading validation
