@@ -900,7 +900,7 @@ const DataEntry = () => {
                   type="number"
                   inputMode="decimal"
                   value={formData.amount}
-                  onChange={numericChange(v => setFormData(p => ({...p, amount: v})))}
+                  onChange={numericChange(v => setFormData(p => ({...p, amount: v})), true)}
                   placeholder="0.00"
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); saveRecord(); } }}
                 />
@@ -1028,7 +1028,7 @@ const DataEntry = () => {
                   type="number"
                   inputMode="decimal"
                   value={mrForm.machineRemaining}
-                  onChange={numericChange(v => setMrForm(prev => ({ ...prev, machineRemaining: v })))}
+                  onChange={numericChange(v => setMrForm(prev => ({ ...prev, machineRemaining: v })), true)}
                   placeholder="0.00"
                   className={mrValidation.isTopUpDetected ? 'input-warning' : ''}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); refMachineAccumulated.current?.focus(); refMachineAccumulated.current?.select(); } }}
@@ -1046,7 +1046,7 @@ const DataEntry = () => {
                   type="number"
                   inputMode="decimal"
                   value={mrForm.machineAccumulated}
-                  onChange={numericChange(v => setMrForm(prev => ({ ...prev, machineAccumulated: v })))}
+                  onChange={numericChange(v => setMrForm(prev => ({ ...prev, machineAccumulated: v })), true)}
                   placeholder="0.00"
                   className={mrValidation.accDecreased ? 'input-error' : ''}
                   onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); saveMachineReading(); } }}
