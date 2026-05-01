@@ -719,13 +719,29 @@ const DataEntry = () => {
       .reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
   }, [records, selectedDay, selectedCompany]);
 
-  // Expected next entry date based on last recorded date for this company
-  const lastRecordedDate = useMemo(() => {
-    const dates = (records || []).filter(r => r.companyId === selectedCompany && r.date).map(r => r.date).sort();
-    return dates.length > 0 ? dates[dates.length - 1] : null;
-  }, [records, selectedCompany]);
+  // Find first missing working day in recorded sequence for this company
+  const expectedNextDate = useMemo(() => {
+    const companyDates = new Set(
+      (records || []).filter(r => r.companyId === selectedCompany && r.date).map(r => r.date)
+    );
+    if (companyDates.size === 0) return null;
 
-  const expectedNextDate = useMemo(() => lastRecordedDate ? getNextWorkingDay(lastRecordedDate) : null, [lastRecordedDate]);
+    const sortedDates = [...companyDates].sort();
+    const today = format(new Date(), 'yyyy-MM-dd');
+
+    // Scan forward from day after first recorded date
+    let target = parseISO(sortedDates[0]);
+    for (let i = 0; i < 500; i++) {
+      target = addDays(target, 1);
+      const dateStr = format(target, 'yyyy-MM-dd');
+      if (dateStr > today) break;
+      if (isWeekend(target) || THAI_HOLIDAYS_2026.includes(dateStr)) continue;
+      if (!companyDates.has(dateStr)) return dateStr;
+    }
+
+    // No gaps — next is working day after last recorded
+    return getNextWorkingDay(sortedDates[sortedDates.length - 1]);
+  }, [records, selectedCompany]);
 
   // Machine reading validation
   const mrValidation = useMemo(() => {
@@ -792,13 +808,13 @@ const DataEntry = () => {
 
   return (
     <div className="fade-in app-content-inner">
-      {expectedNextDate && selectedDay !== expectedNextDate && (
+      {expectedNextDate && selectedDay !== expectedNextDate && dailyRecords.length === 0 && (
         <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.75rem', padding: '0.6rem 1rem', background: 'rgba(245,158,11,0.12)', border: '1px solid #f59e0b', borderRadius: '10px', fontSize: '0.85rem' }}>
-          <span>⚠️ รายการล่าสุดของบ.นี้คือ <strong>{safeFormat(parseISO(lastRecordedDate), 'd MMM yyyy', { locale: th })}</strong> — คาดว่าควรบันทึกวันที่ <strong style={{ color: '#f59e0b' }}>{safeFormat(parseISO(expectedNextDate), 'd MMM yyyy', { locale: th })}</strong></span>
+          <span>⚠️ วันทำการถัดไปที่ยังไม่มีข้อมูลคือ <strong style={{ color: '#f59e0b' }}>{safeFormat(parseISO(expectedNextDate), 'EEEE d MMM yyyy', { locale: th })}</strong></span>
           <button
             style={{ padding: '3px 12px', fontSize: '0.8rem', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap' }}
             onClick={() => setSelectedDay(expectedNextDate)}
-          >ใช้วันที่นี้</button>
+          >ไปวันนั้น</button>
         </div>
       )}
 
