@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { LayoutDashboard, Settings, FileText, PlusCircle, Printer, Trash2, ChevronLeft, ChevronRight, Save, Edit2, Check, X, Download, Upload, ChevronUp, ChevronDown } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subDays, subMonths, isWeekend } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, subDays, subMonths, addDays, parseISO, isWeekend } from 'date-fns';
 import { th } from 'date-fns/locale';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, PieChart, Pie, Cell } from 'recharts';
 import './App.css';
@@ -90,6 +90,20 @@ const getSmartDefaultDate = () => {
     return format(target, 'yyyy-MM-dd');
   } catch (e) {
     return format(new Date(), 'yyyy-MM-dd');
+  }
+};
+
+const getNextWorkingDay = (dateStr) => {
+  try {
+    let target = addDays(parseISO(dateStr), 1);
+    let iterations = 0;
+    while (iterations < 10 && (isWeekend(target) || THAI_HOLIDAYS_2026.includes(format(target, 'yyyy-MM-dd')))) {
+      target = addDays(target, 1);
+      iterations++;
+    }
+    return format(target, 'yyyy-MM-dd');
+  } catch (e) {
+    return null;
   }
 };
 
@@ -705,6 +719,14 @@ const DataEntry = () => {
       .reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
   }, [records, selectedDay, selectedCompany]);
 
+  // Expected next entry date based on last recorded date for this company
+  const lastRecordedDate = useMemo(() => {
+    const dates = (records || []).filter(r => r.companyId === selectedCompany && r.date).map(r => r.date).sort();
+    return dates.length > 0 ? dates[dates.length - 1] : null;
+  }, [records, selectedCompany]);
+
+  const expectedNextDate = useMemo(() => lastRecordedDate ? getNextWorkingDay(lastRecordedDate) : null, [lastRecordedDate]);
+
   // Machine reading validation
   const mrValidation = useMemo(() => {
     const enteredRem = mrForm.machineRemaining !== '' ? Number(mrForm.machineRemaining) : null;
@@ -770,6 +792,16 @@ const DataEntry = () => {
 
   return (
     <div className="fade-in app-content-inner">
+      {expectedNextDate && selectedDay !== expectedNextDate && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '0.75rem', padding: '0.6rem 1rem', background: 'rgba(245,158,11,0.12)', border: '1px solid #f59e0b', borderRadius: '10px', fontSize: '0.85rem' }}>
+          <span>⚠️ รายการล่าสุดของบ.นี้คือ <strong>{safeFormat(parseISO(lastRecordedDate), 'd MMM yyyy', { locale: th })}</strong> — คาดว่าควรบันทึกวันที่ <strong style={{ color: '#f59e0b' }}>{safeFormat(parseISO(expectedNextDate), 'd MMM yyyy', { locale: th })}</strong></span>
+          <button
+            style={{ padding: '3px 12px', fontSize: '0.8rem', background: '#f59e0b', color: '#fff', border: 'none', borderRadius: '6px', cursor: 'pointer', whiteSpace: 'nowrap' }}
+            onClick={() => setSelectedDay(expectedNextDate)}
+          >ใช้วันที่นี้</button>
+        </div>
+      )}
+
       <div className="flex-between mb-8">
         <h1>บันทึกข้อมูลรายวัน</h1>
         <div className="flex-form-controls" style={{ position: 'relative' }}>
