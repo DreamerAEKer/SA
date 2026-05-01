@@ -634,6 +634,8 @@ const DataEntry = () => {
   const refService = React.useRef(null);
   const refCount   = React.useRef(null);
   const refAmount  = React.useRef(null);
+  const refMachineRemaining   = React.useRef(null);
+  const refMachineAccumulated = React.useRef(null);
 
   const filteredServices = useMemo(() => {
     const rareKeywords = ['รับประกัน', 'รับรอง', 'ธุรกิจตอบรับ'];
@@ -739,6 +741,10 @@ const DataEntry = () => {
       isTopUp: isTopUpDetected && mrForm.topUpConfirmed,
     });
     setMrForm({ machineRemaining: '', machineAccumulated: '', topUpConfirmed: false });
+    setTimeout(() => {
+      refService.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      refService.current?.focus();
+    }, 50);
   };
 
   // Reset mrForm top-up confirm when values change
@@ -941,12 +947,14 @@ const DataEntry = () => {
               <div className="form-group">
                 <label>แถวบน (ยอดคงเหลือ)</label>
                 <input
+                  ref={refMachineRemaining}
                   type="number"
                   inputMode="decimal"
                   value={mrForm.machineRemaining}
                   onChange={numericChange(v => setMrForm(prev => ({ ...prev, machineRemaining: v })))}
                   placeholder="0.00"
                   className={mrValidation.isTopUpDetected ? 'input-warning' : ''}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); refMachineAccumulated.current?.focus(); refMachineAccumulated.current?.select(); } }}
                 />
                 {mrValidation.isTopUpDetected && (
                   <p style={{ fontSize: '0.75rem', marginTop: '4px', color: '#f59e0b' }}>
@@ -957,12 +965,14 @@ const DataEntry = () => {
               <div className="form-group">
                 <label>แถวล่าง (ยอดสะสม)</label>
                 <input
+                  ref={refMachineAccumulated}
                   type="number"
                   inputMode="decimal"
                   value={mrForm.machineAccumulated}
                   onChange={numericChange(v => setMrForm(prev => ({ ...prev, machineAccumulated: v })))}
                   placeholder="0.00"
                   className={mrValidation.accDecreased ? 'input-error' : ''}
+                  onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); saveMachineReading(); } }}
                 />
                 {mrValidation.accDecreased && (
                   <p className="text-danger" style={{ fontSize: '0.75rem', marginTop: '4px' }}>
