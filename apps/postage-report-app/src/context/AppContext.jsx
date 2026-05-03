@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { format } from 'date-fns';
-
+import { get, set } from 'idb-keyval';
 
 const AppContext = createContext();
 
 export const AppProvider = ({ children }) => {
+  const [isStorageLoaded, setIsStorageLoaded] = useState(false);
   // Helper for keyword matching
   const findServiceMatch = (name, code, currentServices) => {
     // 1. Match by Code
@@ -118,38 +119,71 @@ export const AppProvider = ({ children }) => {
     ];
   });
 
-  const [records, setRecords] = useState(() => {
-    const saved = localStorage.getItem('postage_records');
-    return saved ? JSON.parse(saved) : [];
-  });
+  const [records, setRecords] = useState([]);
 
-  const [machineReadings, setMachineReadings] = useState(() => {
-    const saved = localStorage.getItem('postage_machine_readings');
-    if (saved) return JSON.parse(saved);
-    // Migrate from records on first load
-    const recordsSaved = localStorage.getItem('postage_records');
-    if (!recordsSaved) return [];
-    const allRecords = JSON.parse(recordsSaved);
-    const grouped = {};
-    allRecords.forEach(r => {
-      if (r && (r.machineRemaining != null || r.machineAccumulated != null)) {
-        const key = `${r.date}__${r.companyId}`;
-        if (!grouped[key] || (r.timestamp || 0) > (grouped[key].timestamp || 0)) {
-          grouped[key] = r;
+  const [machineReadings, setMachineReadings] = useState([]);
+
+  useEffect(() => {
+    async function loadStorage() {
+      try {
+        let idbRecords = await get('postage_records');
+        let idbMachineReadings = await get('postage_machine_readings');
+
+        // Migration from localStorage
+        if (!idbRecords) {
+          const localRecordsStr = localStorage.getItem('postage_records');
+          if (localRecordsStr) {
+            idbRecords = JSON.parse(localRecordsStr);
+            await set('postage_records', idbRecords);
+          } else {
+            idbRecords = [];
+          }
         }
+
+        if (!idbMachineReadings) {
+          const localMRStr = localStorage.getItem('postage_machine_readings');
+          if (localMRStr) {
+            idbMachineReadings = JSON.parse(localMRStr);
+            await set('postage_machine_readings', idbMachineReadings);
+          } else {
+            // Legacy Migration from records on first load
+            const grouped = {};
+            if (idbRecords && idbRecords.length > 0) {
+              idbRecords.forEach(r => {
+                if (r && (r.machineRemaining != null || r.machineAccumulated != null)) {
+                  const key = `${r.date}__${r.companyId}`;
+                  if (!grouped[key] || (r.timestamp || 0) > (grouped[key].timestamp || 0)) {
+                    grouped[key] = r;
+                  }
+                }
+              });
+            }
+            idbMachineReadings = Object.values(grouped).map(r => ({
+              id: `mig_${r.date}_${r.companyId}`,
+              date: r.date,
+              companyId: r.companyId,
+              machineRemaining: r.machineRemaining,
+              machineAccumulated: r.machineAccumulated,
+              topUpAmount: r.topUpAmount || 0,
+              isTopUp: (r.topUpAmount || 0) > 0,
+              timestamp: r.timestamp || 0,
+            }));
+            if (idbMachineReadings.length > 0) {
+              await set('postage_machine_readings', idbMachineReadings);
+            }
+          }
+        }
+
+        setRecords(idbRecords);
+        setMachineReadings(idbMachineReadings);
+      } catch (error) {
+        console.error('Failed to load data from IndexedDB:', error);
+      } finally {
+        setIsStorageLoaded(true);
       }
-    });
-    return Object.values(grouped).map(r => ({
-      id: `mig_${r.date}_${r.companyId}`,
-      date: r.date,
-      companyId: r.companyId,
-      machineRemaining: r.machineRemaining,
-      machineAccumulated: r.machineAccumulated,
-      topUpAmount: r.topUpAmount || 0,
-      isTopUp: (r.topUpAmount || 0) > 0,
-      timestamp: r.timestamp || 0,
-    }));
-  });
+    }
+    loadStorage();
+  }, []);
 
   const [reportLogo, setReportLogo] = useState(() => {
     return localStorage.getItem('postage_report_logo') || null;
@@ -279,23 +313,19 @@ export const AppProvider = ({ children }) => {
   }, [companies]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem('postage_records', JSON.stringify(records));
-    } catch (e) {
-      console.error('Failed to save records to localStorage:', e);
-      if (e.name === 'QuotaExceededError') {
-        alert('หน่วยความจำเต็ม! ไม่สามารถบันทึกข้อมูลเพิ่มเติมได้ กรุณาสำรองข้อมูลและล้างข้อมูลเก่า');
-      }
-    }
-  }, [records]);
+    if (!isStorageLoaded) return;
+    set('postage_records', records).catch(e => {
+      console.error('Failed to save records to IndexedDB:', e);
+      alert('เกิดข้อผิดพลาดในการบันทึกข้อมูล กรุณาลองใหม่อีกครั้ง');
+    });
+  }, [records, isStorageLoaded]);
 
   useEffect(() => {
-    try {
-      localStorage.setItem('postage_machine_readings', JSON.stringify(machineReadings));
-    } catch (e) {
-      console.error('Failed to save machine readings:', e);
-    }
-  }, [machineReadings]);
+    if (!isStorageLoaded) return;
+    set('postage_machine_readings', machineReadings).catch(e => {
+      console.error('Failed to save machine readings to IndexedDB:', e);
+    });
+  }, [machineReadings, isStorageLoaded]);
 
   const addRecord = (newRecords) => {
     if (!newRecords || !Array.isArray(newRecords)) return;
@@ -463,7 +493,17 @@ export const AppProvider = ({ children }) => {
       exportData, importData,
       reportLogo, setReportLogo, reportLogoSize, setReportLogoSize, reportLogoAlign, setReportLogoAlign
     }}>
-      {children}
+      {!isStorageLoaded ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', width: '100vw', backgroundColor: '#f0f2f5' }}>
+          <div style={{ textAlign: 'center' }}>
+            <div style={{ width: '40px', height: '40px', border: '4px solid #ddd', borderTop: '4px solid #004d9d', borderRadius: '50%', animation: 'spin 1s linear infinite', margin: '0 auto 16px auto' }}></div>
+            <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+            <p style={{ color: '#555', fontFamily: 'sans-serif', marginTop: '16px' }}>กำลังโหลดข้อมูล...</p>
+          </div>
+        </div>
+      ) : (
+        children
+      )}
     </AppContext.Provider>
   );
 };
